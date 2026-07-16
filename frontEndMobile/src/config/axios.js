@@ -1,11 +1,10 @@
 import axios from "axios";
-import * as SecureStore from 'expo-secure-store';
-import { router } from "expo-router";
-import { ENV } from "./env"; // Importation de tes variables d'environnement
+import { TokenStorage } from "@/src/storage/TokenStorage"; // 1. On utilise ton TokenStorage !
+import { ENV } from "./env"; 
 
-// 1. INSTANCE PROTÉGÉE (Besoin du Token JWT)
+// INSTANCE PROTÉGÉE (Besoin du Token JWT)
 const API = axios.create({
-  baseURL: ENV.API_URL, // Nettoyé et dynamique grâce au fichier env.js
+  baseURL: ENV.API_URL, 
   headers: {
     "Content-Type": "application/json",
   },
@@ -14,7 +13,8 @@ const API = axios.create({
 // Intercepteur de requête : Ajout automatique du JWT
 API.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync("user_token");
+    // 2. Récupération propre via ton nouveau TokenStorage
+    const token = await TokenStorage.getToken(); 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,28 +23,23 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Intercepteur de réponse : Gestion automatique des erreurs 401 et 403
+// Intercepteur de réponse : Nettoyage propre sans conflit de navigation
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await SecureStore.deleteItemAsync("user_token");
-      router.replace("/(auth)/login");
-    }
-    if (error.response?.status === 403) {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/(tabs)/home");
-      }
+      // Si le token est invalide/expiré, on le supprime localement
+      await TokenStorage.deleteToken(); 
+      // Note : Ne force pas le "router.replace" ici. 
+      // Ton AuthContext va détecter la perte de session et rediriger proprement !
     }
     return Promise.reject(error);
   }
 );
 
-// 2. INSTANCE PUBLIQUE (Login, Register, Activation)
+// INSTANCE PUBLIQUE (Login, Register, Activation)
 export const PublicAPI = axios.create({
-  baseURL: ENV.API_URL, // Nettoyé également !
+  baseURL: ENV.API_URL, 
   headers: {
     "Content-Type": "application/json",
   },

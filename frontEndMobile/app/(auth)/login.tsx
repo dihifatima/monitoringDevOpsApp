@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn'; // 👈 AJOUT
 
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import AppText from '@/src/components/common/AppText';
@@ -17,6 +18,7 @@ const loginFields: FormFieldConfig[] = [
 export default function LoginScreen() {
   const router = useRouter();
   const { values, setField, errors, apiError, loading, handleLogin } = useAuth();
+  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn(); // 👈 AJOUT
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
@@ -51,12 +53,12 @@ export default function LoginScreen() {
           style={styles.primaryButton}
         />
 
-        <AppButton
-          label="Continue with Google"
-          variant="secondary"
-          icon="logo-google"
-          onPress={() => {}}
-        />
+         <AppButton
+      label={googleLoading ? 'Connexion...' : 'Continue with Google'}
+      variant="secondary"
+      icon="logo-google"
+      onPress={googleLoading ? () => {} : signInWithGoogle}
+    />
 
         <AppText
           variant="small"

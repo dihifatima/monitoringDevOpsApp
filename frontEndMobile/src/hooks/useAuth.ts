@@ -6,9 +6,11 @@ import {
   validateRegisterForm,
 } from '@/src/validations/authValidation';
 import { useFormState } from './useFormState';
+import { useAuthGlobal } from '@/src/context/AuthContext'; // 👈 AJOUT
 
 export function useAuth() {
   const router = useRouter();
+  const { login } = useAuthGlobal(); // 👈 AJOUT — récupère le login du contexte
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
@@ -32,8 +34,8 @@ export function useAuth() {
 
     setLoading(true);
     try {
-      await authService.login(values.email, values.password);
-      router.replace('/(tabs)/home');
+      await login(values.email, values.password); // 👈 CHANGÉ — appelle le login du contexte
+      // La redirection est déjà gérée dans AuthContext.handleLogin, donc plus besoin ici
     } catch (error: any) {
       setApiError(
         error.response?.data?.message || 'Email ou mot de passe incorrect'
@@ -42,6 +44,9 @@ export function useAuth() {
       setLoading(false);
     }
   };
+
+  // handleRegister reste inchangé, il n'a pas besoin du contexte
+  
 
   const handleRegister = async () => {
     setApiError(null);

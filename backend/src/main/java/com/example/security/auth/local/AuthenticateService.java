@@ -11,14 +11,11 @@ import com.example.security.user.TokenRepository;
 import com.example.security.user.User;
 import com.example.security.user.UserRepository;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,12 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticateService {
@@ -46,14 +42,10 @@ public class AuthenticateService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-
-
     public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
-
-        // Check duplicate email
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity
-                    .status(HttpStatus.CONFLICT) // or BAD_REQUEST
+                    .status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "Email already exists"));
         }
 
@@ -64,7 +56,7 @@ public class AuthenticateService {
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .accountLocked(false)
-                    .enabled(true)// → Admin accounts start ENABLED for testing
+                    .enabled(true)
                     .build();
 
             Role adminRole = roleRepository.findByName("ADMIN")
@@ -73,7 +65,6 @@ public class AuthenticateService {
             userRepository.save(admin);
             emailService.sendValidationEmail(admin);
         } else {
-            // → Same for Client, but also sets bio
             Client client = Client.builder()
                     .firstname(request.getFirstname())
                     .lastname(request.getLastname())
@@ -90,22 +81,19 @@ public class AuthenticateService {
             emailService.sendValidationEmail(client);
         }
 
-        Map<String,String> responseMessage = new HashMap<>();
-        String role = request.isAdmin() ? "ADMIN " : "CLIENT";
-        responseMessage.put("message", STR."Registration successful with role: \{role} !");
+        Map<String, String> responseMessage = new HashMap<>();
+        String role = request.isAdmin() ? "ADMIN" : "CLIENT";
+        responseMessage.put("message", "Registration successful with role: " + role + " !");
         return ResponseEntity.accepted().body(responseMessage);
     }
 
-
     @Transactional
-    public void deleteAllUsers(){
+    public void deleteAllUsers() {
         tokenRepository.deleteAll();
         userRepository.deleteAll();
     }
 
-
     public ResponseEntity<?> authenticate(AuthenticateRequest request, HttpServletResponse response) {
-        // 1. Authentification standard
         var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -117,28 +105,25 @@ public class AuthenticateService {
         var user = ((User) auth.getPrincipal());
         claims.put("fullName", user.getFullName());
 
-        // 2. Génération et sauvegarde du token en BDD
         var jwtToken = jwtService.generateToken(claims, user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
 
-        // 3. Extraction des rôles pour le JSON
         List<String> roles = user.getRoles()
                 .stream()
                 .map(Role::getName)
                 .toList();
 
-        // 4. INDISPENSABLE POUR LE MOBILE : On remplit proprement la Map
+        // Réponse enrichie : le mobile a besoin du token ET des infos de base
+        // pour éviter un appel /auth/me immédiat après le login
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", jwtToken);
-        responseBody.put("id", user.getId());
-        responseBody.put("email", user.getEmail());
-        responseBody.put("fullName", user.getFullName());
         responseBody.put("roles", roles);
+        responseBody.put("fullName", user.getFullName());
 
-        // On renvoie le statut OK (200) avec le JSON contenant le token
         return ResponseEntity.ok(responseBody);
     }
+
     private void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
                 .user(user)
@@ -149,7 +134,6 @@ public class AuthenticateService {
 
         tokenRepository.save(token);
     }
-
 
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
@@ -162,27 +146,30 @@ public class AuthenticateService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException(("invalid token"))); // → Find the 6-digit code in DB
-        if (LocalDateTime.now().isAfter(savedToken.getExpiredAt())){
+                .orElseThrow(() -> new RuntimeException("invalid token"));
+        if (LocalDateTime.now().isAfter(savedToken.getExpiredAt())) {
             emailService.sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Activation token has expired. A new token has been send !"); // → If code expired (> 15 min), send a new one and reject
+            throw new RuntimeException("Activation token has expired. A new token has been sent!");
         }
         var user = userRepository.findById(savedToken.getUser().getId())
-                .orElseThrow(()->new UsernameNotFoundException("user not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
         user.setEnabled(true);
-        userRepository.save(user); // → Activate the account
+        userRepository.save(user);
         savedToken.setValidateAt(LocalDateTime.now());
-        tokenRepository.save(savedToken); // → Mark the activation code as used
+        tokenRepository.save(savedToken);
     }
 
-
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        // Find the JWT from the cookie
-        String jwt = extractJwtFromCookies(request);
+    /**
+     * LOGOUT côté mobile : le token vient du header Authorization
+     * (jamais d'un cookie — les cookies ne sont pas fiables sur mobile natif).
+     * Spring Security a déjà extrait et validé ce token en amont via le filtre JWT,
+     * donc ici on le relit simplement depuis la requête pour le révoquer en base.
+     */
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String jwt = extractJwtFromHeader(request);
 
         if (jwt != null) {
             tokenRepository.findByToken(jwt).ifPresent(token -> {
@@ -192,54 +179,41 @@ public class AuthenticateService {
             });
         }
 
-        // Overwrite the cookie with an empty value and maxAge=0 to delete it
-        ResponseCookie deleteCookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(false)           // Match your login cookie settings
-                .path("/")
-                .maxAge(0)               // Immediately expires the cookie
-                .sameSite("Strict")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 
-
-    private String extractJwtFromCookies(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
-        return Arrays.stream(request.getCookies())
-                .filter(c -> "jwt".equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+    private String extractJwtFromHeader(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
     }
 
-
     public UserResponse getCurrentUser(Authentication authentication) {
+        // 1. Protection contre le NullPointerException
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new org.springframework.security.authentication.BadCredentialsException("User is not authenticated");
+        }
+
         User user = (User) authentication.getPrincipal();
 
         List<String> roles = user.getRoles()
                 .stream()
-                .map(role -> role.getName())
+                .map(Role::getName)
                 .toList();
 
-        // Cast conditionnel : si l'utilisateur est un Client, on récupère profilePicture
         String profilePicture = null;
-        String postTitle = null;
-
         if (user instanceof Client client) {
             profilePicture = client.getProfilePicture();
         }
 
         return UserResponse.builder()
-                .id(user.getId())        // ← ajoute cette ligne
+                .id(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .roles(roles)
-                .profilePicture(profilePicture)   // null si Admin
+                .profilePicture(profilePicture)
                 .build();
     }
-
-
 }
