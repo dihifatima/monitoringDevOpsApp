@@ -7,7 +7,7 @@ interface AuthContextType {
   user: UserResponse | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  googleLogin: (idToken: string) => Promise<void>; // 👈 AJOUT
+  googleLogin: (idToken: string) => Promise<void>; 
 
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;

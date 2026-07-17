@@ -49,7 +49,7 @@ export default function RegisterScreen() {
           variant="small"
           color={Colors.black}
           style={styles.linkText}
-          onPress={() => router.push('/(auth)/login')}
+          onPress={() => router.push('/(auth)/activateAccount')}
         >
           Already have an account? <AppText variant="small" style={styles.linkBold}>Log in</AppText>
         </AppText>

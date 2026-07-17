@@ -1,4 +1,3 @@
-// app/index.tsx
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";

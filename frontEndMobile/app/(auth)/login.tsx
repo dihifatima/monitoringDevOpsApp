@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn'; // 👈 AJOUT
+import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn';
 
 import ScreenContainer from '@/src/components/common/ScreenContainer';
 import AppText from '@/src/components/common/AppText';
@@ -18,7 +18,7 @@ const loginFields: FormFieldConfig[] = [
 export default function LoginScreen() {
   const router = useRouter();
   const { values, setField, errors, apiError, loading, handleLogin } = useAuth();
-  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn(); // 👈 AJOUT
+  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn();
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
@@ -41,7 +41,7 @@ export default function LoginScreen() {
         <AppText
           variant="small"
           color={Colors.GrisPerle}
-          onPress={() => {}}
+          onPress={() => router.push('/(auth)/forgotPassword')}
         >
           Forgot Password?
         </AppText>
@@ -49,16 +49,16 @@ export default function LoginScreen() {
         <AppButton
           label={loading ? 'Connexion...' : 'Login'}
           variant="primary"
-          onPress={loading ? () => {} : handleLogin}
+          onPress={loading ? () => { } : handleLogin}
           style={styles.primaryButton}
         />
 
-         <AppButton
-      label={googleLoading ? 'Connexion...' : 'Continue with Google'}
-      variant="secondary"
-      icon="logo-google"
-      onPress={googleLoading ? () => {} : signInWithGoogle}
-    />
+        <AppButton
+          label={googleLoading ? 'Connexion...' : 'Continue with Google'}
+          variant="secondary"
+          icon="logo-google"
+          onPress={googleLoading ? () => { } : signInWithGoogle}
+        />
 
         <AppText
           variant="small"

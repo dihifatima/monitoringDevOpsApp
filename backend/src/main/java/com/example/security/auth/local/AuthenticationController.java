@@ -59,4 +59,13 @@ public class AuthenticationController {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         return authenticateService.logout(request);
     }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
+        return authenticateService.forgotPassword(request);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        return authenticateService.resetPassword(request);
+    }
 }

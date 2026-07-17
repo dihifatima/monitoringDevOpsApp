@@ -1,4 +1,3 @@
-// src/components/onboarding/Illustration.tsx
 import React from "react";
 import { View, Image, StyleSheet, ImageSourcePropType, Dimensions } from "react-native";
 import Colors from "@/src/constants/colors";

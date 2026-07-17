@@ -5,26 +5,26 @@ import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import Colors from '@/src/constants/colors';
-import { useAuth } from '@/src/hooks/useAuth'; // 👈 CHANGÉ (au lieu de useActivateAccount)
+import { useForgotPassword } from '@/src/hooks/useForgotPassword';
 import { authScreenStyles as styles } from './authScreenStyles';
 
-const activateAccountFields: FormFieldConfig[] = [
-  { key: 'code', icon: 'key-outline', placeholder: 'Code reçu par email', keyboardType: 'number-pad' },
+const forgotPasswordFields: FormFieldConfig[] = [
+  { key: 'email', icon: 'mail-outline', placeholder: 'Email', keyboardType: 'email-address', autoCapitalize: 'none' },
 ];
 
-export default function ActivateAccountScreen() {
+export default function ForgotPasswordScreen() {
   const router = useRouter();
-  const { values, setField, errors, apiError, successMessage, loading, handleActivateAccount } = useAuth(); // 👈 CHANGÉ
+  const { values, setField, errors, apiError, successMessage, loading, handleForgotPassword } = useForgotPassword();
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
-        <AppText variant="h1" style={styles.title}>Activer votre compte</AppText>
+        <AppText variant="h1" style={styles.title}>Mot de passe oublié</AppText>
         <AppText variant="small" color={Colors.GrisPerle} style={styles.apiError}>
-          Entrez le code d'activation reçu par email pour finaliser votre inscription.
+          Entrez votre email, on vous enverra un code de réinitialisation.
         </AppText>
 
-        <AppForm fields={activateAccountFields} values={values} errors={errors} onChange={setField} />
+        <AppForm fields={forgotPasswordFields} values={values} errors={errors} onChange={setField} />
 
         {apiError && (
           <AppText variant="small" color={Colors.error} style={styles.apiError}>{apiError}</AppText>
@@ -34,11 +34,21 @@ export default function ActivateAccountScreen() {
         )}
 
         <AppButton
-          label={loading ? 'Activation...' : 'Activer mon compte'}
+          label={loading ? 'Envoi...' : 'Envoyer le code'}
           variant="primary"
-          onPress={loading ? () => {} : handleActivateAccount}
+          onPress={loading ? () => {} : handleForgotPassword}
           style={styles.primaryButton}
         />
+
+        {/* 👇 AJOUT — bouton pour aller saisir le code une fois reçu */}
+        {successMessage && (
+          <AppButton
+            label="J'ai reçu mon code"
+            variant="secondary"
+            onPress={() => router.push('/(auth)/resetPassword')}
+            style={styles.primaryButton}
+          />
+        )}
 
         <AppText variant="small" color={Colors.black} style={styles.linkText} onPress={() => router.push('/(auth)/login')}>
           Retour à la <AppText variant="small" style={styles.linkBold}>connexion</AppText>

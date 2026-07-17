@@ -1,12 +1,13 @@
 package com.example.security.auth.google;
 
-
 import com.example.security.auth.local.AuthenticationResponse;
 import com.example.security.entity.Client;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
 import com.example.security.security.JwtService;
 import com.example.security.user.AuthProvider;
+import com.example.security.user.Token;           // 👈 AJOUT
+import com.example.security.user.TokenRepository;  // 👈 AJOUT
 import com.example.security.user.User;
 import com.example.security.user.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -29,6 +30,7 @@ public class GoogleAuthService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final TokenRepository tokenRepository; // 👈 AJOUT
 
     @Value("${google.client.id}")
     private String googleClientId;
@@ -57,6 +59,9 @@ public class GoogleAuthService {
         claims.put("fullName", user.getFullName());
         var jwtToken = jwtService.generateToken(claims, user);
 
+        revokeAllUserTokens(user);   // 👈 AJOUT — cohérent avec le login classique
+        saveUserToken(user, jwtToken); // 👈 AJOUT
+
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
@@ -76,5 +81,27 @@ public class GoogleAuthService {
         newClient.setRoles(List.of(clientRole));
 
         return userRepository.save(newClient);
+    }
+
+    // 👇 AJOUT — logique identique à AuthenticateService
+    private void saveUserToken(User user, String jwtToken) {
+        Token token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
+    }
+
+    private void revokeAllUserTokens(User user) {
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        if (validUserTokens.isEmpty())
+            return;
+        validUserTokens.forEach(t -> {
+            t.setExpired(true);
+            t.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
     }
 }

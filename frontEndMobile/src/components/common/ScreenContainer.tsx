@@ -1,4 +1,3 @@
-// src/components/common/ScreenContainer.tsx
 import React from "react";
 import { View, ViewStyle, StyleProp, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

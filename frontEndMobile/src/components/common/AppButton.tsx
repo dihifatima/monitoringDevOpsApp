@@ -1,4 +1,3 @@
-// src/components/common/AppButton.tsx
 import React from "react";
 import { TouchableOpacity, ViewStyle, StyleProp } from "react-native";
 import { Ionicons } from "@expo/vector-icons";

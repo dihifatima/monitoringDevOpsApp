@@ -32,7 +32,8 @@ public class EmailService {
     private final UserRepository userRepository;
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
-
+    @Value("${application.mailing.frontend.reset-password-url}")
+    private String resetPasswordUrl;
     @Transactional
     public void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSendActivationToken(user);
@@ -64,7 +65,7 @@ public class EmailService {
         return generatedToken;
     }
 
-    private String generateActiveCode(int lenght) {
+    public String generateActiveCode(int lenght) {
         String character = "0123456789";
         StringBuilder codeBuilder = new StringBuilder();
         SecureRandom secureRandom = new SecureRandom();
@@ -119,5 +120,16 @@ public class EmailService {
             throw new MessagingException("Failed to send email", e);
         }
 
+    }
+
+    public void sendPasswordResetEmail(User user, String resetCode) throws MessagingException {
+        sendEmail(
+                user.getEmail(),
+                user.getFullName(),
+                EmailTemplateName.RESET_PASSWORD,
+                resetPasswordUrl,
+                resetCode,
+                "Password Reset Request"
+        );
     }
 }

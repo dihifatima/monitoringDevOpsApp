@@ -7,25 +7,24 @@ export function useGoogleSignIn() {
   const [loading, setLoading] = useState(false);
 
   const signInWithGoogle = async () => {
-  console.log("🟢 signInWithGoogle appelée");
-  try {
-    setLoading(true);
-    console.log("🟢 Vérification Play Services...");
-    await GoogleSignin.hasPlayServices();
-    console.log("🟢 Play Services OK, ouverture du sign-in...");
-    const response = await GoogleSignin.signIn();
-    console.log("🟢 Réponse Google:", JSON.stringify(response));
+    console.log("🟢 signInWithGoogle appelée");
+    try {
+      setLoading(true);
+      console.log("🟢 Vérification Play Services...");
+      await GoogleSignin.hasPlayServices();
+      console.log("🟢 Play Services OK, ouverture du sign-in...");
+      const response = await GoogleSignin.signIn();
+      console.log("🟢 Réponse Google:", JSON.stringify(response));
 
-    if (isSuccessResponse(response)) {
-      const idToken = response.data.idToken;
-      console.log("🟢 idToken reçu:", idToken ? "oui" : "non");
-      if (idToken) {
-        await googleLogin(idToken);
+      if (isSuccessResponse(response)) {
+        const idToken = response.data.idToken;
+        console.log("🟢 idToken reçu:", idToken ? "oui" : "non");
+        if (idToken) {
+          await googleLogin(idToken);
+        }
       }
-    }
-  } catch (error) {
-    console.log("🔴 ERREUR:", JSON.stringify(error));
-  
+    } catch (error) {
+      console.log("🔴 ERREUR:", JSON.stringify(error));
       if (isErrorWithCode(error)) {
         switch (error.code) {
           case statusCodes.SIGN_IN_CANCELLED:

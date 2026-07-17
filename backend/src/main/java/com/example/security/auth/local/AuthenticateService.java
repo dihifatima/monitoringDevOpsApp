@@ -215,5 +215,64 @@ public class AuthenticateService {
                 .roles(roles)
                 .profilePicture(profilePicture)
                 .build();
+
+}
+
+    @Transactional
+    public ResponseEntity<?> forgotPassword(ForgotPasswordRequest request) throws MessagingException {
+        var userOptional = userRepository.findByEmail(request.getEmail());
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.ok(Map.of(
+                    "message", "If this email exists, a reset code has been sent"
+            ));
+        }
+
+        User user = userOptional.get();
+
+        String resetCode = emailService.generateActiveCode(6);  // ← réutilise la méthode existante
+        Token resetToken = Token.builder()
+                .token(resetCode)
+                .createAt(LocalDateTime.now())
+                .expiredAt(LocalDateTime.now().plusMinutes(15))
+                .expired(false)
+                .revoked(false)
+                .user(user)
+                .build();
+        tokenRepository.save(resetToken);
+
+        emailService.sendPasswordResetEmail(user, resetCode);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "If this email exists, a reset code has been sent"
+        ));
+    }
+    @Transactional
+    public ResponseEntity<?> resetPassword(ResetPasswordRequest request) {
+        Token savedToken = tokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new RuntimeException("Invalid reset code"));
+
+        if (savedToken.getExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset code has expired. Please request a new one.");
+        }
+
+        if (savedToken.isRevoked() || savedToken.getValidateAt() != null) {
+            throw new RuntimeException("This reset code has already been used");
+        }
+
+        User user = userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        savedToken.setValidateAt(LocalDateTime.now());
+        savedToken.setRevoked(true);
+        tokenRepository.save(savedToken);
+
+        // Sécurité : invalide toutes les sessions actives après un changement de mot de passe
+        revokeAllUserTokens(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password reset successful"));
     }
 }

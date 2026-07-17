@@ -57,3 +57,18 @@ export const validateRegisterForm = ({ firstname, lastname, email, password }) =
 
   return { errors, isValid };
 };
+
+export const validateForgotPasswordForm = ({ email }) => {
+  const errors = { email: validateEmail(email) };
+  return { errors, isValid: !errors.email };
+};
+
+export const validateResetPasswordForm = ({ password, confirmPassword }) => {
+  const errors = {
+    password: validatePassword(password),
+    confirmPassword:
+      password !== confirmPassword ? "Les mots de passe ne correspondent pas" : null,
+  };
+  const isValid = !errors.password && !errors.confirmPassword;
+  return { errors, isValid };
+};

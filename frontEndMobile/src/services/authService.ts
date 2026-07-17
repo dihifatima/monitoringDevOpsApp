@@ -92,5 +92,25 @@ export const authService = {
     console.error("Erreur lors de la connexion Google :", error);
     throw error;
   }
-}
+},
+forgotPassword: async (email: string): Promise<any> => {
+  try {
+    const response = await PublicAPI.post("/auth/forgot-password", { email });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la demande de réinitialisation :", error);
+    throw error;
+  }
+},
+
+resetPassword: async (token: string, newPassword: string): Promise<any> => {
+  try {
+    const response = await PublicAPI.post("/auth/reset-password", { token, newPassword });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la réinitialisation :", error);
+    throw error;
+  }
+},
 };
+

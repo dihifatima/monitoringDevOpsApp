@@ -3,8 +3,8 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAppFonts } from '@/src/hooks/useAppFonts';
-import { AuthProvider } from '@/src/context/AuthContext'; // 1. On importe le Provider
-import { GoogleSignin } from '@react-native-google-signin/google-signin'; // 👈 AJOUT
+import { AuthProvider } from '@/src/context/AuthContext'; 
+import { GoogleSignin } from '@react-native-google-signin/google-signin'; 
 
 SplashScreen.preventAutoHideAsync();
 GoogleSignin.configure({
