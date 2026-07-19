@@ -8,9 +8,11 @@ import Spacing from '@/src/styles/spacing';
 import Illustration from "@/src/components/onboarding/Illustration";
 import Images from "@/src/constants/images";
 import AuthOptionsSheet from '@/src/components/auth/AuthOptionsSheet';
+import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn'; // 👈 added
 
 export default function WelcomeScreen() {
   const [showAuthSheet, setShowAuthSheet] = useState(false);
+  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn(); // 👈 added
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
@@ -30,9 +32,9 @@ export default function WelcomeScreen() {
 
         <View style={styles.actions}>
           <AppButton
-            label="Continuer avec Google"
+            label={googleLoading ? 'Connexion...' : 'Continuer avec Google'} // 👈 changed
             variant="primary"
-            onPress={() => {/* auth Google */ }}
+            onPress={googleLoading ? () => {} : signInWithGoogle} // 👈 changed
           />
           <AppButton
             label="Continuer avec Email"

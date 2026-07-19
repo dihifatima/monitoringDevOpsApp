@@ -22,16 +22,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Cas d'usage : reconnexion automatique au démarrage de l'application
   const checkSession = async () => {
     try {
-          console.log("🔍 checkSession() appelée");
-
       const token = await TokenStorage.getToken();
       if (token) {
-        // Au démarrage, on n'a que le token, donc l'appel /auth/me est indispensable
         const userData = await authService.getCurrentUser();
         setUser(userData);
       }
     }  catch (error: any) {
-  console.log("❌ checkSession ERREUR:", error?.response?.status, JSON.stringify(error?.response?.data));
   await TokenStorage.deleteToken();
   setUser(null);
 }   finally {
@@ -48,7 +44,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       const data = await authService.login(email, password);
-      console.log("👉 RÉPONSE EXACTE DU BACKEND :", JSON.stringify(data, null, 2));
       if (data && data.token) {
         // 1. On sauvegarde le token en tâche de fond
         await TokenStorage.saveToken(data.token);
@@ -79,7 +74,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await authService.logout();
     } catch (error) {
-      console.log("Erreur logout backend silencieuse");
     } finally {
       await TokenStorage.deleteToken();
       setUser(null);
@@ -107,11 +101,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 
+
   // --- RE-AJOUT DU RETURN DU PROVIDER ---
   return (
-<AuthContext.Provider value={{ user, loading, login: handleLogin, googleLogin: handleGoogleLogin, logout: handleLogout, checkSession }}>
+  <AuthContext.Provider value={{ user, loading, login: handleLogin, googleLogin: handleGoogleLogin, logout: handleLogout, checkSession }}>
       {children}
-    </AuthContext.Provider>
+  </AuthContext.Provider>
   );
 };
 

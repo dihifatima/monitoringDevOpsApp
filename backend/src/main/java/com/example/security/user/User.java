@@ -1,5 +1,6 @@
     package com.example.security.user;
 
+    import com.example.security.Enumeration.AuthProvider;
     import com.example.security.role.Role;
     import com.fasterxml.jackson.annotation.JsonIdentityInfo;
     import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -11,7 +12,6 @@
     import lombok.experimental.SuperBuilder;
     import org.springframework.data.annotation.CreatedDate;
     import org.springframework.data.annotation.LastModifiedDate;
-    import org.springframework.data.jpa.domain.support.AuditingEntityListener;
     import org.springframework.security.core.GrantedAuthority;
     import org.springframework.security.core.authority.SimpleGrantedAuthority;
     import org.springframework.security.core.userdetails.UserDetails;

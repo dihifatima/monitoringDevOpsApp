@@ -5,7 +5,7 @@ import com.example.security.entity.Client;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
 import com.example.security.security.JwtService;
-import com.example.security.user.AuthProvider;
+import com.example.security.Enumeration.AuthProvider;
 import com.example.security.user.Token;           // 👈 AJOUT
 import com.example.security.user.TokenRepository;  // 👈 AJOUT
 import com.example.security.user.User;

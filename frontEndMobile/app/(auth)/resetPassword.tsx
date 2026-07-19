@@ -4,18 +4,17 @@ import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import Colors from '@/src/constants/colors';
-import { useResetPassword } from '@/src/hooks/useResetPassword';
+import { useAuth } from '@/src/hooks/useAuth'; // 👈 changed
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const resetPasswordFields: FormFieldConfig[] = [
-  { key: 'code', icon: 'key-outline', placeholder: 'Code reçu par email', keyboardType: 'number-pad' }, // 👈 AJOUT
+  { key: 'code', icon: 'key-outline', placeholder: 'Code reçu par email', keyboardType: 'number-pad' },
   { key: 'password', icon: 'lock-closed-outline', placeholder: 'Nouveau mot de passe', secureTextEntry: true },
   { key: 'confirmPassword', icon: 'lock-closed-outline', placeholder: 'Confirmer le mot de passe', secureTextEntry: true },
 ];
 
 export default function ResetPasswordScreen() {
-  // 👇 SUPPRIMÉ — plus besoin de lire un token dans l'URL
-  const { values, setField, errors, apiError, loading, handleResetPassword } = useResetPassword();
+  const { values, setField, errors, apiError, loading, handleResetPassword } = useAuth(); // 👈 changed
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>

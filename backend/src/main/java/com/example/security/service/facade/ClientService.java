@@ -1,15 +1,13 @@
 package com.example.security.service.facade;
 
-import com.example.security.entity.Admin;
-import com.example.security.entity.Client;
-import com.example.security.repo.AdminRepo;
-import org.springframework.stereotype.Service;
-
-/**
- * @author HP
- **/
+import com.example.security.controller.dto.*;
+import org.springframework.security.core.Authentication;
 
 public interface ClientService {
-
-    Client getClientById(Long id);
+    ProfileResponse getProfile(Authentication authentication);
+    ProfileResponse updateProfile(Authentication authentication, UpdateProfileRequest request);
+    ProfileResponse updateProfilePicture(Authentication authentication, UpdateProfilePictureRequest request);
+    void updatePassword(Authentication authentication, UpdatePasswordRequest request);
+    ProfileResponse updateNotifications(Authentication authentication, UpdateNotificationsRequest request);
+    void deleteAccount(Authentication authentication, DeleteAccountRequest request);
 }

@@ -5,7 +5,7 @@ import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import Colors from '@/src/constants/colors';
-import { useForgotPassword } from '@/src/hooks/useForgotPassword';
+import { useAuth } from '@/src/hooks/useAuth'; 
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const forgotPasswordFields: FormFieldConfig[] = [
@@ -14,7 +14,7 @@ const forgotPasswordFields: FormFieldConfig[] = [
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
-  const { values, setField, errors, apiError, successMessage, loading, handleForgotPassword } = useForgotPassword();
+  const { values, setField, errors, apiError, successMessage, loading, handleForgotPassword } = useAuth();
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
@@ -30,7 +30,7 @@ export default function ForgotPasswordScreen() {
           <AppText variant="small" color={Colors.error} style={styles.apiError}>{apiError}</AppText>
         )}
         {successMessage && (
-          <AppText variant="small" color={Colors.primary} style={styles.apiError}>{successMessage}</AppText>
+          <AppText variant="small" color={Colors.green} style={styles.apiError}>{successMessage}</AppText>
         )}
 
         <AppButton

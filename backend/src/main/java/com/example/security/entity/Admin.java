@@ -8,9 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * @author HP
- **/
+
 @Entity
 @Table(name = "admins")
 @Data

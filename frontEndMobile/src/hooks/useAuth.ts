@@ -4,6 +4,8 @@ import { authService } from '@/src/services/authService';
 import {
   validateLoginForm,
   validateRegisterForm,
+  validateForgotPasswordForm,
+  validateResetPasswordForm,
 } from '@/src/validations/authValidation';
 import { useFormState } from './useFormState';
 import { useAuthGlobal } from '@/src/context/AuthContext';
@@ -13,7 +15,7 @@ export function useAuth() {
   const { login } = useAuthGlobal();
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null); // 👈 AJOUT (utilisé par activateAccount)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
 
   const { values, setField } = useFormState({
@@ -21,7 +23,8 @@ export function useAuth() {
     lastname: '',
     email: '',
     password: '',
-    code: '', // 👈 AJOUT — pour le champ code d'activation
+    code: '',
+    confirmPassword: ''
   });
 
   const handleLogin = async () => {
@@ -37,7 +40,7 @@ export function useAuth() {
     setLoading(true);
     try {
       await login(values.email, values.password);
-      // La redirection est déjà gérée dans AuthContext.handleLogin
+      // Redirect already handled in AuthContext.handleLogin
     } catch (error: any) {
       setApiError(
         error.response?.data?.message || 'Email ou mot de passe incorrect'
@@ -60,7 +63,7 @@ export function useAuth() {
     setLoading(true);
     try {
       await authService.register(values);
-      router.replace('/(auth)/activateAccount'); // 👈 CHANGÉ — direction activation après inscription
+      router.replace('/(auth)/activateAccount');
     } catch (error: any) {
       setApiError(
         error.response?.data?.message ||
@@ -71,7 +74,6 @@ export function useAuth() {
     }
   };
 
-  // 👇 AJOUT — logique d'activation de compte, regroupée ici
   const handleActivateAccount = async () => {
     setApiError(null);
     setSuccessMessage(null);
@@ -98,15 +100,62 @@ export function useAuth() {
     }
   };
 
+  //  merged from useForgotPassword.ts (logic unchanged)
+  const handleForgotPassword = async () => {
+    setApiError(null);
+    setSuccessMessage(null);
+    setErrors({});
+
+    const { errors: formErrors, isValid } = validateForgotPasswordForm(values);
+    if (!isValid) {
+      setErrors(formErrors);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.forgotPassword(values.email);
+      setSuccessMessage("Un email de réinitialisation a été envoyé si ce compte existe.");
+    } catch (error: any) {
+      setApiError(error.response?.data?.message || "Une erreur est survenue. Réessayez.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //  merged from useResetPassword.ts (logic unchanged)
+  const handleResetPassword = async () => {
+    setApiError(null);
+    setErrors({});
+
+    const { errors: formErrors, isValid } = validateResetPasswordForm(values);
+    if (!isValid) {
+      setErrors(formErrors);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.resetPassword(values.code, values.password);
+      router.replace('/(auth)/login');
+    } catch (error: any) {
+      setApiError(error.response?.data?.message || "Le code est peut-être invalide ou expiré.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     values,
     setField,
     errors,
     apiError,
-    successMessage, // 👈 AJOUT
+    successMessage,
     loading,
     handleLogin,
     handleRegister,
-    handleActivateAccount, // 👈 AJOUT
+    handleActivateAccount,
+    handleForgotPassword, 
+    handleResetPassword,  
   };
 }

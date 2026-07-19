@@ -9,9 +9,19 @@ import Illustration from "@/src/components/onboarding/Illustration";
 import Images from "@/src/constants/images";
 import Spacing from "@/src/styles/spacing";
 import Colors from "@/src/constants/colors";
+import { useAuthGlobal } from "@/src/context/AuthContext"; 
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { user } = useAuthGlobal(); 
+
+  const handleSkip = () => {
+    if (user) {
+      router.replace("/(tabs)/home");
+    } else {
+      router.replace("/(auth)/login");
+    }
+  };
 
   return (
     <ScreenContainer>
@@ -39,7 +49,7 @@ export default function OnboardingScreen() {
         <AppButton
           label="Skip"
           variant="text"
-          onPress={() => router.replace("/(tabs)/home")}
+          onPress={handleSkip} // 👈 changed
         />
         <AppButton
           label="Suivant"

@@ -1,8 +1,8 @@
 const GlobalStyles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.background,      // ← vient de colors.js
-        paddingHorizontal: Spacing.screenPadding, // ← vient de spacing.js
+        backgroundColor: Colors.background,      
+        paddingHorizontal: Spacing.screenPadding, 
     },
     card: {
         backgroundColor: Colors.white,

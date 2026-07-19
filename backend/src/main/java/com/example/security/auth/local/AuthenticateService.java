@@ -203,17 +203,13 @@ public class AuthenticateService {
                 .map(Role::getName)
                 .toList();
 
-        String profilePicture = null;
-        if (user instanceof Client client) {
-            profilePicture = client.getProfilePicture();
-        }
+
 
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .roles(roles)
-                .profilePicture(profilePicture)
                 .build();
 
 }

@@ -3,21 +3,29 @@ import * as SecureStore from 'expo-secure-store';
 const TOKEN_KEY = 'user_token';
 
 export const TokenStorage = {
- saveToken: async (token: string): Promise<void> => {
-  console.log("💾 SAVE - token à écrire, longueur:", token.length);
-  await SecureStore.setItemAsync(TOKEN_KEY, token);
-  const verif = await SecureStore.getItemAsync(TOKEN_KEY);
-  console.log("✅ SAVE - vérif immédiate après écriture:", verif ? `présent (${verif.length} car.)` : "❌ ABSENT !!!");
-},
+  saveToken: async (token: string): Promise<void> => {
+    try {
+      await SecureStore.setItemAsync(TOKEN_KEY, token);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du token:", error);
+      throw error;
+    }
+  },
 
-getToken: async (): Promise<string | null> => {
-  const t = await SecureStore.getItemAsync(TOKEN_KEY);
-  console.log("📖 GET - lecture token:", t ? `présent (${t.length} car.)` : "absent");
-  return t;
-},
+  getToken: async (): Promise<string | null> => {
+    try {
+      return await SecureStore.getItemAsync(TOKEN_KEY);
+    } catch (error) {
+      console.error("Erreur lors de la lecture du token:", error);
+      return null;
+    }
+  },
 
- 
   deleteToken: async (): Promise<void> => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
-  }
+    try {
+      await SecureStore.deleteItemAsync(TOKEN_KEY);
+    } catch (error) {
+      console.error("Erreur lors de la suppression du token:", error);
+    }
+  },
 };
