@@ -3,11 +3,11 @@ import ScreenContainer from '@/src/components/common/ScreenContainer';
 import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
 
-export default function PlusScreen() {
+export default function ProfilSettings() {
   return (
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
-        <AppText variant="h1">plus </AppText>
+        <AppText variant="h1">Profil Settings </AppText>
       </View>
     </ScreenContainer>
   );

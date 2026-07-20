@@ -5,7 +5,7 @@ import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import Colors from '@/src/constants/colors';
-import { useAuth } from '@/src/hooks/useAuth'; // 👈 CHANGÉ (au lieu de useActivateAccount)
+import { useAuth } from '@/src/hooks/useAuth'; 
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const activateAccountFields: FormFieldConfig[] = [
@@ -14,13 +14,12 @@ const activateAccountFields: FormFieldConfig[] = [
 
 export default function ActivateAccountScreen() {
   const router = useRouter();
-  const { values, setField, errors, apiError, successMessage, loading, handleActivateAccount } = useAuth(); // 👈 CHANGÉ
-
+  const { values, setField, errors, apiError, successMessage, loading, handleActivateAccount } = useAuth(); 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
         <AppText variant="h1" style={styles.title}>Activer votre compte</AppText>
-        <AppText variant="small" color={Colors.GrisPerle} style={styles.apiError}>
+        <AppText variant="small" color={Colors.grey} style={styles.apiError}>
           Entrez le code d'activation reçu par email pour finaliser votre inscription.
         </AppText>
 
@@ -30,7 +29,7 @@ export default function ActivateAccountScreen() {
           <AppText variant="small" color={Colors.error} style={styles.apiError}>{apiError}</AppText>
         )}
         {successMessage && (
-          <AppText variant="small" color={Colors.primary} style={styles.apiError}>{successMessage}</AppText>
+          <AppText variant="small" color={Colors.green} style={styles.apiError}>{successMessage}</AppText>
         )}
 
         <AppButton

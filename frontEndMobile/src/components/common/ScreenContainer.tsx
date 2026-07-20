@@ -12,7 +12,7 @@ interface ScreenContainerProps {
 
 const ScreenContainer: React.FC<ScreenContainerProps> = ({
   children,
-  backgroundColor = Colors.background,
+  backgroundColor = Colors.green,
   style,
 }) => {
   return (

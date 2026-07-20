@@ -1,4 +1,3 @@
-// app/_layout.tsx
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
@@ -21,10 +20,9 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null; // empêche d'afficher l'app tant que Poppins n'est pas prêt
+    return null; 
   }
   return (
-    // 2. On enveloppe notre Stack de navigation avec le contexte global d'authentification[cite: 4, 6]
     <AuthProvider>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />

@@ -4,7 +4,7 @@ import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import Colors from '@/src/constants/colors';
-import { useAuth } from '@/src/hooks/useAuth'; // 👈 changed
+import { useAuth } from '@/src/hooks/useAuth'; 
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const resetPasswordFields: FormFieldConfig[] = [
@@ -14,13 +14,13 @@ const resetPasswordFields: FormFieldConfig[] = [
 ];
 
 export default function ResetPasswordScreen() {
-  const { values, setField, errors, apiError, loading, handleResetPassword } = useAuth(); // 👈 changed
+  const { values, setField, errors, apiError, loading, handleResetPassword } = useAuth(); 
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
         <AppText variant="h1" style={styles.title}>Nouveau mot de passe</AppText>
-        <AppText variant="small" color={Colors.GrisPerle} style={styles.apiError}>
+        <AppText variant="small" color={Colors.black} style={styles.apiError}>
           Entrez le code reçu par email ainsi que votre nouveau mot de passe.
         </AppText>
 

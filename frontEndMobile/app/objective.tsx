@@ -9,7 +9,6 @@ import Illustration from "@/src/components/onboarding/Illustration";
 import Images from "@/src/constants/images";
 import Spacing from "@/src/styles/spacing";
 import Colors from "@/src/constants/colors";
-
 export default function ObjectiveScreen() {
   const router = useRouter();
 
@@ -27,8 +26,8 @@ export default function ObjectiveScreen() {
           Décidez en{"\n"}toute confiance
         </AppText>
         <AppText
-          variant="small"
-          color={Colors.textSecondary}
+          variant="title"
+          color={Colors.black}
           style={{ marginTop: Spacing.sm }}
         >
           Notre IA analyse GitHub, Jenkins et SonarQube pour vous dire si votre déploiement est prêt.

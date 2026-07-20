@@ -20,7 +20,7 @@ export default function ForgotPasswordScreen() {
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
         <AppText variant="h1" style={styles.title}>Mot de passe oublié</AppText>
-        <AppText variant="small" color={Colors.GrisPerle} style={styles.apiError}>
+        <AppText variant="small" color={Colors.black} style={styles.apiError}>
           Entrez votre email, on vous enverra un code de réinitialisation.
         </AppText>
 
@@ -40,7 +40,6 @@ export default function ForgotPasswordScreen() {
           style={styles.primaryButton}
         />
 
-        {/* 👇 AJOUT — bouton pour aller saisir le code une fois reçu */}
         {successMessage && (
           <AppButton
             label="J'ai reçu mon code"

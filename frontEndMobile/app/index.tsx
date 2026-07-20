@@ -34,11 +34,11 @@ export default function OnboardingScreen() {
 
       <View style={styles.textBlock}>
         <AppText variant="h1" bold color={Colors.accent}>
-          DevOps Insights{"\n"}Made for{"\n"}Smart Teams
+          DevOps Insights{"\n"}Made for{"\t"}Smart  Teams
         </AppText>
         <AppText
           variant="small"
-          color={Colors.textSecondary}
+          color={Colors.black}
           style={{ marginTop: Spacing.sm }}
         >
           Analyse, décide et déploie en toute confiance
@@ -49,7 +49,7 @@ export default function OnboardingScreen() {
         <AppButton
           label="Skip"
           variant="text"
-          onPress={handleSkip} // 👈 changed
+          onPress={handleSkip} 
         />
         <AppButton
           label="Suivant"

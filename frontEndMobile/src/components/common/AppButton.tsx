@@ -45,7 +45,7 @@ const AppButton: React.FC<AppButtonProps> = ({
           justifyContent: "center",
           backgroundColor,
           borderWidth: isSecondary ? 1 : 0,
-          borderColor: Colors.GrisPerle,
+          borderColor: Colors.black,
           paddingVertical: Spacing.sm + 4,
           paddingHorizontal: Spacing.lg,
           borderRadius: Spacing.buttonRadius,

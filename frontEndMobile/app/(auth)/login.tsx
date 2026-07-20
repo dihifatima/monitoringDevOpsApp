@@ -40,7 +40,7 @@ export default function LoginScreen() {
 
         <AppText
           variant="small"
-          color={Colors.GrisPerle}
+          color={Colors.grey}
           onPress={() => router.push('/(auth)/forgotPassword')}
         >
           Forgot Password?
