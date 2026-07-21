@@ -1,6 +1,7 @@
 package com.example.security.GithubOAuth.controller.facade;
 
 
+import com.example.security.GithubOAuth.controller.dto.CommitSummary;
 import com.example.security.GithubOAuth.controller.dto.RepoSummary;
 import com.example.security.GithubOAuth.controller.dto.TrackRepoRequest;
 import com.example.security.GithubOAuth.controller.dto.TrackedRepoResponse;
@@ -43,5 +44,15 @@ public class GithubRepoController {
         Client client = (Client) authentication.getPrincipal();
         List<TrackedRepoResponse> tracked = githubConnectorService.getTrackedRepos(client.getId());
         return ResponseEntity.ok(tracked);
+    }
+
+    @GetMapping("/{owner}/{repo}/commits")
+    public ResponseEntity<List<CommitSummary>> getCommits(
+            Authentication authentication,
+            @PathVariable String owner,
+            @PathVariable String repo) {
+        Client client = (Client) authentication.getPrincipal();
+        List<CommitSummary> commits = githubConnectorService.getRepoCommits(client.getId(), owner, repo);
+        return ResponseEntity.ok(commits);
     }
 }

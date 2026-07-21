@@ -149,4 +149,27 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                 .toList();
     }
 
+    @Override
+    public List<CommitSummary> getRepoCommits(Long clientId, String owner, String repo) {
+        ExternalConnection connection = externalConnectionRepo
+                .findByClientIdAndProvider(clientId, ConnextionProvider.GITHUB)
+                .orElseThrow(() -> new RuntimeException("GitHub not connected for this client"));
+
+        GithubCommitResponse[] commits = githubOAuthService.fetchRepoCommits(
+                connection.getAccessToken(), owner, repo
+        );
+
+        return Arrays.stream(commits)
+                .map(c -> CommitSummary.builder()
+                        .sha(c.getSha())
+                        .message(c.getCommit().getMessage())
+                        .authorName(c.getCommit().getAuthor() != null ? c.getCommit().getAuthor().getName() : null)
+                        .authorLogin(c.getAuthor() != null ? c.getAuthor().getLogin() : null)
+                        .authorAvatarUrl(c.getAuthor() != null ? c.getAuthor().getAvatar_url() : null)
+                        .date(c.getCommit().getAuthor() != null ? c.getCommit().getAuthor().getDate() : null)
+                        .url(c.getHtml_url())
+                        .build())
+                .toList();
+    }
+
 }

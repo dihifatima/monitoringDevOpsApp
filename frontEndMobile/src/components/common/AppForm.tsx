@@ -1,3 +1,4 @@
+// src/components/common/AppForm.tsx
 import React from 'react';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +12,7 @@ export interface FormFieldConfig {
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize?: TextInputProps['autoCapitalize'];
+  editable?: boolean; // NOUVEAU : false = champ verrouillé (ex: email)
 }
 
 interface AppFormProps {
@@ -40,6 +42,7 @@ export default function AppForm({
           keyboardType={field.keyboardType}
           autoCapitalize={field.autoCapitalize}
           error={errors[field.key] ?? undefined}
+          editable={field.editable ?? true}
         />
       ))}
     </View>

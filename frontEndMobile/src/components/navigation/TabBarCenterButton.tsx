@@ -15,7 +15,7 @@ export default function TabBarCenterButton({ item, isFocused, onPress }: TabBarC
       <Ionicons
         name={item.icon}
         size={26}
-        color={isFocused ? Colors.black : Colors.white}
+        color={isFocused ? Colors.black : Colors.green}
       />
     </Pressable>
   );

@@ -1,5 +1,6 @@
 package com.example.security.GithubOAuth.service.facade;
 
+import com.example.security.GithubOAuth.controller.dto.CommitSummary;
 import com.example.security.GithubOAuth.controller.dto.RepoSummary;
 import com.example.security.GithubOAuth.controller.dto.TrackRepoRequest;
 import com.example.security.GithubOAuth.controller.dto.TrackedRepoResponse;
@@ -15,4 +16,5 @@ public interface GithubConnectorService {
     List<TrackedRepoResponse> trackRepo(Long clientId, TrackRepoRequest request);
 
     List<TrackedRepoResponse> getTrackedRepos(Long clientId);
+    List<CommitSummary> getRepoCommits(Long clientId, String owner, String repo);
 }

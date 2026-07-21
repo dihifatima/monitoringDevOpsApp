@@ -2,6 +2,7 @@ package com.example.security.GithubOAuth.service.impl;
 
 
 import com.example.security.GithubOAuth.config.GithubOAuthProperties;
+import com.example.security.GithubOAuth.controller.dto.GithubCommitResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubRepoResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubTokenResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubUserResponse;
@@ -98,5 +99,24 @@ public class GithubOAuthServiceImpl  implements GithubOAuthService {
         );
 
         return response.getBody() != null ? response.getBody() : new GithubRepoResponse[0];
+    }
+
+    @Override
+    public GithubCommitResponse[] fetchRepoCommits(String accessToken, String owner, String repo) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        String commitsUrl = String.format(
+                "https://api.github.com/repos/%s/%s/commits?per_page=30", owner, repo
+        );
+
+        var response = restTemplate.exchange(
+                commitsUrl, HttpMethod.GET, request, GithubCommitResponse[].class
+        );
+
+        return response.getBody() != null ? response.getBody() : new GithubCommitResponse[0];
     }
 }

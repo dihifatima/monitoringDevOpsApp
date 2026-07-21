@@ -5,7 +5,6 @@ export interface TabBarItemConfig {
   icon: keyof typeof Ionicons.glyphMap;
   activeIcon?: keyof typeof Ionicons.glyphMap;
   label?: string;
-  isCenter?: boolean;
 }
 
 export const tabBarItems: TabBarItemConfig[] = [
@@ -25,13 +24,13 @@ export const tabBarItems: TabBarItemConfig[] = [
     name: 'notifications', 
     icon: 'notifications-outline',
     activeIcon: 'notifications',
-    isCenter: true              // ← bouton central flottant
   },
   { 
     name: 'Pipelines', 
     icon: 'git-merge-outline', 
     activeIcon: 'git-merge',    // ← cohérent avec pipelines CI/CD
-    label: 'Pipelines' 
+    label: 'Pipelines' ,
+
   },
   { 
     name: 'plus', 

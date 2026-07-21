@@ -11,9 +11,9 @@ export type MenuItem = {
 
 export const moreMenuItems: MenuItem[] = [
   {
-    id: 'profile-settings',
-    title: 'Infos & réglages',
-    subtitle: 'Édition profil & mot de passe',
+    id: 'profile',
+    title: 'Profile',
+    subtitle: 'Édition profil ',
     icon: 'person-outline',
     route: '/plus/profile-settings',
   },
@@ -30,5 +30,20 @@ export const moreMenuItems: MenuItem[] = [
     subtitle: 'Liste + sélection des repos',
     icon: 'logo-github',
     route: '/plus/github-repos',
+  },
+  {
+    id: 'Notification',
+    title: 'Notification',
+    subtitle: 'Notification',
+    icon: 'logo-github',
+    route: '/plus/Notification',
+  },
+  
+  {
+    id: 'password',
+    title: 'password',
+    subtitle: 'password',
+    icon: 'logo-github',
+    route: '/plus/Notification',
   },
 ];

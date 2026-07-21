@@ -1,5 +1,6 @@
 package com.example.security.GithubOAuth.service.facade;
 
+import com.example.security.GithubOAuth.controller.dto.GithubCommitResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubRepoResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubUserResponse;
 
@@ -13,4 +14,5 @@ public interface GithubOAuthService {
     GithubUserResponse fetchGithubUser(String accessToken);
 
     GithubRepoResponse[] fetchUserRepos(String accessToken);
+    GithubCommitResponse[] fetchRepoCommits(String accessToken, String owner, String repo);
 }

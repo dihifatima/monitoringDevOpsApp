@@ -1,3 +1,4 @@
+// src/components/common/AppInput.tsx
 import { useState } from 'react';
 import {
   View,
@@ -26,24 +27,22 @@ export default function AppInput({
   secureTextEntry,
   icon,
   style,
+  editable = true,
   ...rest
 }: AppInputProps) {
-  // Gère l'état d'affichage du mot de passe (masqué ou visible)
   const [hidden, setHidden] = useState(!!secureTextEntry);
 
   return (
     <View style={styles.wrapper}>
-      {/* Affiche le label au-dessus si fourni */}
       {label ? <Text style={styles.label}>{label}</Text> : null}
 
-      {/* Conteneur de l'input (icône + champ + œil) */}
       <View
         style={[
           styles.inputContainer,
-          error ? styles.inputContainerError : null, // Applique la bordure rouge s'il y a une erreur
+          error ? styles.inputContainerError : null,
+          !editable ? styles.inputContainerDisabled : null, // NOUVEAU
         ]}
       >
-        {/* Icône de gauche si fournie */}
         {icon ? (
           <Ionicons
             name={icon}
@@ -53,15 +52,14 @@ export default function AppInput({
           />
         ) : null}
 
-        {/* Le champ de saisie de texte réel */}
         <TextInput
-          style={[styles.input, style]}
+          style={[styles.input, !editable && styles.inputDisabled, style]}
           placeholderTextColor={Colors.GrisPerle}
           secureTextEntry={secureToggle ? hidden : secureTextEntry}
+          editable={editable}
           {...rest}
         />
 
-        {/* Icône d'œil interactif pour masquer/révéler le mot de passe */}
         {secureToggle && (
           <Pressable onPress={() => setHidden((prev) => !prev)}>
             <Ionicons
@@ -73,21 +71,14 @@ export default function AppInput({
         )}
       </View>
 
-      {/* Message d'erreur en rouge sous le champ */}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: Spacing.sm,
-  },
-  label: {
-    fontSize: Typography.small,
-    color: Colors.black,
-    marginBottom: Spacing.xs,
-  },
+  wrapper: { marginBottom: Spacing.sm },
+  label: { fontSize: Typography.small, color: Colors.black, marginBottom: Spacing.xs },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -97,22 +88,19 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.inputRadius,
     paddingHorizontal: Spacing.md,
   },
-  // CORRIGÉ : On change la couleur de la bordure et non celle du texte d'une View
-  inputContainerError: {
-    borderColor: Colors.error, 
+  inputContainerError: { borderColor: Colors.error },
+  inputContainerDisabled: {
+    backgroundColor: '#F2F2F2', // gris clair, signale "non modifiable"
   },
-  icon: {
-    marginRight: Spacing.sm,
-  },
+  icon: { marginRight: Spacing.sm },
   input: {
     flex: 1,
     paddingVertical: Spacing.sm + 6,
     fontSize: Typography.small,
     color: Colors.black,
   },
-  errorText: {
-    fontSize: 12,
-    color: Colors.error,
-    marginTop: Spacing.xs,
+  inputDisabled: {
+    color: Colors.GrisPerle, // texte grisé
   },
+  errorText: { fontSize: 12, color: Colors.error, marginTop: Spacing.xs },
 });
