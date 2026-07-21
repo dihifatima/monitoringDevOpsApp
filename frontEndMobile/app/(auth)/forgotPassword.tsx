@@ -1,11 +1,11 @@
-import { View } from 'react-native';
-import { useRouter } from 'expo-router';
-import ScreenContainer from '@/src/components/common/ScreenContainer';
-import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
+import AppText from '@/src/components/common/AppText';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
-import { useAuth } from '@/src/hooks/useAuth'; 
+import { useAuth } from '@/src/hooks/useAuth';
+import { useRouter } from 'expo-router';
+import { View } from 'react-native';
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const forgotPasswordFields: FormFieldConfig[] = [

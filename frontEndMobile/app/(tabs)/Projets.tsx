@@ -1,7 +1,7 @@
-import { View, StyleSheet } from 'react-native';
-import ScreenContainer from '@/src/components/common/ScreenContainer';
 import AppText from '@/src/components/common/AppText';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
+import { StyleSheet, View } from 'react-native';
 
 export default function ProjetsScreen() {
   return (

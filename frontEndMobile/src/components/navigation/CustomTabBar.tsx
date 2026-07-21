@@ -1,4 +1,3 @@
-// src/components/common/navigation/CustomTabBar.tsx
 import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Animated, LayoutChangeEvent, Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -6,11 +5,12 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { tabBarItems } from './tabBarConfig';
 import TabBarButton from './TabBarButton';
 import Colors from '@/src/constants/colors';
+import { useSetTabBarHeight } from '@/src/context/TabBarHeightContext';
 
-const BAR_HEIGHT = 80;
-const BORDER_RADIUS = 32;
+export const BAR_HEIGHT = 70;
+const BORDER_RADIUS = 30;
 const MARGIN_H = 18;
-const MARGIN_BOTTOM = 12;
+export const MARGIN_BOTTOM = 10;
 const BUMP_RADIUS = 15;
 const BUMP_HEIGHT = 9;
 
@@ -37,9 +37,14 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const [barWidth, setBarWidth] = useState(0);
   const [bumpX, setBumpX] = useState(0);
   const animValue = useRef(new Animated.Value(0)).current;
+  const setTabBarHeight = useSetTabBarHeight();
 
   const itemCount = state.routes.length;
   const itemWidth = barWidth / itemCount;
+
+  useEffect(() => {
+    setTabBarHeight(BAR_HEIGHT + MARGIN_BOTTOM);
+  }, [setTabBarHeight]);
 
   useEffect(() => {
     if (barWidth === 0) return;
@@ -80,7 +85,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
             >
               <Path
                 d={buildBarPath(barWidth, BAR_HEIGHT, BORDER_RADIUS, bumpX)}
-                fill={Colors.white}
+                fill={Colors.success}
               />
             </Svg>
           )}

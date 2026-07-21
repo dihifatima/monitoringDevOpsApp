@@ -1,11 +1,11 @@
-import { View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn';
+import { useRouter } from 'expo-router';
+import { View } from 'react-native';
 
-import ScreenContainer from '@/src/components/common/ScreenContainer';
-import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
+import AppText from '@/src/components/common/AppText';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
 import { useAuth } from '@/src/hooks/useAuth';
 import { authScreenStyles as styles } from './authScreenStyles';

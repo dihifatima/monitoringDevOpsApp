@@ -17,7 +17,7 @@ export const tabBarItems: TabBarItemConfig[] = [
   { 
     name: 'Projets', 
     icon: 'git-branch-outline', 
-    activeIcon: 'git-branch',   // ← sans -outline = version pleine
+    activeIcon: 'git-branch',   
     label: 'Projets' 
   },
   { 
@@ -28,7 +28,7 @@ export const tabBarItems: TabBarItemConfig[] = [
   { 
     name: 'Pipelines', 
     icon: 'git-merge-outline', 
-    activeIcon: 'git-merge',    // ← cohérent avec pipelines CI/CD
+    activeIcon: 'git-merge',    
     label: 'Pipelines' ,
 
   },

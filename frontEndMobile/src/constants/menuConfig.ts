@@ -22,21 +22,21 @@ export const moreMenuItems: MenuItem[] = [
     title: 'Connexions DevOps',
     subtitle: 'GitHub, SonarCloud, Jenkins',
     icon: 'git-network-outline',
-    route: '/plus/devops-connections',
+    route: '/plus/devops-connections-settings',
   },
   {
     id: 'github-repos',
     title: 'Repos GitHub suivis',
     subtitle: 'Liste + sélection des repos',
     icon: 'logo-github',
-    route: '/plus/github-repos',
+    route: '/plus/github-repos-settings',
   },
   {
     id: 'Notification',
     title: 'Notification',
     subtitle: 'Notification',
     icon: 'logo-github',
-    route: '/plus/Notification',
+    route: '/plus/notifications-settings',
   },
   
   {
@@ -44,6 +44,6 @@ export const moreMenuItems: MenuItem[] = [
     title: 'password',
     subtitle: 'password',
     icon: 'logo-github',
-    route: '/plus/Notification',
+    route: '/plus/password-settings',
   },
 ];

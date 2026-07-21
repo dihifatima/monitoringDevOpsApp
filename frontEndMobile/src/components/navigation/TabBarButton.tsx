@@ -1,4 +1,3 @@
-// src/components/common/navigation/TabBarButton.tsx
 import { useEffect, useRef } from 'react';
 import { Pressable, Animated, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,8 +41,8 @@ export default function TabBarButton({ item, isFocused, onPress }: TabBarButtonP
     }).start();
   };
 
-  const iconColor = isFocused ? Colors.green : Colors.black;
-  const labelColor = isFocused ? Colors.green : Colors.grey;
+  const iconColor = isFocused ? Colors.green : Colors.white;
+  const labelColor = isFocused ? Colors.green : Colors.white;
   const iconName = isFocused && item.activeIcon ? item.activeIcon : item.icon;
 
   return (

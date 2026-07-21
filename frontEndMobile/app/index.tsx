@@ -1,15 +1,15 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import ScreenContainer from "@/src/components/common/ScreenContainer";
-import AppText from "@/src/components/common/AppText";
 import AppButton from "@/src/components/common/AppButton";
+import AppText from "@/src/components/common/AppText";
 import ProgressDots from "@/src/components/common/ProgressDots";
+import ScreenContainer from "@/src/components/layout/ScreenContainer";
 import Illustration from "@/src/components/onboarding/Illustration";
-import Images from "@/src/constants/images";
-import Spacing from "@/src/styles/spacing";
 import Colors from "@/src/constants/colors";
-import { useAuthGlobal } from "@/src/context/AuthContext"; 
+import Images from "@/src/constants/images";
+import { useAuthGlobal } from "@/src/context/AuthContext";
+import Spacing from "@/src/styles/spacing";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
 export default function OnboardingScreen() {
   const router = useRouter();

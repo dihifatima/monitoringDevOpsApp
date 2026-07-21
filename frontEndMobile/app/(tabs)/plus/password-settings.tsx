@@ -1,30 +1,48 @@
-// app/(tabs)/plus/profile-settings.tsx
 import { View, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import AppButton from '@/src/components/common/AppButton';
-import AvatarPicker from '@/src/components/common/AvatarPicker';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useProfile } from '@/src/hooks/useProfile';
 
 const fields: FormFieldConfig[] = [
-  { key: 'fullName', placeholder: 'Nom complet', icon: 'person-outline' },
-  { key: 'email', placeholder: 'Email', icon: 'mail-outline', editable: false },
-  { key: 'jobTitle', placeholder: 'Poste occupé', icon: 'briefcase-outline' },
-  { key: 'company', placeholder: 'Entreprise', icon: 'business-outline' },
+  {
+    key: 'currentPassword',
+    placeholder: 'Mot de passe actuel',
+    icon: 'lock-closed-outline',
+    secureTextEntry: true,
+  },
+  {
+    key: 'newPassword',
+    placeholder: 'Nouveau mot de passe',
+    icon: 'key-outline',
+    secureTextEntry: true,
+  },
+  {
+    key: 'confirmPassword',
+    placeholder: 'Confirmer le nouveau mot de passe',
+    icon: 'key-outline',
+    secureTextEntry: true,
+  },
 ];
 
-export default function ProfileSettings() {
-  const { profile, values, loading, saving, error, handleChange, handleSubmit } =
-    useProfile();
+export default function PasswordSettings() {
+  const {
+    loading,
+    passwordValues,
+    passwordErrors,
+    savingPassword,
+    handlePasswordChange,
+    handlePasswordSubmit,
+  } = useProfile();
 
   if (loading) {
     return (
       <ScreenContainer
         backgroundColor={Colors.greyLight}
-        header={<ScreenHeader title="Édition profil" />}
+        header={<ScreenHeader title="Mot de passe" />}
       >
         <View style={styles.centered}>
           <ActivityIndicator color={Colors.black} />
@@ -37,31 +55,25 @@ export default function ProfileSettings() {
     <ScreenContainer
       backgroundColor={Colors.greyLight}
       withTabBar
-      header={<ScreenHeader title="Édition profil" />}
+      header={<ScreenHeader title="Mot de passe" />}
       footer={
         <AppButton
-          label={saving ? 'Enregistrement...' : 'Enregistrer'}
-          onPress={saving ? () => {} : handleSubmit}
+          label={savingPassword ? 'Enregistrement...' : 'Enregistrer'}
+          onPress={savingPassword ? () => {} : handlePasswordSubmit}
           variant="primary"
         />
       }
     >
-      {/* Main : contenu scrollable */}
       <ScrollView
         style={styles.flex}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <AvatarPicker
-          imageUri={profile?.profilePicture}
-          onPress={() => {}}
-        />
-
         <AppForm
           fields={fields}
-          values={{ ...values, email: profile?.email ?? '' }}
-          errors={{ fullName: error }}
-          onChange={handleChange}
+          values={passwordValues}
+          errors={passwordErrors}
+          onChange={handlePasswordChange}
         />
       </ScrollView>
     </ScreenContainer>

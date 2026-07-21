@@ -1,16 +1,26 @@
 // app/(tabs)/plus/index.tsx
-import {  ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet } from 'react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppMenuListItem from '@/src/components/common/AppMenuListItem';
 import AppMenuSection from '@/src/components/common/AppMenuSection';
 import { moreMenuItems } from '@/src/constants/menuConfig';
 import Colors from '@/src/constants/colors';
+import Spacing from '@/src/styles/spacing';
+
 export default function MoreScreen() {
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
-
-        <AppMenuSection >
+    <ScreenContainer
+      backgroundColor={Colors.white}
+      withTabBar
+      header={<ScreenHeader title="Plus" showBack={true} />}
+    >
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <AppMenuSection>
           {moreMenuItems.map((item) => (
             <AppMenuListItem
               key={item.id}
@@ -22,17 +32,11 @@ export default function MoreScreen() {
           ))}
         </AppMenuSection>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    marginTop: 20
-  },
-  content: {
-    padding: 20,
-  }
+  flex: { flex: 1 },
+  scrollContent: { paddingBottom: Spacing.lg },
 });
