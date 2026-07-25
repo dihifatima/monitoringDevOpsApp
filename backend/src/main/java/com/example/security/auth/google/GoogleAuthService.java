@@ -30,7 +30,7 @@ public class GoogleAuthService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final TokenRepository tokenRepository; // 👈 AJOUT
+    private final TokenRepository tokenRepository;
 
     @Value("${google.client.id}")
     private String googleClientId;
@@ -59,9 +59,8 @@ public class GoogleAuthService {
         claims.put("fullName", user.getFullName());
         var jwtToken = jwtService.generateToken(claims, user);
 
-        revokeAllUserTokens(user);   // 👈 AJOUT — cohérent avec le login classique
-        saveUserToken(user, jwtToken); // 👈 AJOUT
-
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken);
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
@@ -83,7 +82,7 @@ public class GoogleAuthService {
         return userRepository.save(newClient);
     }
 
-    // 👇 AJOUT — logique identique à AuthenticateService
+
     private void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
                 .user(user)

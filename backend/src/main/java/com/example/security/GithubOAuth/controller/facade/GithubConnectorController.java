@@ -1,5 +1,6 @@
 package com.example.security.GithubOAuth.controller.facade;
 
+import com.example.security.GithubOAuth.controller.dto.GithubStatusResponse;
 import com.example.security.GithubOAuth.service.impl.GithubConnectorServiceImpl;
 import com.example.security.entity.Client;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,5 +65,10 @@ public class GithubConnectorController {
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(redirectUri)
                 .build();
+    }
+    @GetMapping("/status")
+    public ResponseEntity<GithubStatusResponse> status(Authentication authentication) {
+        Client client = (Client) authentication.getPrincipal();
+        return ResponseEntity.ok(githubConnectorServiceImpl.getConnectionStatus(client.getId()));
     }
 }

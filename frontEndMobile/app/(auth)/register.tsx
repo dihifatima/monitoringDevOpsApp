@@ -6,7 +6,7 @@ import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import AppText from '@/src/components/common/AppText';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useAuth } from '@/src/hooks/Auth/useAuth';
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const registerFields: FormFieldConfig[] = [

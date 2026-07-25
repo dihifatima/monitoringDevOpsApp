@@ -1,13 +1,13 @@
 // app/(tabs)/plus/devops-connections-settings.tsx
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import AppMenuSection from '@/src/components/common/AppMenuSection';
+import ConnectorsList from '@/src/components/features/connectors/ConnectorsList';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import AppMenuSection from '@/src/components/common/AppMenuSection';
-import ConnectorsList from '@/src/components/connectors/ConnectorsList';
 import Colors from '@/src/constants/colors';
-import Typography from '@/src/styles/typography';
-import Spacing from '@/src/styles/spacing';
 import { useConnectors } from '@/src/hooks/useConnectors';
+import Spacing from '@/src/styles/spacing';
+import Typography from '@/src/styles/typography';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function DevopsConnectionsSettingsScreen() {
   const { isLoading } = useConnectors();

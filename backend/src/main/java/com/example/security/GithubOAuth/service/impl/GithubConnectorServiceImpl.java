@@ -1,7 +1,5 @@
 package com.example.security.GithubOAuth.service.impl;
 
-
-
 import com.example.security.Enumeration.ConnextionProvider;
 import com.example.security.GithubOAuth.controller.dto.*;
 import com.example.security.GithubOAuth.entity.TrackedRepo;
@@ -171,5 +169,19 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                         .build())
                 .toList();
     }
+
+    @Override
+    public GithubStatusResponse getConnectionStatus(Long clientId) {
+        return externalConnectionRepo
+                .findByClientIdAndProvider(clientId, ConnextionProvider.GITHUB)
+                .map(connection -> GithubStatusResponse.builder()
+                        .connected(true)
+                        .username(connection.getExternalUsername())
+                        .build())
+                .orElse(GithubStatusResponse.builder()
+                        .connected(false)
+                        .build());
+    }
+
 
 }

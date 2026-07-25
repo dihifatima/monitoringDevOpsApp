@@ -1,11 +1,11 @@
-import { View, StyleSheet, ActivityIndicator, Switch, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppText from '@/src/components/common/AppText';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
+import { NotificationFrequency, useProfile } from '@/src/hooks/Profil/useProfile';
 import Spacing from '@/src/styles/spacing';
-import { useProfile, NotificationFrequency } from '@/src/hooks/useProfile';
+import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 const FREQUENCY_OPTIONS: { value: NotificationFrequency; label: string; description: string }[] = [
   { value: 'REALTIME', label: 'Temps réel', description: 'Une notification pour chaque événement' },

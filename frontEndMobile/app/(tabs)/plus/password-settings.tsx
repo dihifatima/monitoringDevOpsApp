@@ -1,11 +1,11 @@
-import { View, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import AppButton from '@/src/components/common/AppButton';
+import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
-import AppButton from '@/src/components/common/AppButton';
 import Colors from '@/src/constants/colors';
+import { useProfile } from '@/src/hooks/Profil/useProfile';
 import Spacing from '@/src/styles/spacing';
-import { useProfile } from '@/src/hooks/useProfile';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 const fields: FormFieldConfig[] = [
   {

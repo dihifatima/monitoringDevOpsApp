@@ -5,7 +5,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Illustration from "@/src/components/onboarding/Illustration";
 import Colors from '@/src/constants/colors';
 import Images from "@/src/constants/images";
-import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn';
+import { useGoogleSignIn } from '@/src/hooks/Auth/useGoogleSignIn';
 import Spacing from '@/src/styles/spacing';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';

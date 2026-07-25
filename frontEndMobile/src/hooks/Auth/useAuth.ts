@@ -7,7 +7,7 @@ import {
   validateForgotPasswordForm,
   validateResetPasswordForm,
 } from '@/src/validations/authValidation';
-import { useFormState } from './useFormState';
+import { useFormState } from '@/src/hooks/useFormState';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 
 export function useAuth() {

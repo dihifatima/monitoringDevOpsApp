@@ -1,52 +1,53 @@
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { useAuthGlobal } from '@/src/context/AuthContext'; // Import de ton état global
-import AppText from '@/src/components/common/AppText'; // Remplace par ton composant texte si besoin
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
-import Typography from '@/src/styles/typography'
+import Typography from '@/src/styles/typography';
+import Spacing from '@/src/styles/spacing';
+import { useAuthGlobal } from '@/src/context/AuthContext';
+import TabRootHeader from '@/src/components/layout/TabRootHeader';
+
 export default function HomeScreen() {
-  const { user, loading } = useAuthGlobal(); 
-  
+  const { user, loading } = useAuthGlobal();
+
+  const header = (
+    <TabRootHeader
+      mode="greeting"
+      fullName={user?.fullName}
+      avatarUri={user?.profilePicture}
+    />
+  );
+
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.warning} />
-      </View>
+      <ScreenContainer backgroundColor={Colors.white} header={header}>
+        <View style={styles.centered}>
+          <ActivityIndicator color={Colors.black} />
+        </View>
+      </ScreenContainer>
     );
   }
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <AppText variant="h1" style={styles.mainTitle}>
-        Tableau de bord 
-      </AppText>
-      
-      <AppText style={styles.subtitle}>
-        welcome  {user?.fullName}
-      </AppText>
-    </ScrollView>
+    <ScreenContainer
+      backgroundColor={Colors.greyLight}
+      withTabBar
+      header={header}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.sectionTitle}>Home Screen</Text>
+      </ScrollView>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: Colors.green,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mainTitle: {
-    fontSize: Typography.h1,
-    fontWeight: 'bold',
-    color: Colors.white,
-    marginBottom: 4,
-  },
-  subtitle: {
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scrollContent: { padding: 16, paddingBottom: Spacing.lg },
+  sectionTitle: {
     fontSize: Typography.small,
-    color: Colors.black,
-    marginBottom: 24,
+    fontWeight: '700',
+    color: Colors.grey ?? '#9A9A9A',
+    letterSpacing: 0.5,
+    marginBottom: 12,
   },
-   
 });

@@ -24,12 +24,13 @@
 
 
     @Entity
-    @Inheritance(strategy = InheritanceType.JOINED)  // ← JOINED strategy creates 3 tables
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder
     @Table(name = "_user")
+    @Inheritance(strategy = InheritanceType.JOINED)  // ← JOINED strategy creates 3 tables
+
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id"

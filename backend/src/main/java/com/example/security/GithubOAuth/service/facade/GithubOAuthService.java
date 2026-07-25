@@ -14,5 +14,6 @@ public interface GithubOAuthService {
     GithubUserResponse fetchGithubUser(String accessToken);
 
     GithubRepoResponse[] fetchUserRepos(String accessToken);
+
     GithubCommitResponse[] fetchRepoCommits(String accessToken, String owner, String repo);
 }

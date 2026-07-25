@@ -1,6 +1,3 @@
-// Fonctions de validation pures : pas de dépendance React,
-// juste des règles réutilisables et testables isolément.
-
 export const validateEmail = (email) => {
   if (!email || email.trim().length === 0) {
     return "L'email est requis";

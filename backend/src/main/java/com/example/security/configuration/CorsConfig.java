@@ -13,7 +13,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 // allowedOriginPatterns permet d'accepter à la fois localhost et les IPs de ton mobile
-                .allowedOriginPatterns("192.168.11.102.*", "http://10.0.2.2:*","http://localhost:8081")
+                .allowedOriginPatterns("192.168.11.105.*", "http://192.168.11.105:*","http://localhost:8081")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);
