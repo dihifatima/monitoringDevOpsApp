@@ -46,7 +46,8 @@ public class SecurityConfig {
                                                 "/swagger-ui.html",
                                                 "/webjars/**",
                                                 "/swagger-ui.html",
-                                                "/api/connectors/github/callback"
+                                                "/api/connectors/github/callback",
+                                                "/api/webhooks/github/**"
                                 ).permitAll()
                                         .anyRequest().authenticated()
 

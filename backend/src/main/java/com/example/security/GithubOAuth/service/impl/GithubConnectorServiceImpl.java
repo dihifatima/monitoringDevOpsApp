@@ -128,6 +128,21 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
 
             trackedRepositoryRepo.save(tracked);
         }
+        try {
+            ExternalConnection connection = externalConnectionRepo
+                    .findByClientIdAndProvider(clientId, ConnextionProvider.GITHUB)
+                    .orElseThrow(() -> new RuntimeException("GitHub not connected"));
+
+            String owner = request.getFullName().split("/")[0];
+
+            githubOAuthService.createWebhooks(
+                    connection.getAccessToken(), owner, request.getName()
+            );
+        } catch (Exception e) {
+            // On ne bloque jamais le tracking du repo si la création du webhook échoue
+            // (ex: token expiré, webhook déjà existant, repo sans droits admin...)
+            System.out.println("Échec de la création du webhook pour " + request.getFullName() + " : " + e.getMessage());
+        }
 
         return getTrackedRepos(clientId);
     }

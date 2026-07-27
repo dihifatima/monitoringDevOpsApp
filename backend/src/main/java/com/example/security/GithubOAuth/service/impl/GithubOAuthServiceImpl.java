@@ -2,11 +2,9 @@ package com.example.security.GithubOAuth.service.impl;
 
 
 import com.example.security.GithubOAuth.config.GithubOAuthProperties;
-import com.example.security.GithubOAuth.controller.dto.GithubCommitResponse;
-import com.example.security.GithubOAuth.controller.dto.GithubRepoResponse;
-import com.example.security.GithubOAuth.controller.dto.GithubTokenResponse;
-import com.example.security.GithubOAuth.controller.dto.GithubUserResponse;
+import com.example.security.GithubOAuth.controller.dto.*;
 import com.example.security.GithubOAuth.service.facade.GithubOAuthService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,10 +15,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+
 import java.util.UUID;
 
 @Service
 public class GithubOAuthServiceImpl  implements GithubOAuthService {
+    @Value("${github.webhook.secret}")
+    private String webhookSecret;
+    @Value("${app.webhook.github-url}")
+    private String webhookUrl;
+
 
     private final GithubOAuthProperties properties;
     private final RestTemplate restTemplate;
@@ -119,4 +123,37 @@ public class GithubOAuthServiceImpl  implements GithubOAuthService {
 
         return response.getBody() != null ? response.getBody() : new GithubCommitResponse[0];
     }
+
+    @Override
+    public GithubWebhookRequest createWebhooks(String accessToken, String owner, String repo) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+
+        GithubWebhookRequest.Config config = GithubWebhookRequest.Config.builder()
+                .url(webhookUrl) // ton URL de tunnel + /api/webhooks/github, injectée via @Value
+                .content_type("json")
+                .secret(webhookSecret)
+                .build();
+
+        GithubWebhookRequest body = GithubWebhookRequest.builder()
+                .name("web")
+                .active(true)
+                .events(java.util.List.of("push"))
+                .config(config)
+                .build();
+
+        HttpEntity<GithubWebhookRequest> request = new HttpEntity<>(body, headers);
+
+        String webhooksUrl = String.format("https://api.github.com/repos/%s/%s/hooks", owner, repo);
+
+        var response = restTemplate.exchange(
+                webhooksUrl, HttpMethod.POST, request, GithubWebhookRequest.class
+        );
+
+        return response.getBody();
+    }
+
+
 }
