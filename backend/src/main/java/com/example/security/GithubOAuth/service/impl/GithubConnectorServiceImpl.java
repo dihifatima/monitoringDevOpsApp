@@ -2,8 +2,8 @@ package com.example.security.GithubOAuth.service.impl;
 
 import com.example.security.Enumeration.ConnextionProvider;
 import com.example.security.GithubOAuth.controller.dto.*;
-import com.example.security.GithubOAuth.entity.TrackedRepo;
-import com.example.security.GithubOAuth.repo.TrackedRepositoryRepo;
+import com.example.security.entity.TrackedRepo;
+import com.example.security.repo.TrackedRepositoryRepo;
 import com.example.security.GithubOAuth.service.facade.GithubConnectorService;
 import com.example.security.GithubOAuth.service.facade.GithubOAuthService;
 import com.example.security.entity.Client;

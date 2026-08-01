@@ -1,7 +1,6 @@
-package com.example.security.GithubOAuth.entity;
+package com.example.security.entity;
 
 import com.example.security.Enumeration.ConnextionProvider;
-import com.example.security.entity.Client;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +29,10 @@ public class TrackedRepo {
 
     private LocalDateTime trackedAt;
 
+    private String sonarProjectKey;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
+
 }

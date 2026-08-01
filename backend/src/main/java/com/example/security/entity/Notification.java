@@ -1,7 +1,6 @@
 package com.example.security.entity;
 
 import com.example.security.Enumeration.NotificationType;
-import com.example.security.GithubOAuth.entity.TrackedRepo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

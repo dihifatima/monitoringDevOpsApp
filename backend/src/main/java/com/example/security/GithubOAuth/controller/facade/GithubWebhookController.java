@@ -2,8 +2,8 @@ package com.example.security.GithubOAuth.controller.facade;
 
 import com.example.security.Enumeration.NotificationType;
 import com.example.security.GithubOAuth.controller.dto.GithubPushPayload;
-import com.example.security.GithubOAuth.entity.TrackedRepo;
-import com.example.security.GithubOAuth.repo.TrackedRepositoryRepo;
+import com.example.security.entity.TrackedRepo;
+import com.example.security.repo.TrackedRepositoryRepo;
 import com.example.security.entity.Client;
 import com.example.security.entity.Notification;
 import com.example.security.repo.NotificationRepo;

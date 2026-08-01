@@ -1,7 +1,7 @@
-package com.example.security.GithubOAuth.repo;
+package com.example.security.repo;
 
 
-import com.example.security.GithubOAuth.entity.TrackedRepo;
+import com.example.security.entity.TrackedRepo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

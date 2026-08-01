@@ -1,5 +1,6 @@
 package com.example.security;
 
+import com.example.security.configuration.TokenEncryptionConfig;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -8,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableJpaAuditing
@@ -20,7 +20,7 @@ public class SecurityApplication {
 	}
 
 	@Bean
-	public CommandLineRunner initialization(RoleRepository roleRepository){
+	public CommandLineRunner initialization(RoleRepository roleRepository, TokenEncryptionConfig tokenEncryptionConfig){
 		return (args -> {
 			if(roleRepository.findByName("CLIENT").isEmpty()){
 				roleRepository.save(Role.builder().name("CLIENT").build());
@@ -28,8 +28,10 @@ public class SecurityApplication {
 			if(roleRepository.findByName("ADMIN").isEmpty()){
 				roleRepository.save(Role.builder().name("ADMIN").build());
 			}
+
+
 		});
-	}
+		}
 }
 
 

@@ -1,6 +1,7 @@
 package com.example.security.entity;
 
 import com.example.security.Enumeration.ConnextionProvider;
+import com.example.security.configuration.TokenAttributeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,8 +22,10 @@ public class ExternalConnection {
     @Enumerated(EnumType.STRING)
     private ConnextionProvider provider;
 
+    @Convert(converter = TokenAttributeConverter.class)
     @Column(length = 2048)
     private String accessToken;
+
 
     @Column(length = 2048)
     private String refreshToken;
