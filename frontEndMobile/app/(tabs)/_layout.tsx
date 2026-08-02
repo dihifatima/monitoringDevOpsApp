@@ -2,9 +2,11 @@
 import { Tabs } from 'expo-router';
 import CustomTabBar from '@/src/components/navigation/CustomTabBar';
 import { TabBarHeightProvider } from '@/src/context/TabBarHeightContext';
-
+import { ConnectorsProvider } from '@/src/context/ConnectorsContext';
 export default function TabLayout() {
   return (
+   <ConnectorsProvider>
+
     <TabBarHeightProvider>
       <Tabs
         screenOptions={{ headerShown: false }}
@@ -17,5 +19,7 @@ export default function TabLayout() {
         <Tabs.Screen name="plus" />
       </Tabs>
     </TabBarHeightProvider>
+            </ConnectorsProvider>
+
   );
 }

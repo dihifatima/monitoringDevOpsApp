@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class TrackedRepoResponse {
     private Long id;
     private Long externalRepoId;
+    private String sonarProjectKey;
     private String name;
     private String fullName;
     private String url;

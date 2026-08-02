@@ -5,10 +5,14 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
 import CommitListItem from '@/src/components/features/projects/CommitListItem';
+import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
-
+import { useState } from 'react';
+import SonarStatusIcon from '@/src/components/features/projects/SonarStatusIcon';
+import SonarQubeConnectModal from '@/src/components/features/connectors/sonarqube/Sonarqubeconnectmodal';
+import { useConnectors } from '@/src/context/ConnectorsContext';
 export default function RepoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
@@ -17,7 +21,25 @@ export default function RepoDetailScreen() {
     commits,
     commitsLoading,
     commitsError,
+    refresh, // ← ajouté
   } = useRepoDetail(id);
+   const { connectors } = useConnectors();
+  const isSonarConnected = connectors.sonarqube?.status === 'CONNECTED';
+  const isRepoLinked = !!trackedRepo?.sonarProjectKey;
+
+  const [isConnectModalVisible, setIsConnectModalVisible] = useState(false);
+  const [forceShowLinkForm, setForceShowLinkForm] = useState(false);
+
+  const handleIconPress = () => {
+    if (!isSonarConnected) {
+      setIsConnectModalVisible(true);
+      return;
+    }
+    if (!isRepoLinked) {
+      setForceShowLinkForm(true);
+    }
+  }
+
 
   if (reposLoading) {
     return (
@@ -51,8 +73,18 @@ export default function RepoDetailScreen() {
     <ScreenContainer
       backgroundColor={Colors.greyLight}
       withTabBar
-      header={<ScreenHeader title={trackedRepo.name} />}
-    >
+header={
+        <ScreenHeader
+          title={trackedRepo.name}
+          rightElement={
+            <SonarStatusIcon
+              isSonarConnected={isSonarConnected}
+              isRepoLinked={isRepoLinked}
+              onPress={handleIconPress}
+            />
+          }
+        />
+      }    >
       <View style={styles.repoInfo}>
         <AppText variant="body" bold>
           {trackedRepo.fullName}
@@ -67,6 +99,23 @@ export default function RepoDetailScreen() {
           Suivi depuis le {new Date(trackedRepo.trackedAt).toLocaleDateString()}
         </AppText>
       </View>
+
+      {/* ↓ Nouvelle section, entre les infos du repo et les commits */}
+      <SonarQubeSection
+        repoId={trackedRepo.id}
+        sonarProjectKey={trackedRepo.sonarProjectKey}
+        onLinked={() => {
+          refresh();
+          setForceShowLinkForm(false);
+        }}
+        forceShowLinkForm={forceShowLinkForm}
+        onDismiss={() => setForceShowLinkForm(false)} // ← nouveau
+
+      />
+      <SonarQubeConnectModal
+        visible={isConnectModalVisible}
+        onClose={() => setIsConnectModalVisible(false)}
+      />
 
       <AppText variant="small" bold style={styles.sectionTitle}>
         COMMITS RÉCENTS

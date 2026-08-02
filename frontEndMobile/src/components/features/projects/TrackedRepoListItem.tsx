@@ -26,7 +26,7 @@ const TrackedRepoListItem: React.FC<TrackedRepoListItemProps> = ({ repo, onPress
         </AppText>
       </View>
 
-      <Ionicons name="chevron-forward" size={20} color={Colors.GrisPerle} />
+      <Ionicons name="chevron-forward" size={20} color={Colors.accent} />
     </Pressable>
   );
 };

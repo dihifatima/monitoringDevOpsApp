@@ -2,7 +2,7 @@
 import { useCallback, useState } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { getGithubAuthorizationUrl } from '@/src/services/connectorsService';
-import { useConnectors } from '@/src/hooks/useConnectors';
+import { useConnectors } from '@/src/context/ConnectorsContext';
 
 const GITHUB_RETURN_URL = 'monitoringdevopsapp://github-connected';
 

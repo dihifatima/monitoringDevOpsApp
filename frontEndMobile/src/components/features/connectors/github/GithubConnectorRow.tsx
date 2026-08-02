@@ -2,7 +2,7 @@
 import AppMenuListItem from '@/src/components/common/AppMenuListItem';
 import ConnectorStatusBadge from '@/src/components/features/connectors/ConnectorStatusBadge';
 import { connectorsConfig } from '@/src/constants/connectorsConfig';
-import { useConnectors } from '@/src/hooks/useConnectors';
+import { useConnectors } from '@/src/context/ConnectorsContext';
 import { useGithubConnection } from '@/src/hooks/Oauth_github/useGithubConnection';
 import { router } from 'expo-router';
 

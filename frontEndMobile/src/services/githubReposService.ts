@@ -20,6 +20,8 @@ export type TrackedRepoResponse = {
   name: string;
   fullName: string;
   url: string;
+  sonarProjectKey: string | null;
+
   trackedAt: string;
 };
 

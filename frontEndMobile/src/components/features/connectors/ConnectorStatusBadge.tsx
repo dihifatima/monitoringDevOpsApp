@@ -1,7 +1,7 @@
-// src/components/connectors/ConnectorStatusBadge.tsx
 import { View, Text, StyleSheet } from 'react-native';
 import type { ConnectorStatus } from '@/src/constants/connectorsConfig';
-
+import Colors from '@/src/constants/colors';
+import Spacing from '@/src/styles/spacing';
 type ConnectorStatusBadgeProps = {
   status: ConnectorStatus;
 };
@@ -23,14 +23,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   connected: {
-    backgroundColor: '#8ED17A',
+    backgroundColor:   Colors.green,
   },
   notConnected: {
-    backgroundColor: '#9A9A9A',
+    backgroundColor: Colors.grey,
   },
   label: {
-    fontSize: 14,
+    fontSize: Spacing.s ,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.black,
   },
 });

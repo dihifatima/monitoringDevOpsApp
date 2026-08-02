@@ -157,6 +157,7 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                         .name(repo.getName())
                         .fullName(repo.getFullName())
                         .url(repo.getUrl())
+                        .sonarProjectKey(repo.getSonarProjectKey())
                         .trackedAt(repo.getTrackedAt())
                         .build())
                 .toList();

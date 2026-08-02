@@ -1,7 +1,7 @@
 package com.example.security.SonarQubeOAuth.service.impl;
 
-
-
+import com.example.security.SonarQubeOAuth.controller.dto.SonarMeasuresHistoryResponse;
+import com.example.security.SonarQubeOAuth.controller.dto.SonarProjectAnalysesResponse;
 import com.example.security.SonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
 import com.example.security.SonarQubeOAuth.controller.dto.SonarProjectSearchResponse;
 import com.example.security.SonarQubeOAuth.service.facade.SonarQubeService;
@@ -62,8 +62,46 @@ public class SonarQubeServiceImpl implements SonarQubeService {
             SonarProjectSearchResponse body = response.getBody();
             return body != null && body.getComponents() != null && !body.getComponents().isEmpty();
         } catch (Exception e) {
-            // Token invalide, URL injoignable, projet inexistant... on considère que ça n'existe pas
             return false;
         }
+    }
+
+    @Override
+    public SonarProjectAnalysesResponse fetchProjectAnalyses(String sonarQubeUrl, String token, String projectKey) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+        headers.setBasicAuth(token, "");
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        String url = UriComponentsBuilder.fromHttpUrl(sonarQubeUrl + "/api/project_analyses/search")
+                .queryParam("project", projectKey)
+                .toUriString();
+
+        var response = restTemplate.exchange(
+                url, HttpMethod.GET, request, SonarProjectAnalysesResponse.class
+        );
+
+        return response.getBody();
+    }
+
+    @Override
+    public SonarMeasuresHistoryResponse fetchMeasuresHistory(String sonarQubeUrl, String token, String projectKey) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+        headers.setBasicAuth(token, "");
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        String url = UriComponentsBuilder.fromHttpUrl(sonarQubeUrl + "/api/measures/search_history")
+                .queryParam("component", projectKey)
+                .queryParam("metrics", "bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density,ncloc")
+                .toUriString();
+
+        var response = restTemplate.exchange(
+                url, HttpMethod.GET, request, SonarMeasuresHistoryResponse.class
+        );
+
+        return response.getBody();
     }
 }
