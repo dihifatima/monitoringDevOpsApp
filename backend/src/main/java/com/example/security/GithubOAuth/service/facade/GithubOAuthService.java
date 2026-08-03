@@ -23,4 +23,5 @@ public interface GithubOAuthService {
     GithubWebhookRequest createWebhooks(String accessToken, String owner, String repo);
 
     GithubRepoResponse fetchRepoDetails(String token, String owner, String repoName);
+    GithubCommitResponse fetchCommitDetail(String accessToken, String owner, String repo, String sha);
 }

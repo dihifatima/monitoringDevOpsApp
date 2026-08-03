@@ -25,7 +25,7 @@ export interface TrackedRepoResponse {
   fullName: string;
   url: string;
   trackedAt: string;
-  
+
   // Champs liés au dernier commit (peuvent être null si pas de commit)
   lastCommitSha: string | null;
   lastCommitMessage: string | null;
@@ -52,6 +52,29 @@ export type CommitSummary = {
   url: string;
 };
 
+// ⬇️ NOUVEAU : types pour l'écran "Détail du commit"
+export type CommitFile = {
+  filename: string;
+  status: 'added' | 'modified' | 'removed' | 'renamed';
+  additions: number;
+  deletions: number;
+  changes: number;
+};
+
+export type CommitDetailResponse = {
+  sha: string;
+  message: string;
+  authorName: string;
+  authorLogin: string;
+  authorAvatarUrl: string;
+  date: string;
+  url: string;
+  totalAdditions: number | null;
+  totalDeletions: number | null;
+  totalChanges: number | null;
+  files: CommitFile[];
+};
+
 export async function getGithubRepos(): Promise<RepoSummary[]> {
   const { data } = await API.get('/api/connectors/github/repos');
   return data;
@@ -69,5 +92,15 @@ export async function trackGithubRepo(request: TrackRepoRequest): Promise<Tracke
 
 export async function getRepoCommits(owner: string, repo: string): Promise<CommitSummary[]> {
   const { data } = await API.get(`/api/connectors/github/repos/${owner}/${repo}/commits`);
+  return data;
+}
+
+// ⬇️ NOUVEAU : appel de l'endpoint détail commit
+export async function getCommitDetail(
+  owner: string,
+  repo: string,
+  sha: string
+): Promise<CommitDetailResponse> {
+  const { data } = await API.get(`/api/connectors/github/repos/${owner}/${repo}/commits/${sha}`);
   return data;
 }

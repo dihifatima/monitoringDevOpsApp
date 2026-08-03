@@ -259,4 +259,46 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
             System.err.println("Erreur commit pour " + repoName + ": " + e.getMessage());
         }
     }
+    @Override
+    public CommitDetailResponse getCommitDetail(Long clientId, String owner, String repo, String sha) {
+        ExternalConnection connection = externalConnectionRepo
+                .findByClientIdAndProvider(clientId, ConnextionProvider.GITHUB)
+                .orElseThrow(() -> new RuntimeException("GitHub not connected for this client"));
+
+        GithubCommitResponse commit = githubOAuthService.fetchCommitDetail(
+                connection.getAccessToken(), owner, repo, sha
+        );
+
+        return toCommitDetailResponse(commit);
+    }
+    /** Convertit un GithubCommitResponse (brut GitHub, endpoint unitaire) en CommitDetailResponse. */
+    private CommitDetailResponse toCommitDetailResponse(GithubCommitResponse c) {
+        boolean hasCommitAuthor = c.getCommit() != null && c.getCommit().getAuthor() != null;
+
+        List<CommitDetailResponse.CommitFile> files = c.getFiles() == null
+                ? List.of()
+                : c.getFiles().stream()
+                .map(f -> CommitDetailResponse.CommitFile.builder()
+                        .filename(f.getFilename())
+                        .status(f.getStatus())
+                        .additions(f.getAdditions())
+                        .deletions(f.getDeletions())
+                        .changes(f.getChanges())
+                        .build())
+                .toList();
+
+        return CommitDetailResponse.builder()
+                .sha(c.getSha())
+                .message(c.getCommit() != null ? c.getCommit().getMessage() : null)
+                .authorName(hasCommitAuthor ? c.getCommit().getAuthor().getName() : null)
+                .authorLogin(c.getAuthor() != null ? c.getAuthor().getLogin() : null)
+                .authorAvatarUrl(c.getAuthor() != null ? c.getAuthor().getAvatar_url() : null)
+                .date(hasCommitAuthor ? c.getCommit().getAuthor().getDate() : null)
+                .url(c.getHtml_url())
+                .totalAdditions(c.getStats() != null ? c.getStats().getAdditions() : null)
+                .totalDeletions(c.getStats() != null ? c.getStats().getDeletions() : null)
+                .totalChanges(c.getStats() != null ? c.getStats().getTotal() : null)
+                .files(files)
+                .build();
+    }
 }

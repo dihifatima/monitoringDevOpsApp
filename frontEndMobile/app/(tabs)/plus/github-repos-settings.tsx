@@ -72,7 +72,7 @@ export default function GithubRepos() {
 
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  listContent: { padding: 16, paddingBottom: Spacing.lg },
+  listContent: { padding: 16, paddingBottom: Spacing.lg + 60 },
   repoCard: {
     flexDirection: 'row',
     alignItems: 'center',

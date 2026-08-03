@@ -194,6 +194,21 @@ public class GithubOAuthServiceImpl  implements GithubOAuthService {
 
         return response.getBody();
     }
+    @Override
+    public GithubCommitResponse fetchCommitDetail(String accessToken, String owner, String repo, String sha) {
+        String url = String.format("https://api.github.com/repos/%s/%s/commits/%s", owner, repo, sha);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setAccept(java.util.List.of(MediaType.parseMediaType("application/vnd.github+json")));
+        headers.set("X-GitHub-Api-Version", "2022-11-28");
+
+        var response = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(headers), GithubCommitResponse.class
+        );
+
+        return response.getBody();
+    }
 
 
 }

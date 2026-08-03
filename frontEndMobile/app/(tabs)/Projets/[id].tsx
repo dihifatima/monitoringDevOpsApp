@@ -5,6 +5,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
 import CommitListItem from '@/src/components/features/projects/CommitListItem';
+import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
@@ -17,7 +18,7 @@ import { useCommitMeasures } from '@/src/hooks/Oauth_sonarqube/useCommitMeasures
 export default function RepoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
-   isLoading: reposLoading,
+    isLoading: reposLoading,
     selectedRepo: trackedRepo,
     commits,
     commitsLoading,
@@ -32,7 +33,8 @@ export default function RepoDetailScreen() {
   const [isConnectModalVisible, setIsConnectModalVisible] = useState(false);
   const [forceShowLinkForm, setForceShowLinkForm] = useState(false);
 
-
+  // ⚠️ trackedRepo peut être undefined tant que le chargement n'est pas fini,
+  // donc on utilise des valeurs de repli (0 / null) le temps du chargement.
   const { analysisByRevision } = useCommitMeasures(
     trackedRepo?.id ?? 0,
     trackedRepo?.sonarProjectKey ?? null
@@ -108,7 +110,17 @@ export default function RepoDetailScreen() {
         </AppText>
       </View>
 
-
+      {/* ↓ Section Sonar : logique conservée du fichier 1 (fonctionnelle) */}
+      <SonarQubeSection
+        repoId={trackedRepo.id}
+        sonarProjectKey={trackedRepo.sonarProjectKey}
+        onLinked={() => {
+          refresh();
+          setForceShowLinkForm(false);
+        }}
+        forceShowLinkForm={forceShowLinkForm}
+        onDismiss={() => setForceShowLinkForm(false)}
+      />
 
       <SonarQubeConnectModal
         visible={isConnectModalVisible}
@@ -160,6 +172,6 @@ const styles = StyleSheet.create({
   trackedAt: { opacity: 0.5, marginTop: Spacing.xs },
   sectionTitle: { marginBottom: Spacing.sm, letterSpacing: 0.5 },
   commitsLoader: { marginTop: Spacing.lg },
-  listContent: { paddingBottom: Spacing.lg + 60 },
+  listContent: { paddingBottom: Spacing.lg + 50 },
   emptyText: { opacity: 0.5 },
 });

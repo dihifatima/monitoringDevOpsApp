@@ -1,10 +1,7 @@
 package com.example.security.GithubOAuth.controller.facade;
 
 
-import com.example.security.GithubOAuth.controller.dto.CommitSummary;
-import com.example.security.GithubOAuth.controller.dto.RepoSummary;
-import com.example.security.GithubOAuth.controller.dto.TrackRepoRequest;
-import com.example.security.GithubOAuth.controller.dto.TrackedRepoResponse;
+import com.example.security.GithubOAuth.controller.dto.*;
 import com.example.security.GithubOAuth.service.facade.GithubConnectorService;
 import com.example.security.entity.Client;
 import org.springframework.http.ResponseEntity;
@@ -54,5 +51,17 @@ public class GithubRepoController {
         Client client = (Client) authentication.getPrincipal();
         List<CommitSummary> commits = githubConnectorService.getRepoCommits(client.getId(), owner, repo);
         return ResponseEntity.ok(commits);
+
+
+    }
+    @GetMapping("/{owner}/{repo}/commits/{sha}")
+    public ResponseEntity<CommitDetailResponse> getCommitDetail(
+            Authentication authentication,
+            @PathVariable String owner,
+            @PathVariable String repo,
+            @PathVariable String sha) {
+        Client client = (Client) authentication.getPrincipal();
+        CommitDetailResponse commitDetail = githubConnectorService.getCommitDetail(client.getId(), owner, repo, sha);
+        return ResponseEntity.ok(commitDetail);
     }
 }
