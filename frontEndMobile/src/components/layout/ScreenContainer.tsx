@@ -6,13 +6,13 @@ import Spacing from "@/src/styles/spacing";
 import { useTabBarHeight } from "@/src/context/TabBarHeightContext";
 
 interface ScreenContainerProps {
-  children: React.ReactNode;   
-  header?: React.ReactNode;    
-  footer?: React.ReactNode;   
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
   backgroundColor?: string;
   style?: StyleProp<ViewStyle>;
-  scrollable?: boolean;      
-  withTabBar?: boolean;        
+  scrollable?: boolean;
+  withTabBar?: boolean;
 }
 
 const ScreenContainer: React.FC<ScreenContainerProps> = ({
@@ -26,33 +26,31 @@ const ScreenContainer: React.FC<ScreenContainerProps> = ({
 }) => {
   const tabBarHeight = useTabBarHeight();
 
-  const Wrapper = scrollable ? ScrollView : View;
-  const wrapperProps = scrollable
-    ? {
-        contentContainerStyle: [
-          styles.scrollContent,
-      
-          !footer && withTabBar && { paddingBottom: tabBarHeight + Spacing.lg },
-        ],
-        showsVerticalScrollIndicator: false,
-        keyboardShouldPersistTaps: "handled" as const,
-      }
-    : {};
-
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
-
       {header}
 
-      <Wrapper style={[styles.content, style]} {...wrapperProps}>
-        {children}
-      </Wrapper>
+      {scrollable ? (
+        <ScrollView
+          style={styles.scrollWrapper}
+          contentContainerStyle={[
+            styles.scrollContent,
+            style,
+            !footer && withTabBar && { paddingBottom: tabBarHeight + Spacing.lg },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {children}
+        </ScrollView>
+      ) : (
+        <View style={[styles.content, style]}>{children}</View>
+      )}
 
       {footer && (
         <View
           style={[
             styles.footer,
-           
             withTabBar && { paddingBottom: tabBarHeight + Spacing.md },
           ]}
         >
@@ -69,6 +67,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.screenPadding,
     justifyContent: "space-between",
+  },
+  scrollWrapper: {
+    flex: 1,
   },
   scrollContent: {
     paddingHorizontal: Spacing.screenPadding,

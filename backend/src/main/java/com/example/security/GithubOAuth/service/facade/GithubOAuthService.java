@@ -5,6 +5,8 @@ import com.example.security.GithubOAuth.controller.dto.GithubRepoResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubUserResponse;
 import com.example.security.GithubOAuth.controller.dto.GithubWebhookRequest;
 
+import java.util.Optional;
+
 public interface GithubOAuthService {
     String generateState();
 
@@ -15,7 +17,10 @@ public interface GithubOAuthService {
     GithubUserResponse fetchGithubUser(String accessToken);
 
     GithubRepoResponse[] fetchUserRepos(String accessToken);
+    public Optional<GithubCommitResponse> fetchLastCommit(String accessToken, String owner, String repo);
 
     GithubCommitResponse[] fetchRepoCommits(String accessToken, String owner, String repo);
     GithubWebhookRequest createWebhooks(String accessToken, String owner, String repo);
+
+    GithubRepoResponse fetchRepoDetails(String token, String owner, String repoName);
 }

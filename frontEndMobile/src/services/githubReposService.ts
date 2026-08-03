@@ -14,16 +14,26 @@ export type RepoSummary = {
   updatedAt: string;
 };
 
-export type TrackedRepoResponse = {
+export interface TrackedRepoResponse {
   id: number;
   externalRepoId: number;
+  sonarProjectKey: string | null;
   name: string;
+  language: string | null;
+  pushed_at: string | null;
+  default_branch: string | null;
   fullName: string;
   url: string;
-  sonarProjectKey: string | null;
-
   trackedAt: string;
-};
+  
+  // Champs liés au dernier commit (peuvent être null si pas de commit)
+  lastCommitSha: string | null;
+  lastCommitMessage: string | null;
+  lastCommitAuthorLogin: string | null;
+  lastCommitAuthorName: string | null;
+  lastCommitAuthorAvatarUrl: string | null;
+  lastCommitDate: string | null;
+}
 
 export type TrackRepoRequest = {
   externalRepoId: number;

@@ -21,4 +21,6 @@ public class GithubRepoResponse {
     private boolean fork;
     private boolean archived;
     private String updated_at;
+    private String pushed_at;
+    private String default_branch;
 }

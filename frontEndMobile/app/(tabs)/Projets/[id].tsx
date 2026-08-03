@@ -1,11 +1,10 @@
 import { View, FlatList, ActivityIndicator, StyleSheet, Linking, Pressable } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
 import CommitListItem from '@/src/components/features/projects/CommitListItem';
-import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
@@ -13,22 +12,31 @@ import { useState } from 'react';
 import SonarStatusIcon from '@/src/components/features/projects/SonarStatusIcon';
 import SonarQubeConnectModal from '@/src/components/features/connectors/sonarqube/Sonarqubeconnectmodal';
 import { useConnectors } from '@/src/context/ConnectorsContext';
+import { useCommitMeasures } from '@/src/hooks/Oauth_sonarqube/useCommitMeasures';
+
 export default function RepoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const {
-    isLoading: reposLoading,
+   isLoading: reposLoading,
     selectedRepo: trackedRepo,
     commits,
     commitsLoading,
     commitsError,
-    refresh, // ← ajouté
+    refresh,
   } = useRepoDetail(id);
-   const { connectors } = useConnectors();
+
+  const { connectors } = useConnectors();
   const isSonarConnected = connectors.sonarqube?.status === 'CONNECTED';
   const isRepoLinked = !!trackedRepo?.sonarProjectKey;
 
   const [isConnectModalVisible, setIsConnectModalVisible] = useState(false);
   const [forceShowLinkForm, setForceShowLinkForm] = useState(false);
+
+
+  const { analysisByRevision } = useCommitMeasures(
+    trackedRepo?.id ?? 0,
+    trackedRepo?.sonarProjectKey ?? null
+  );
 
   const handleIconPress = () => {
     if (!isSonarConnected) {
@@ -38,8 +46,7 @@ export default function RepoDetailScreen() {
     if (!isRepoLinked) {
       setForceShowLinkForm(true);
     }
-  }
-
+  };
 
   if (reposLoading) {
     return (
@@ -73,7 +80,7 @@ export default function RepoDetailScreen() {
     <ScreenContainer
       backgroundColor={Colors.greyLight}
       withTabBar
-header={
+      header={
         <ScreenHeader
           title={trackedRepo.name}
           rightElement={
@@ -84,7 +91,8 @@ header={
             />
           }
         />
-      }    >
+      }
+    >
       <View style={styles.repoInfo}>
         <AppText variant="body" bold>
           {trackedRepo.fullName}
@@ -100,18 +108,8 @@ header={
         </AppText>
       </View>
 
-      {/* ↓ Nouvelle section, entre les infos du repo et les commits */}
-      <SonarQubeSection
-        repoId={trackedRepo.id}
-        sonarProjectKey={trackedRepo.sonarProjectKey}
-        onLinked={() => {
-          refresh();
-          setForceShowLinkForm(false);
-        }}
-        forceShowLinkForm={forceShowLinkForm}
-        onDismiss={() => setForceShowLinkForm(false)} // ← nouveau
 
-      />
+
       <SonarQubeConnectModal
         visible={isConnectModalVisible}
         onClose={() => setIsConnectModalVisible(false)}
@@ -135,7 +133,18 @@ header={
         <FlatList
           data={commits}
           keyExtractor={(item) => item.sha}
-          renderItem={({ item }) => <CommitListItem commit={item} />}
+          renderItem={({ item }) => (
+            <CommitListItem
+              commit={item}
+              measures={analysisByRevision.get(item.sha)?.measures}
+              onPressDetail={() =>
+                router.push({
+                  pathname: '/(tabs)/Projets/commit-detail',
+                  params: { repoId: String(trackedRepo.id), sha: item.sha },
+                })
+              }
+            />
+          )}
           contentContainerStyle={styles.listContent}
         />
       )}
@@ -151,6 +160,6 @@ const styles = StyleSheet.create({
   trackedAt: { opacity: 0.5, marginTop: Spacing.xs },
   sectionTitle: { marginBottom: Spacing.sm, letterSpacing: 0.5 },
   commitsLoader: { marginTop: Spacing.lg },
-  listContent: { paddingBottom: Spacing.lg },
+  listContent: { paddingBottom: Spacing.lg + 60 },
   emptyText: { opacity: 0.5 },
 });

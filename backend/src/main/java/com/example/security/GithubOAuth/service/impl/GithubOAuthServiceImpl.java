@@ -5,10 +5,7 @@ import com.example.security.GithubOAuth.config.GithubOAuthProperties;
 import com.example.security.GithubOAuth.controller.dto.*;
 import com.example.security.GithubOAuth.service.facade.GithubOAuthService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -16,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -106,6 +104,31 @@ public class GithubOAuthServiceImpl  implements GithubOAuthService {
     }
 
     @Override
+    public Optional<GithubCommitResponse> fetchLastCommit(String accessToken, String owner, String repo) {
+        try {
+            // Pas besoin du paramètre sha=... : GitHub prendra la branche par défaut (main, master, develop, etc.)
+            String url = String.format("https://api.github.com/repos/%s/%s/commits?per_page=1", owner, repo);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            headers.setAccept(java.util.List.of(MediaType.parseMediaType("application/vnd.github+json")));
+            headers.set("X-GitHub-Api-Version", "2022-11-28");
+
+            ResponseEntity<GithubCommitResponse[]> response = restTemplate.exchange(
+                    url, HttpMethod.GET, new HttpEntity<>(headers), GithubCommitResponse[].class
+            );
+
+            GithubCommitResponse[] commits = response.getBody();
+            return (commits != null && commits.length > 0) ? Optional.of(commits[0]) : Optional.empty();
+
+        } catch (Exception e) {
+            System.err.println("Impossible de récupérer le dernier commit pour " + owner + "/" + repo + " : " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+
+    @Override
     public GithubCommitResponse[] fetchRepoCommits(String accessToken, String owner, String repo) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -123,6 +146,23 @@ public class GithubOAuthServiceImpl  implements GithubOAuthService {
 
         return response.getBody() != null ? response.getBody() : new GithubCommitResponse[0];
     }
+    @Override
+    public GithubRepoResponse fetchRepoDetails(String accessToken, String owner, String repo) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        String url = String.format("https://api.github.com/repos/%s/%s", owner, repo);
+
+        var response = restTemplate.exchange(
+                url, HttpMethod.GET, request, GithubRepoResponse.class
+        );
+
+        return response.getBody();
+    }
+
 
     @Override
     public GithubWebhookRequest createWebhooks(String accessToken, String owner, String repo) {

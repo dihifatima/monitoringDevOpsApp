@@ -1,5 +1,6 @@
 package com.example.security.GithubOAuth.service.impl;
 
+
 import com.example.security.Enumeration.ConnextionProvider;
 import com.example.security.GithubOAuth.controller.dto.*;
 import com.example.security.entity.TrackedRepo;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,10 +28,7 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
     private final ExternalConnectionRepo externalConnectionRepo;
     private final TrackedRepositoryRepo trackedRepositoryRepo;
 
-    public GithubConnectorServiceImpl(GithubOAuthService githubOAuthService,
-                                      OAuthStateCache stateCache,
-                                      ClientRepo clientRepo,
-                                      ExternalConnectionRepo externalConnectionRepo, TrackedRepositoryRepo trackedRepositoryRepo) {
+    public GithubConnectorServiceImpl(GithubOAuthService githubOAuthService, OAuthStateCache stateCache, ClientRepo clientRepo, ExternalConnectionRepo externalConnectionRepo, TrackedRepositoryRepo trackedRepositoryRepo) {
         this.githubOAuthService = githubOAuthService;
         this.stateCache = stateCache;
         this.clientRepo = clientRepo;
@@ -37,10 +36,6 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
         this.trackedRepositoryRepo = trackedRepositoryRepo;
     }
 
-    /**
-     * Étape 1 du flow : appelée par l'app mobile (authentifiée).
-     * Génère un state, le lie au client courant, renvoie l'URL GitHub à ouvrir.
-     */
     @Override
     public String initiateConnection(Long clientId) {
         String state = githubOAuthService.generateState();
@@ -48,10 +43,6 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
         return githubOAuthService.buildAuthorizationUrl(state);
     }
 
-    /**
-     * Étape 2 du flow : appelée par GitHub (redirection navigateur, pas authentifiée).
-     * Retrouve le client via le state, échange le code, sauvegarde la connexion.
-     */
     @Override
     @Transactional
     public void handleCallback(String code, String state) {
@@ -139,8 +130,6 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                     connection.getAccessToken(), owner, request.getName()
             );
         } catch (Exception e) {
-            // On ne bloque jamais le tracking du repo si la création du webhook échoue
-            // (ex: token expiré, webhook déjà existant, repo sans droits admin...)
             System.out.println("Échec de la création du webhook pour " + request.getFullName() + " : " + e.getMessage());
         }
 
@@ -149,17 +138,37 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
 
     @Override
     public List<TrackedRepoResponse> getTrackedRepos(Long clientId) {
+        String token = externalConnectionRepo
+                .findByClientIdAndProvider(clientId, ConnextionProvider.GITHUB)
+                .map(ExternalConnection::getAccessToken)
+                .orElse(null);
+
         return trackedRepositoryRepo.findAllByClientId(clientId)
                 .stream()
-                .map(repo -> TrackedRepoResponse.builder()
-                        .id(repo.getId())
-                        .externalRepoId(repo.getExternalRepoId())
-                        .name(repo.getName())
-                        .fullName(repo.getFullName())
-                        .url(repo.getUrl())
-                        .sonarProjectKey(repo.getSonarProjectKey())
-                        .trackedAt(repo.getTrackedAt())
-                        .build())
+                .map(repo -> {
+                    TrackedRepoResponse.TrackedRepoResponseBuilder builder = TrackedRepoResponse.builder()
+                            .id(repo.getId())
+                            .externalRepoId(repo.getExternalRepoId())
+                            .name(repo.getName())
+                            .fullName(repo.getFullName())
+                            .url(repo.getUrl())
+                            .sonarProjectKey(repo.getSonarProjectKey())
+                            .trackedAt(repo.getTrackedAt());
+
+                    if (token != null && repo.getFullName() != null && repo.getFullName().contains("/")) {
+                        String[] parts = repo.getFullName().split("/");
+                        String owner = parts[0];
+                        String repoName = parts[1];
+
+                        // Détails du repo (language, default_branch, pushed_at) — factorisé
+                        applyRepoDetails(builder, token, owner, repoName);
+
+                        // Dernier commit — factorisé, réutilise fetchLastCommit (1 appel léger au lieu de 30 commits)
+                        applyLastCommit(builder, token, owner, repoName);
+                    }
+
+                    return builder.build();
+                })
                 .toList();
     }
 
@@ -174,15 +183,7 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
         );
 
         return Arrays.stream(commits)
-                .map(c -> CommitSummary.builder()
-                        .sha(c.getSha())
-                        .message(c.getCommit().getMessage())
-                        .authorName(c.getCommit().getAuthor() != null ? c.getCommit().getAuthor().getName() : null)
-                        .authorLogin(c.getAuthor() != null ? c.getAuthor().getLogin() : null)
-                        .authorAvatarUrl(c.getAuthor() != null ? c.getAuthor().getAvatar_url() : null)
-                        .date(c.getCommit().getAuthor() != null ? c.getCommit().getAuthor().getDate() : null)
-                        .url(c.getHtml_url())
-                        .build())
+                .map(this::toCommitSummary)
                 .toList();
     }
 
@@ -199,5 +200,63 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                         .build());
     }
 
+    // ---------------------------------------------------------------
+    // Méthodes privées factorisées
+    // ---------------------------------------------------------------
 
+    /** Convertit un GithubCommitResponse (brut GitHub) en CommitSummary (DTO exposé à l'API). */
+    private CommitSummary toCommitSummary(GithubCommitResponse c) {
+        boolean hasCommitAuthor = c.getCommit() != null && c.getCommit().getAuthor() != null;
+
+        return CommitSummary.builder()
+                .sha(c.getSha())
+                .message(c.getCommit() != null ? c.getCommit().getMessage() : null)
+                .authorName(hasCommitAuthor ? c.getCommit().getAuthor().getName() : null)
+                .authorLogin(c.getAuthor() != null ? c.getAuthor().getLogin() : null)
+                .authorAvatarUrl(c.getAuthor() != null ? c.getAuthor().getAvatar_url() : null)
+                .date(hasCommitAuthor ? c.getCommit().getAuthor().getDate() : null)
+                .url(c.getHtml_url())
+                .build();
+    }
+
+    /** Remplit language/default_branch/pushed_at sur le builder, en avalant les erreurs GitHub. */
+    private void applyRepoDetails(TrackedRepoResponse.TrackedRepoResponseBuilder builder, String token, String owner, String repoName) {
+        try {
+            GithubRepoResponse details = githubOAuthService.fetchRepoDetails(token, owner, repoName);
+            if (details != null) {
+                builder.language(details.getLanguage());
+                builder.default_branch(details.getDefault_branch());
+                builder.pushed_at(
+                        details.getPushed_at() != null
+                                ? OffsetDateTime.parse(details.getPushed_at()).toLocalDateTime()
+                                : null
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur détails repo pour " + repoName + ": " + e.getMessage());
+        }
+    }
+
+    /** Remplit les champs lastCommit* sur le builder, en avalant les erreurs GitHub. */
+    private void applyLastCommit(TrackedRepoResponse.TrackedRepoResponseBuilder builder, String token, String owner, String repoName) {
+        try {
+            githubOAuthService.fetchLastCommit(token, owner, repoName)
+                    .ifPresent(lastCommit -> {
+                        CommitSummary summary = toCommitSummary(lastCommit);
+
+                        builder.lastCommitSha(summary.getSha());
+                        builder.lastCommitMessage(summary.getMessage());
+                        builder.lastCommitAuthorName(summary.getAuthorName());
+                        builder.lastCommitAuthorLogin(summary.getAuthorLogin());
+                        builder.lastCommitAuthorAvatarUrl(summary.getAuthorAvatarUrl());
+                        builder.lastCommitDate(
+                                summary.getDate() != null
+                                        ? OffsetDateTime.parse(summary.getDate()).toLocalDateTime()
+                                        : null
+                        );
+                    });
+        } catch (Exception e) {
+            System.err.println("Erreur commit pour " + repoName + ": " + e.getMessage());
+        }
+    }
 }

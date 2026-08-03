@@ -3,8 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
-import Typography from '@/src/styles/typography';
-import type { SonarQubeMeasuresResponse } from '@/src/services/sonarQubeMeasuresService';
+import type { SonarQubeMeasuresResponse } from '@/src/services/sonarQubeService';
 
 type SonarMeasuresCardProps = {
   data: SonarQubeMeasuresResponse;

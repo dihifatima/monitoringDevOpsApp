@@ -21,3 +21,20 @@ export async function getSonarMeasures(repoId: number): Promise<SonarQubeMeasure
   const { data } = await API.get('/api/sonarqube/measures', { params: { repoId } });
   return data;
 }
+
+export type CommitMeasureEntry = {
+  metric: string;
+  value: string;
+};
+
+export type CommitMeasures = {
+  revision: string;
+  date: string;
+  projectVersion: string;
+  measures: CommitMeasureEntry[];
+};
+
+export async function getCommitMeasures(repoId: number): Promise<CommitMeasures[]> {
+  const { data } = await API.get('/api/sonarqube/commit-measures', { params: { repoId } });
+  return data;
+}
