@@ -20,20 +20,17 @@ public class TrackedRepo {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private ConnextionProvider provider; // GITHUB pour l'instant
+    private ConnextionProvider provider;
 
-    private Long externalRepoId;   // l'id GitHub du repo (stable, ne change pas si renommé)
-    private String name;           // ex: "SmartFlow"
+    private Long externalRepoId;
+    private String name;
     private String fullName;       // ex: "dihifatima/SmartFlow"
     private String url;
-
-
     private LocalDateTime trackedAt;
-
     private String sonarProjectKey;
+    private String jenkinsJobName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
-
 }
