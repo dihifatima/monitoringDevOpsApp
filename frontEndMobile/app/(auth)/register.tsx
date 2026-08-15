@@ -10,10 +10,10 @@ import { useAuth } from '@/src/hooks/Auth/useAuth';
 import { authScreenStyles as styles } from './authScreenStyles';
 
 const registerFields: FormFieldConfig[] = [
-  { key: 'firstname', icon: 'person-outline', placeholder: 'First name' },
-  { key: 'lastname', icon: 'person-outline', placeholder: 'Last name' },
+  { key: 'firstname', icon: 'person-outline', placeholder: 'Prénom' },
+  { key: 'lastname', icon: 'person-outline', placeholder: 'Nom' },
   { key: 'email', icon: 'mail-outline', placeholder: 'Email', keyboardType: 'email-address', autoCapitalize: 'none' },
-  { key: 'password', icon: 'lock-closed-outline', placeholder: 'Password', secureTextEntry: true },
+  { key: 'password', icon: 'lock-closed-outline', placeholder: 'Mot de passe', secureTextEntry: true },
 ];
 
 export default function RegisterScreen() {
@@ -23,7 +23,7 @@ export default function RegisterScreen() {
   return (
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
-        <AppText variant="h1" style={styles.title}>Sign up</AppText>
+        <AppText variant="h1" style={styles.title}>Inscription</AppText>
 
         <AppForm
           fields={registerFields}
@@ -39,8 +39,8 @@ export default function RegisterScreen() {
         )}
 
         <AppButton
-          label={loading ? 'Inscription en cours...' : 'Sign up'}
-          variant="primary"
+          label={loading ? 'Inscription en cours...' : "S'inscrire"}
+          variant="green"
           onPress={loading ? () => {} : handleRegister}
           style={styles.primaryButton}
         />
@@ -51,7 +51,7 @@ export default function RegisterScreen() {
           style={styles.linkText}
           onPress={() => router.push('/(auth)/login')}
         >
-          Already have an account? <AppText variant="small" style={styles.linkBold}>Log in</AppText>
+          Déjà un compte ? <AppText variant="small" style={styles.linkBold}>Se connecter</AppText>
         </AppText>
       </View>
     </ScreenContainer>

@@ -6,7 +6,7 @@ import Spacing from "@/src/styles/spacing";
 
 interface ProgressDotsProps {
   totalSteps: number;
-  currentStep: number; // index de 0 à totalSteps-1
+  currentStep: number; 
 }
 
 const ProgressDots: React.FC<ProgressDotsProps> = ({ totalSteps, currentStep }) => {
@@ -19,7 +19,7 @@ const ProgressDots: React.FC<ProgressDotsProps> = ({ totalSteps, currentStep }) 
             styles.dot,
             {
               backgroundColor:
-                index === currentStep ? Colors.grey : Colors.white,
+                index === currentStep ? Colors.success : Colors.greyLight,
             },
           ]}
         />

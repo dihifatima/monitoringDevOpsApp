@@ -13,7 +13,7 @@ import { StyleSheet, View } from "react-native";
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { user } = useAuthGlobal(); 
+  const { user } = useAuthGlobal();
 
   const handleSkip = () => {
     if (user) {
@@ -33,26 +33,19 @@ export default function OnboardingScreen() {
       </View>
 
       <View style={styles.textBlock}>
-        <AppText variant="h1" bold color={Colors.accent}>
-          DevOps Insights{"\n"}Made for{"\t"}Smart  Teams
+        <AppText variant="h1" bold color={Colors.black} style={styles.title}>
+          Toute votre chaîne DevOps réunie
         </AppText>
-        <AppText
-          variant="small"
-          color={Colors.black}
-          style={{ marginTop: Spacing.sm }}
-        >
+        <AppText variant="small" color={Colors.grey} style={styles.subtitle}>
           Analyse, décide et déploie en toute confiance
         </AppText>
       </View>
 
       <View style={styles.footer}>
-        <AppButton
-          label="Skip"
-          variant="text"
-          onPress={handleSkip} 
-        />
+        <AppButton label="Skip" variant="text" onPress={handleSkip} />
         <AppButton
           label="Suivant"
+          variant="secondary"
           showArrow
           onPress={() => router.push("/objective")}
         />
@@ -63,15 +56,27 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   illustrationWrapper: {
-    marginTop: Spacing.xl,
+    marginTop: Spacing.xxl,
+    padding: Spacing.md,
+    alignItems: "center",
   },
   textBlock: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.s,
+    alignItems: "center",
+    paddingHorizontal: Spacing.s,
+  },
+  title: {
+    textAlign: "center",
+    lineHeight: 50,
+  },
+  subtitle: {
+    textAlign: "center",
+    marginTop: Spacing.xs,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xxl,
   },
 });

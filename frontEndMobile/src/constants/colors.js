@@ -6,6 +6,8 @@ const Colors = {
     black: "#050708",
     greyLight: '#e6e8ec',
 
+    whiteLight: '#f4f5f4',
+
     success: '#556B2F',
     warning: '#F0E68C',
     error: '#CD5C5C',

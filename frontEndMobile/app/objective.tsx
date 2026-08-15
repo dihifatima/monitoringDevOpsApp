@@ -9,6 +9,7 @@ import Spacing from "@/src/styles/spacing";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+
 export default function ObjectiveScreen() {
   const router = useRouter();
 
@@ -22,13 +23,13 @@ export default function ObjectiveScreen() {
       </View>
 
       <View style={styles.textBlock}>
-        <AppText variant="h1" bold color={Colors.accent}>
-          Décidez en{"\n"}toute confiance
+        <AppText variant="h1" bold color={Colors.black} style={styles.title}>
+          Décidez en toute confiance
         </AppText>
         <AppText
           variant="title"
-          color={Colors.black}
-          style={{ marginTop: Spacing.sm }}
+          color={Colors.grey}
+          style={styles.subtitle}
         >
           Notre IA analyse GitHub, Jenkins et SonarQube pour vous dire si votre déploiement est prêt.
         </AppText>
@@ -42,6 +43,8 @@ export default function ObjectiveScreen() {
         />
         <AppButton
           label="Suivant"
+          variant="secondary"
+
           showArrow
           onPress={() => router.push("/(auth)/welcome")}
         />
@@ -53,14 +56,26 @@ export default function ObjectiveScreen() {
 const styles = StyleSheet.create({
   illustrationWrapper: {
     marginTop: Spacing.xl,
+    alignItems: "center",
   },
   textBlock: {
     marginBottom: Spacing.lg,
+    alignItems: "center",
+    paddingHorizontal: Spacing.xs,
+  },
+  title: {
+    textAlign: "center",
+    lineHeight: 45,
+  },
+  subtitle: {
+    textAlign: "center",
+    marginTop: Spacing.sm,
+    lineHeight: 22,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xxl,
   },
 });

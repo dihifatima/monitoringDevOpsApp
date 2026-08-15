@@ -19,7 +19,7 @@ const ScreenContainer: React.FC<ScreenContainerProps> = ({
   children,
   header,
   footer,
-  backgroundColor = Colors.green,
+  backgroundColor = Colors.whiteLight,
   style,
   scrollable = false,
   withTabBar = false,

@@ -12,7 +12,7 @@ import { StyleSheet, View } from 'react-native';
 
 export default function WelcomeScreen() {
   const [showAuthSheet, setShowAuthSheet] = useState(false);
-  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn(); 
+  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn();
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
@@ -25,21 +25,22 @@ export default function WelcomeScreen() {
         <AppText variant="h1" style={styles.title}>
           Bienvenue
         </AppText>
-        
+
         <AppText variant="body" color={Colors.black} style={styles.subtitle}>
           Suivez vos projets DevOps en un coup d'œil
         </AppText>
 
         <View style={styles.actions}>
           <AppButton
-            label={googleLoading ? 'Connexion...' : 'Continuer avec Google'} 
-            variant="secondary"
-            icon="logo-google"
-            onPress={googleLoading ? () => {} : signInWithGoogle} 
+            label={googleLoading ? 'Connexion...' : 'Continuer avec Google'}
+            variant="green"
+            iconImage={Images.googleLogo}
+            onPress={googleLoading ? () => {} : signInWithGoogle}
           />
           <AppButton
             label="Continuer avec Email"
             variant="text"
+            iconImage={Images.gmailLogo}
             onPress={() => setShowAuthSheet(true)}
           />
 
@@ -60,22 +61,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logoPlaceholder: {
-    width: 64,
-    height: 64,
-    borderRadius: 12,
-    backgroundColor: Colors.green,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.lg,
-  },
-  illustration: {
-    width: 220,
-    height: 220,
+  illustrationWrapper: {
+    marginTop: Spacing.xl,
     marginBottom: Spacing.xl,
   },
   title: {
     marginBottom: Spacing.sm,
+    textAlign: 'center',
   },
   subtitle: {
     textAlign: 'center',
@@ -84,16 +76,5 @@ const styles = StyleSheet.create({
   actions: {
     width: '100%',
     gap: Spacing.sm,
-  },
-  link: {
-    textAlign: 'center',
-    marginTop: Spacing.sm,
-  },
-  linkBold: {
-    color: Colors.black,
-    fontWeight: '600',
-  },
-  illustrationWrapper: {
-    marginTop: Spacing.xl,
   },
 });

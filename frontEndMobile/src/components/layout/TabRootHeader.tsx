@@ -12,7 +12,7 @@ import NotificationsPreviewModal from '@/src/components/features/notifications/N
 interface TabRootHeaderProps {
   mode: 'greeting' | 'title';
   title?: string;        
-  fullName?: string;     // requis si mode="greeting"
+  fullName?: string;    
   avatarUri?: string | null;
 }
 

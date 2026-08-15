@@ -8,7 +8,7 @@ const TopIconsRow: React.FC = () => {
   return (
     <View style={styles.row}>
       <View style={styles.iconCircle}>
-        <Ionicons name="flash" size={18} color={Colors.white} />
+        <Ionicons name="flash" size={18} color={Colors.black} />
       </View>
       <View style={styles.iconCircle}>
         <Ionicons name="card-outline" size={18} color={Colors.white} />

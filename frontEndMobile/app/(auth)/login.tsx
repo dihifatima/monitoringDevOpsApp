@@ -1,6 +1,7 @@
 import { useGoogleSignIn } from '@/src/hooks/Auth/useGoogleSignIn';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
+import Images from "@/src/constants/images";
 
 import AppButton from '@/src/components/common/AppButton';
 import AppForm, { FormFieldConfig } from '@/src/components/common/AppForm';
@@ -12,7 +13,7 @@ import { authScreenStyles as styles } from './authScreenStyles';
 
 const loginFields: FormFieldConfig[] = [
   { key: 'email', icon: 'mail-outline', placeholder: 'Email', keyboardType: 'email-address', autoCapitalize: 'none' },
-  { key: 'password', icon: 'lock-closed-outline', placeholder: 'Password', secureTextEntry: true },
+  { key: 'password', icon: 'lock-closed-outline', placeholder: 'Mot de passe', secureTextEntry: true },
 ];
 
 export default function LoginScreen() {
@@ -23,7 +24,7 @@ export default function LoginScreen() {
   return (
     <ScreenContainer backgroundColor={Colors.white}>
       <View style={styles.content}>
-        <AppText variant="h1" style={styles.title}>Login</AppText>
+        <AppText variant="h1" style={styles.title}>Connexion</AppText>
 
         <AppForm
           fields={loginFields}
@@ -43,20 +44,20 @@ export default function LoginScreen() {
           color={Colors.grey}
           onPress={() => router.push('/(auth)/forgotPassword')}
         >
-          Forgot Password?
+          Mot de passe oublié ?
         </AppText>
 
         <AppButton
-          label={loading ? 'Connexion...' : 'Login'}
+          label={loading ? 'Connexion...' : 'Se connecter'}
           variant="primary"
           onPress={loading ? () => { } : handleLogin}
           style={styles.primaryButton}
         />
 
         <AppButton
-          label={googleLoading ? 'Connexion...' : 'Continue with Google'}
-          variant="secondary"
-          icon="logo-google"
+          label={googleLoading ? 'Connexion...' : 'Continuer avec Google'}
+          variant="green"
+          iconImage={Images.googleLogo}
           onPress={googleLoading ? () => { } : signInWithGoogle}
         />
 
@@ -66,7 +67,7 @@ export default function LoginScreen() {
           style={styles.linkText}
           onPress={() => router.push('/(auth)/register')}
         >
-          Need an account? <AppText variant="small" style={styles.linkBold}>Sign up</AppText>
+          Pas encore de compte ? <AppText variant="small" style={styles.linkBold}>S'inscrire</AppText>
         </AppText>
       </View>
     </ScreenContainer>

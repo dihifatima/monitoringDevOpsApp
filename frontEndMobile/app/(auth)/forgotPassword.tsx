@@ -35,7 +35,7 @@ export default function ForgotPasswordScreen() {
 
         <AppButton
           label={loading ? 'Envoi...' : 'Envoyer le code'}
-          variant="primary"
+          variant="green"
           onPress={loading ? () => {} : handleForgotPassword}
           style={styles.primaryButton}
         />
