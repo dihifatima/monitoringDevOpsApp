@@ -5,7 +5,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
 import CommitListItem from '@/src/components/features/projects/CommitListItem';
-import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
+//import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
@@ -110,7 +110,8 @@ export default function RepoDetailScreen() {
         </AppText>
       </View>
 
-      {/* ↓ Section Sonar : logique conservée du fichier 1 (fonctionnelle) */}
+      {/* ↓ Section Sonar : logique conservée du fichier 1 (fonctionnelle)
+      
       <SonarQubeSection
         repoId={trackedRepo.id}
         sonarProjectKey={trackedRepo.sonarProjectKey}
@@ -121,6 +122,10 @@ export default function RepoDetailScreen() {
         forceShowLinkForm={forceShowLinkForm}
         onDismiss={() => setForceShowLinkForm(false)}
       />
+      */}
+
+
+
 
       <SonarQubeConnectModal
         visible={isConnectModalVisible}

@@ -16,6 +16,7 @@ public class TrackedRepoResponse {
     private Long id;
     private Long externalRepoId;
     private String sonarProjectKey;
+    private String jenkinsJobName;
     private String name;
     private String language;
     private LocalDateTime pushed_at;

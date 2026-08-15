@@ -38,8 +38,8 @@ export const connectorsConfig: ConnectorConfig[] = [
     id: 'jenkins',
     title: 'Jenkins',
     description: 'CI/CD pipelines',
-    iconImage: Images.jenkinsLogo,
-    iconBgColor: Colors.blueLight ?? '#DCEBFB',
-    route: null,
+    iconImage: Images.JenkinsLogo,
+    iconBgColor: Colors.greyLight ,
+    route: '/Pipelines',
   },
 ];

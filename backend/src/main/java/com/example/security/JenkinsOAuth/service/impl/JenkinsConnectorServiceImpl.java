@@ -123,6 +123,25 @@ public class JenkinsConnectorServiceImpl implements JenkinsConnectorService {
         );
     }
 
+    @Override
+    public JenkinsBuildResponse findBuildForCommit(Long clientId, Long repoId, String commitSha) {
+        JenkinsJobBuildsResponse builds = getBuildList(clientId, repoId);
+
+        for (JenkinsJobBuildsResponse.BuildRef ref : builds.getBuilds()) {
+            JenkinsBuildResponse detail = getBuildDetail(clientId, repoId, ref.getNumber());
+
+            boolean found = detail.getChangeSets() != null && detail.getChangeSets().stream()
+                    .flatMap(cs -> cs.getItems().stream())
+                    .anyMatch(item -> commitSha.equals(item.getCommitId()));
+
+            if (found) {
+                return detail;
+            }
+        }
+
+        return null;
+    }
+
     // --- Méthodes privées utilitaires, pour éviter de répéter la même vérification 3 fois ---
 
     private TrackedRepo getVerifiedRepoWithJob(Long clientId, Long repoId) {

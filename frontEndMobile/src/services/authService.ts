@@ -1,7 +1,5 @@
-// src/services/authService.ts
 import API, { PublicAPI } from "@/src/config/axios";
 
-// Interfaces pour sécuriser tes types de données
 export interface UserData {
   firstname?: string;
   lastname?: string;

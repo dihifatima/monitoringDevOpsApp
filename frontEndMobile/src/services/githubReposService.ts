@@ -18,6 +18,7 @@ export interface TrackedRepoResponse {
   id: number;
   externalRepoId: number;
   sonarProjectKey: string | null;
+  jenkinsJobName: string | null;
   name: string;
   language: string | null;
   pushed_at: string | null;

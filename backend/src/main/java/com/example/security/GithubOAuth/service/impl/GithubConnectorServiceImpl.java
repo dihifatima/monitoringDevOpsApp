@@ -153,6 +153,7 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                             .fullName(repo.getFullName())
                             .url(repo.getUrl())
                             .sonarProjectKey(repo.getSonarProjectKey())
+                            .jenkinsJobName(repo.getJenkinsJobName())
                             .trackedAt(repo.getTrackedAt());
 
                     if (token != null && repo.getFullName() != null && repo.getFullName().contains("/")) {

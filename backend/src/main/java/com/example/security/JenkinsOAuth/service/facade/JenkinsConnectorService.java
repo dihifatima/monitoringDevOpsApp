@@ -12,4 +12,6 @@ public interface JenkinsConnectorService {
     JenkinsJobBuildsResponse getBuildList(Long clientId, Long repoId);
     JenkinsBuildResponse getBuildDetail(Long clientId, Long repoId, int buildNumber);
 
+    JenkinsBuildResponse findBuildForCommit(Long clientId, Long repoId, String commitSha);
+
 }

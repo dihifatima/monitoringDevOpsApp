@@ -9,7 +9,7 @@ import Spacing from '@/src/styles/spacing';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
 import { useCommitMeasures } from '@/src/hooks/Oauth_sonarqube/useCommitMeasures';
 import { useCommitDetail } from '@/src/hooks/Oauth_github/useCommitDetail';
-
+import { useCommitBuild } from '@/src/hooks/Oauth_jenkins/useBuildForCommit';
 const METRIC_LABELS: Record<string, string> = {
   bugs: 'Bugs',
   vulnerabilities: 'Vulnérabilités',
@@ -35,9 +35,9 @@ const FILE_STATUS_COLORS: Record<string, string> = {
   renamed: '#4A90D9',
 };
 
+
 export default function CommitDetailScreen() {
   const { repoId, sha } = useLocalSearchParams<{ repoId: string; sha: string }>();
-
   const {
     isLoading: reposLoading,
     selectedRepo: trackedRepo,
@@ -57,6 +57,8 @@ export default function CommitDetailScreen() {
     trackedRepo?.id ?? 0,
     trackedRepo?.sonarProjectKey ?? null
   );
+  const { build, isLoading: buildLoading } = useCommitBuild(trackedRepo?.id, sha);
+
 
   if (reposLoading) {
     return (
@@ -210,6 +212,7 @@ export default function CommitDetailScreen() {
       <AppText variant="body" bold style={styles.sectionTitle}>
         Qualité du code
       </AppText>
+     
 
       {measuresLoading ? (
         <ActivityIndicator color={Colors.black} />
@@ -243,6 +246,44 @@ export default function CommitDetailScreen() {
           </View>
         </View>
       )}
+       <AppText variant="body" bold style={styles.sectionTitle}>
+  Build Jenkins
+</AppText>
+
+{buildLoading ? (
+  <ActivityIndicator color={Colors.black} />
+) : !build ? (
+  <View style={styles.card}>
+    <AppText variant="small" style={styles.emptyText}>
+      Ce commit n'a pas encore été inclus dans un build Jenkins.
+    </AppText>
+  </View>
+) : (
+  <View style={styles.card}>
+    <View style={styles.buildHeaderRow}>
+      <AppText variant="h3" bold>
+        Build #{build.number}
+      </AppText>
+      <View
+        style={[
+          styles.statusBadge,
+          { backgroundColor: (build.result === 'SUCCESS' ? '#3E8E4F' : '#C0392B') + '22' },
+        ]}
+      >
+        <AppText
+          variant="small"
+          color={build.result === 'SUCCESS' ? '#3E8E4F' : '#C0392B'}
+          style={styles.statusText}
+        >
+          {build.result ?? (build.building ? 'EN COURS' : 'INCONNU')}
+        </AppText>
+      </View>
+    </View>
+    <AppText variant="small" style={styles.analysisDate}>
+      {new Date(build.timestamp).toLocaleString()} · {Math.round(build.duration / 1000)}s
+    </AppText>
+  </View>
+)}
     </ScreenContainer>
   );
 }
@@ -301,4 +342,9 @@ const styles = StyleSheet.create({
   },
   statusText: { fontWeight: '700' as any },
   fileStat: { fontWeight: '600' as any },
+  buildHeaderRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
 });
