@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   content: {
     flex: 1,
-    paddingHorizontal: Spacing.screenPadding,
+    paddingHorizontal: Spacing.s,
     justifyContent: "space-between",
   },
   scrollWrapper: {

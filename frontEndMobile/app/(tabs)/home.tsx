@@ -3,11 +3,18 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
 import Typography from '@/src/styles/typography';
 import Spacing from '@/src/styles/spacing';
+import { useRecentActivity } from '@/src/hooks/home/useRecentActivity';
+import RecentActivityList from '@/src/components/features/home/RecentActivityList';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 import TabRootHeader from '@/src/components/layout/TabRootHeader';
-
+import { useHomeStats } from '@/src/hooks/home/useHomeStats';
+import HomeStatsRow from '@/src/components/features/home/HomeStatsRow';
+import QuickActions from '@/src/components/features/home/QuickActions';
 export default function HomeScreen() {
   const { user, loading } = useAuthGlobal();
+  const { stats } = useHomeStats();
+const { activity } = useRecentActivity();
+
 
   const header = (
     <TabRootHeader
@@ -34,8 +41,15 @@ export default function HomeScreen() {
       header={header}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.sectionTitle}>Home Screen</Text>
+        <HomeStatsRow
+        totalRepos={stats.totalRepos}
+        success={stats.success}
+       failure={stats.failure}
+       building={stats.building}/>
+       <QuickActions />
+<RecentActivityList activity={activity} />
       </ScrollView>
+      
     </ScreenContainer>
   );
 }
