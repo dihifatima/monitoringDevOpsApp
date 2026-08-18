@@ -1,4 +1,4 @@
-import { View, FlatList, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
+import { View, FlatList, StyleSheet, ActivityIndicator, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import AppText from '@/src/components/common/AppText';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -71,26 +71,32 @@ export default function PipelinesScreen() {
             <AppText variant="body" bold style={{ marginBottom: Spacing.sm }}>
               Builds récents
             </AppText>
-            <FlatList
-              data={sortedBuilds.slice(0, 10)}
-              keyExtractor={(item) => String(item.number)}
-              scrollEnabled={false}
-              renderItem={({ item }) => (
-                <BuildRunRow
-                  number={item.number}
-                  result={(item as any).result ?? null}
-                  building={(item as any).building ?? false}
-                  duration={(item as any).duration ?? 0}
-                  timestamp={(item as any).timestamp ?? Date.now()}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/Pipelines/[repoId]/[buildNumber]',
-                      params: { repoId: String(selected.repoId), buildNumber: String(item.number) },
-                    })
-                  }
-                />
-              )}
-            />
+            <ScrollView>
+              <FlatList
+  data={sortedBuilds.slice(0, 10)}
+  keyExtractor={(item) => String(item.number)}
+  scrollEnabled={false}
+  renderItem={({ item, index }) => (
+    <BuildRunRow
+      number={item.number}
+      result={(item as any).result ?? null}
+      building={(item as any).building ?? false}
+      duration={(item as any).duration ?? 0}
+      timestamp={(item as any).timestamp ?? Date.now()}
+      branch={(item as any).branch ?? null}
+      triggeredBy={(item as any).triggeredBy ?? null}
+      isLast={index === sortedBuilds.slice(0, 10).length - 1}
+      onPress={() =>
+        router.push({
+          pathname: '/Pipelines/[repoId]/[buildNumber]',
+          params: { repoId: String(selected.repoId), buildNumber: String(item.number) },
+        })
+      }
+    />
+  )}
+/>
+            </ScrollView>
+
           </>
         )}
       </View>

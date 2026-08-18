@@ -7,7 +7,7 @@ import Spacing from '@/src/styles/spacing';
 import type { PipelineEntry } from '@/src/hooks/Oauth_jenkins/usePipelinesOverview';
 
 const STATUS_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  SUCCESS: { bg: '#a9e06c', text: '#3d6b1f', label: 'SUCCESS' },
+  SUCCESS: { bg: Colors.green, text: Colors.buildSuccess, label: 'SUCCESS' },
   FAILURE: { bg: '#f5c6c6', text: '#a13a3a', label: 'FAILURE' },
   BUILDING: { bg: '#ffe6a8', text: '#8a6200', label: 'BUILDING' },
 };

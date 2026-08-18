@@ -7,30 +7,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JenkinsBuildResponse {
+public class JenkinsTestReportRaw {
+    private Integer passCount;
+    private Integer failCount;
+    private Integer skipCount;
+    private Double duration;
+    private List<Suite> suites;
 
-    private Integer number;
-    private String result;
-    private Long timestamp;
-    private Long duration;
-    private boolean building;
-    private List<ChangeSet> changeSets;
-    private String branch; // NOUVEAU, rempli manuellement après désérialisation (voir JenkinsServiceImpl)
-    private String triggeredBy; // NOUVEAU
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class ChangeSet {
-        private List<ChangeItem> items;
+    public static class Suite {
+        private List<Case> cases;
     }
 
     @Data
@@ -38,8 +34,10 @@ public class JenkinsBuildResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class ChangeItem {
-        private String commitId;
-        private String msg;
+    public static class Case {
+        private String className;
+        private String name;
+        private String status;
+        private String errorDetails;
     }
 }

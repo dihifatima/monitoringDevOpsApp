@@ -36,12 +36,12 @@ export default function PipelineBuildsScreen() {
             renderItem={({ item }) => (
               <Pressable
                 style={styles.row}
-onPress={() =>
-  router.push({
-    pathname: '/Pipelines/[repoId]/[buildNumber]',
-    params: { repoId: String(numericRepoId), buildNumber: String(item.number) },
-  })
-}              >
+                onPress={() =>
+                  router.push({
+                    pathname: '/Pipelines/[repoId]/[buildNumber]',
+                    params: { repoId: String(numericRepoId), buildNumber: String(item.number) },
+                  })
+                }              >
                 <AppText variant="body" bold>
                   Build #{item.number}
                 </AppText>

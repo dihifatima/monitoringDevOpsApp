@@ -3,6 +3,7 @@ package com.example.security.JenkinsOAuth.service.impl;
 import com.example.security.Enumeration.ConnextionProvider;
 import com.example.security.JenkinsOAuth.controller.dto.JenkinsBuildResponse;
 import com.example.security.JenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.JenkinsOAuth.controller.dto.TestSummaryResponse;
 import com.example.security.JenkinsOAuth.service.facade.JenkinsConnectorService;
 import com.example.security.JenkinsOAuth.service.facade.JenkinsService;
 import com.example.security.entity.Client;
@@ -163,6 +164,16 @@ public class JenkinsConnectorServiceImpl implements JenkinsConnectorService {
         return externalConnectionRepo
                 .findByClientIdAndProvider(clientId, ConnextionProvider.JENKINS)
                 .orElseThrow(() -> new RuntimeException("Jenkins not connected for this client"));
+    }
+
+    @Override
+    public TestSummaryResponse getTestSummary(Long clientId, Long repoId, int buildNumber) {
+        TrackedRepo trackedRepo = getVerifiedRepoWithJob(clientId, repoId);
+        ExternalConnection connection = getConnection(clientId);
+
+        return jenkinsService.fetchTestSummary(
+                connection.getExternalUrl(), connection.getAccessToken(), trackedRepo.getJenkinsJobName(), buildNumber
+        );
     }
 
 }

@@ -13,6 +13,9 @@ const Colors = {
     error: '#CD5C5C',
     info: '#3B82F6',
 
+    bleuClaire: '#dbe9fb',
+    rougeClaire: '#f3d1d1',
+
     buildSuccess: '#556B2F',
     buildFailed: '#CD5C5C',
     buildRunning: '#3B82F6',

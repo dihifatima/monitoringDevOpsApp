@@ -15,10 +15,11 @@ export function useBuildDetail(repoId: number | undefined, buildNumber: number |
     setIsLoading(true);
     setError(null);
 
-    getBuildDetail(repoId, buildNumber)
-      .then((data) => {
-        if (!cancelled) setBuild(data);
-      })
+  getBuildDetail(repoId, buildNumber)
+  .then((data) => {
+    console.log('BUILD DETAIL RAW:', JSON.stringify(data, null, 2));
+    if (!cancelled) setBuild(data);
+  })
       .catch(() => {
         if (!cancelled) setError('Impossible de récupérer le détail de ce build.');
       })

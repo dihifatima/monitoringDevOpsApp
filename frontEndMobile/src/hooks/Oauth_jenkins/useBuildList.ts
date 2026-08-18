@@ -15,6 +15,8 @@ export function useBuildList(repoId: number | undefined) {
     setError(null);
     try {
       const data = await getBuildList(repoId);
+      console.log('BUILD LIST RAW:', JSON.stringify(data.builds[0], null, 2));
+
       setBuilds(data.builds ?? []);
     } catch {
       setError("Impossible de récupérer l'historique des builds.");

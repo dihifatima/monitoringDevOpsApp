@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import AppText from '@/src/components/common/AppText';
 import Spacing from '@/src/styles/spacing';
+import Colors from '@/src/constants/colors';
 
 type Props = { success: number; failure: number };
 
@@ -10,23 +11,23 @@ export default function PipelineStatsRow({ success, failure }: Props) {
 
   return (
     <View style={styles.row}>
-      <View style={[styles.card, { backgroundColor: '#dff3e1' }]}>
-        <AppText variant="h2" bold color="#2e8b3d">{success}</AppText>
-        <AppText variant="small" color="#2e8b3d">Succès</AppText>
+      <View style={[styles.card, { backgroundColor: Colors.green }]}>
+        <AppText variant="h4" bold color={Colors.buildSuccess}>{success}</AppText>
+        <AppText variant="small" color={Colors.buildSuccess}>Succès</AppText>
       </View>
-      <View style={[styles.card, { backgroundColor: '#fbe0e0' }]}>
-        <AppText variant="h2" bold color="#c62d2d">{failure}</AppText>
-        <AppText variant="small" color="#c62d2d">Échecs</AppText>
+      <View style={[styles.card, { backgroundColor: Colors.rougeClaire }]}>
+        <AppText variant="h4" bold color={Colors.buildFailed}>{failure}</AppText>
+        <AppText variant="small" color={Colors.buildFailed}>Échecs</AppText>
       </View>
-      <View style={[styles.card, { backgroundColor: '#dbe9fb' }]}>
-        <AppText variant="h2" bold color="#2b7de9">{rate}%</AppText>
-        <AppText variant="small" color="#2b7de9">Taux OK</AppText>
+      <View style={[styles.card, { backgroundColor: Colors.bleuClaire }]}>
+        <AppText variant="h4" bold color={Colors.info}>{rate}%</AppText>
+        <AppText variant="small" color={Colors.info}>Taux OK</AppText>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
-  card: { flex: 1, borderRadius: 14, padding: Spacing.sm, alignItems: 'flex-start' },
+  row: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
+  card: { flex: 1, borderRadius: 14, padding: Spacing.xs, alignItems: 'center' },
 });

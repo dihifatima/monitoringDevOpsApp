@@ -1,6 +1,7 @@
 package com.example.security.JenkinsOAuth.controller.facade;
 import com.example.security.JenkinsOAuth.controller.dto.JenkinsBuildResponse;
 import com.example.security.JenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.JenkinsOAuth.controller.dto.TestSummaryResponse;
 import com.example.security.JenkinsOAuth.service.facade.JenkinsConnectorService;
 import com.example.security.entity.Client;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,18 @@ public class JenkinsBuildController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(build);
+    }
+
+    @GetMapping("/{repoId}/builds/{buildNumber}/tests")
+    public ResponseEntity<TestSummaryResponse> getTestSummary(Authentication authentication,
+                                                              @PathVariable Long repoId,
+                                                              @PathVariable int buildNumber) {
+        Client client = (Client) authentication.getPrincipal();
+        TestSummaryResponse summary = jenkinsConnectorService.getTestSummary(client.getId(), repoId, buildNumber);
+        if (summary == null) {
+            return ResponseEntity.noContent().build(); // pas de tests publiés — cas normal
+        }
+        return ResponseEntity.ok(summary);
     }
 
 }

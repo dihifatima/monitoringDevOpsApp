@@ -2,6 +2,7 @@ package com.example.security.JenkinsOAuth.service.facade;
 
 import com.example.security.JenkinsOAuth.controller.dto.JenkinsBuildResponse;
 import com.example.security.JenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.JenkinsOAuth.controller.dto.TestSummaryResponse;
 
 public interface JenkinsConnectorService {
     void connect(Long clientId, String jenkinsUrl, String username, String apiToken);
@@ -14,4 +15,5 @@ public interface JenkinsConnectorService {
 
     JenkinsBuildResponse findBuildForCommit(Long clientId, Long repoId, String commitSha);
 
+    TestSummaryResponse getTestSummary(Long id, Long repoId, int buildNumber);
 }

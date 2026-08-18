@@ -7,27 +7,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
+public class TestSummaryResponse {
+    private Integer totalCount;
+    private Integer passCount;
+    private Integer failCount;
+    private Integer skipCount;
+    private Double duration;              // NOUVEAU — durée totale en secondes
+    private List<FailedTest> failedTests;  // NOUVEAU — détail des échecs uniquement
 
-public class JenkinsJobBuildsResponse {
-    private List<BuildRef> builds;
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class BuildRef {
-        private Integer number;
-        private String url;
-        private String result;      // NOUVEAU
-        private boolean building;   // NOUVEAU
-        private Long timestamp;     // NOUVEAU
-        private Long duration;      // NOUVEAU
-        private String branch; // NOUVEAU
-
+    public static class FailedTest {
+        private String className;
+        private String name;
+        private String errorDetails;
     }
 }
