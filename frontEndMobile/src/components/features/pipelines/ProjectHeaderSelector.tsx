@@ -29,7 +29,7 @@ export default function ProjectHeaderSelector({ entries, selected, onSelect }: P
       <Modal visible={open} animationType="slide" transparent onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.overlay} onPress={() => setOpen(false)}>
           <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-            <AppText variant="h3" bold style={{ marginBottom: Spacing.md }}>
+            <AppText variant="h4" bold style={{ marginBottom: Spacing.s }}>
               Choisir un projet
             </AppText>
             <FlatList
@@ -48,9 +48,9 @@ export default function ProjectHeaderSelector({ entries, selected, onSelect }: P
                   >
                     <View style={styles.itemLeft}>
                       {isActive && (
-                        <Ionicons name="checkmark" size={16} color={Colors.black} style={{ marginRight: 8 }} />
+                        <Ionicons name="checkmark" size={20} color={Colors.success} style={{ marginRight: 8 }} />
                       )}
-                      <AppText variant="body" bold={isActive}>
+                      <AppText variant="small"   bold={isActive}>
                         {item.repoName}
                       </AppText>
                     </View>
@@ -61,7 +61,7 @@ export default function ProjectHeaderSelector({ entries, selected, onSelect }: P
                       ]}
                     >
                       <AppText variant="small" color={itemLinked ? '#2e8b3d' : '#6b7280'} bold>
-                        {itemLinked ? 'LIÉ' : 'NON LIÉ'}
+                        {itemLinked ? 'Liée' : 'Non liée'}
                       </AppText>
                     </View>
                   </Pressable>

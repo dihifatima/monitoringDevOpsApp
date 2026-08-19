@@ -50,7 +50,6 @@ export default function PipelinesScreen() {
           </AppText>
         ) : !selected?.jenkinsJobName ? (
           <View style={styles.unlinkedCard}>
-            <AppText variant="h1" style={{ marginBottom: 10 }}>🔗</AppText>
             <AppText variant="body" color={Colors.grey} style={{ textAlign: 'center', marginBottom: Spacing.md }}>
               Ce projet n'est pas encore lié à un job Jenkins.
             </AppText>
@@ -73,28 +72,28 @@ export default function PipelinesScreen() {
             </AppText>
             <ScrollView>
               <FlatList
-  data={sortedBuilds.slice(0, 10)}
-  keyExtractor={(item) => String(item.number)}
-  scrollEnabled={false}
-  renderItem={({ item, index }) => (
-    <BuildRunRow
-      number={item.number}
-      result={(item as any).result ?? null}
-      building={(item as any).building ?? false}
-      duration={(item as any).duration ?? 0}
-      timestamp={(item as any).timestamp ?? Date.now()}
-      branch={(item as any).branch ?? null}
-      triggeredBy={(item as any).triggeredBy ?? null}
-      isLast={index === sortedBuilds.slice(0, 10).length - 1}
-      onPress={() =>
-        router.push({
-          pathname: '/Pipelines/[repoId]/[buildNumber]',
-          params: { repoId: String(selected.repoId), buildNumber: String(item.number) },
-        })
-      }
-    />
-  )}
-/>
+                data={sortedBuilds.slice(0, 10)}
+                keyExtractor={(item) => String(item.number)}
+                scrollEnabled={false}
+                renderItem={({ item, index }) => (
+                  <BuildRunRow
+                    number={item.number}
+                    result={(item as any).result ?? null}
+                    building={(item as any).building ?? false}
+                    duration={(item as any).duration ?? 0}
+                    timestamp={(item as any).timestamp ?? Date.now()}
+                    branch={(item as any).branch ?? null}
+                    triggeredBy={(item as any).triggeredBy ?? null}
+                    isLast={index === sortedBuilds.slice(0, 10).length - 1}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/Pipelines/[repoId]/[buildNumber]',
+                        params: { repoId: String(selected.repoId), buildNumber: String(item.number) },
+                      })
+                    }
+                  />
+                )}
+              />
             </ScrollView>
 
           </>

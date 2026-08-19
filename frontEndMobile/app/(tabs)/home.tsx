@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import Colors from '@/src/constants/colors';
 import Typography from '@/src/styles/typography';

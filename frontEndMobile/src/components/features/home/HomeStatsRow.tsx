@@ -14,15 +14,15 @@ export default function HomeStatsRow({ totalRepos, success, failure, building }:
   return (
     <View style={styles.row}>
       <View style={[styles.card, { backgroundColor: Colors.info }]}>
-        <AppText variant="h2" bold color={Colors.black}>
+        <AppText variant="small" bold color={Colors.black}>
           {totalRepos}
         </AppText>
-        <AppText variant="small" color={Colors.black}>
+        <AppText variant="heighSmall" color={Colors.black}>
           Repos suivis
         </AppText>
       </View>
       <View style={[styles.card, { backgroundColor: Colors.green }]}>
-        <AppText variant="h2" bold color={Colors.black}>
+        <AppText variant="h4" bold color={Colors.black}>
           {success}
         </AppText>
         <AppText variant="small" color={Colors.black}>
@@ -30,7 +30,7 @@ export default function HomeStatsRow({ totalRepos, success, failure, building }:
         </AppText>
       </View>
       <View style={[styles.card, { backgroundColor: Colors.buildFailed }]}>
-        <AppText variant="h2" bold color={Colors.black}>
+        <AppText variant="h4" bold color={Colors.black}>
           {failure}
         </AppText>
         <AppText variant="small" color={Colors.black}>
@@ -38,7 +38,7 @@ export default function HomeStatsRow({ totalRepos, success, failure, building }:
         </AppText>
       </View>
       <View style={[styles.card, { backgroundColor: Colors.warning }]}>
-        <AppText variant="h2" bold color={Colors.black}>
+        <AppText variant="h4" bold color={Colors.black}>
           {building}
         </AppText>
         <AppText variant="small" color={Colors.black}>
@@ -52,13 +52,13 @@ export default function HomeStatsRow({ totalRepos, success, failure, building }:
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
+    gap: Spacing.xs,
+    marginBottom: Spacing.s,
   },
   card: {
     flex: 1,
     borderRadius: Spacing.cardRadius,
-    padding: Spacing.sm,
-    alignItems: 'flex-start',
+    padding: Spacing.xs,
+    alignItems: 'center',
   },
 });

@@ -11,14 +11,18 @@ export function useLinkJenkinsJob() {
     try {
       await linkJenkinsJob(request);
       return true;
- } catch (err: any) {
-  console.log('LINK ERROR:', err?.response?.status, err?.response?.data, err?.message);
-  setError('Impossible de lier ce job. Vérifie le nom exact du job Jenkins.');
-  return false;
-} finally {
+    } catch (err: any) {
+      console.log('LINK ERROR:', err?.response?.status, err?.response?.data, err?.message);
+      setError('Impossible de lier ce job. Vérifie le nom exact du job Jenkins.');
+      return false;
+    } finally {
       setIsLinking(false);
     }
   }, []);
 
-  return { link, isLinking, error };
+  const reset = useCallback(() => {
+    setError(null);
+  }, []);
+
+  return { link, isLinking, error, reset };
 }

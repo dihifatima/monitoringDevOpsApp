@@ -12,25 +12,35 @@ type Props = {
   repoId: number | null;
   repoName?: string;
   onClose: () => void;
-  onLinked: () => void; // pour rafraîchir la liste des pipelines
+  onLinked: () => void;
 };
 
 export default function LinkJenkinsJobModal({ visible, repoId, repoName, onClose, onLinked }: Props) {
   const [jobName, setJobName] = useState('');
-  const { link, isLinking, error } = useLinkJenkinsJob();
+  const { link, isLinking, error, reset } = useLinkJenkinsJob();
+
+  const handleClose = () => {
+    if (isLinking) return;
+    setJobName('');
+    reset(); // ← efface l'erreur affichée avant la prochaine ouverture
+    onClose();
+  };
 
   const handleConfirm = async () => {
     if (!repoId || !jobName.trim()) return;
     const success = await link({ repoId, jenkinsJobName: jobName.trim() });
     if (success) {
       setJobName('');
+      reset();
       onLinked();
       onClose();
     }
   };
 
+  const canSubmit = !!jobName.trim() && !isLinking;
+
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View style={styles.overlay}>
         <View style={styles.card}>
           <AppText variant="h3" bold>
@@ -57,15 +67,16 @@ export default function LinkJenkinsJobModal({ visible, repoId, repoName, onClose
           )}
 
           <View style={styles.actions}>
-            <Pressable onPress={onClose} disabled={isLinking}>
+            <Pressable onPress={handleClose} disabled={isLinking}>
               <AppText variant="body" bold>
                 Annuler
               </AppText>
             </Pressable>
             <AppButton
-              title={isLinking ? 'Liaison...' : 'Confirmer'}
+              label={isLinking ? 'Liaison...' : 'Confirmer'}
+              variant="primary"
               onPress={handleConfirm}
-              disabled={isLinking || !jobName.trim()}
+              style={!canSubmit && styles.buttonDisabled}
             />
           </View>
         </View>
@@ -95,4 +106,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.md,
   },
+  buttonDisabled: { opacity: 0.5 },
 });
