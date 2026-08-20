@@ -4,7 +4,7 @@
 node_modules/
 
 api-*.json
-
+google-services.json
 # Expo
 .expo/
 dist/
