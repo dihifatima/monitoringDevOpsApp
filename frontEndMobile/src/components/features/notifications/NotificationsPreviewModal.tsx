@@ -36,7 +36,7 @@ const NotificationsPreviewModal: React.FC<NotificationsPreviewModalProps> = ({
 
       {/* Placeholder en attendant le backend notifications */}
       <View style={styles.emptyState}>
-        <Ionicons name="notifications-outline" size={32} color={Colors.GrisPerle} />
+        <Ionicons name="notifications-outline" size={32} color={Colors.greyLight} />
         <AppText variant="body" style={styles.emptyText}>
           Aucune notification pour l'instant
         </AppText>

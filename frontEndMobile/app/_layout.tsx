@@ -3,7 +3,9 @@ import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAppFonts } from '@/src/hooks/useAppFonts';
 import { AuthProvider } from '@/src/context/AuthContext'; 
-import { GoogleSignin } from '@react-native-google-signin/google-signin'; 
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+import { PushNotificationsManager } from '@/src/components/features/notifications/PushNotificationsManager';
 
 SplashScreen.preventAutoHideAsync();
 GoogleSignin.configure({
@@ -12,6 +14,7 @@ GoogleSignin.configure({
 });
 export default function RootLayout() {
   const fontsLoaded = useAppFonts();
+
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -24,7 +27,8 @@ export default function RootLayout() {
   }
   return (
     <AuthProvider>
-      
+          <PushNotificationsManager />
+
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="objective" options={{ headerShown: false }} />

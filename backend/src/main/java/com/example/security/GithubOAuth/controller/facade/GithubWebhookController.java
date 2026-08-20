@@ -2,11 +2,14 @@ package com.example.security.GithubOAuth.controller.facade;
 
 import com.example.security.Enumeration.NotificationType;
 import com.example.security.GithubOAuth.controller.dto.GithubPushPayload;
+import com.example.security.entity.NotificationPushToken;
 import com.example.security.entity.TrackedRepo;
+import com.example.security.repo.NotificationPushTokenRepo;
 import com.example.security.repo.TrackedRepositoryRepo;
 import com.example.security.entity.Client;
 import com.example.security.entity.Notification;
 import com.example.security.repo.NotificationRepo;
+import com.example.security.service.impl.ExpoPushNotificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,10 +31,14 @@ public class GithubWebhookController {
 
     private final TrackedRepositoryRepo trackedRepositoryRepo;
     private final NotificationRepo notificationRepo;
+    private final NotificationPushTokenRepo notificationPushTokenRepo;
+    private final ExpoPushNotificationService expoPushNotificationService;
 
-    public GithubWebhookController(TrackedRepositoryRepo trackedRepositoryRepo, NotificationRepo notificationRepo) {
+    public GithubWebhookController(TrackedRepositoryRepo trackedRepositoryRepo, NotificationRepo notificationRepo, NotificationPushTokenRepo notificationPushTokenRepo, ExpoPushNotificationService expoPushNotificationService) {
         this.trackedRepositoryRepo = trackedRepositoryRepo;
         this.notificationRepo = notificationRepo;
+        this.notificationPushTokenRepo = notificationPushTokenRepo;
+        this.expoPushNotificationService = expoPushNotificationService;
     }
 
     @PostMapping
@@ -73,6 +81,14 @@ public class GithubWebhookController {
                         .commitsha(sha)
                         .build();
                 notificationRepo.save(notification);
+                List<NotificationPushToken> pushTokens = notificationPushTokenRepo.findAllByClientId(client.getId());
+                for (NotificationPushToken pushToken : pushTokens) {
+                    expoPushNotificationService.sendPushNotification(
+                            pushToken.getExpoPushToken(),
+                            "Nouveau commit",
+                            STR."\{commit.getMessage()} sur \{trackedRepo.getName()}"
+                    );
+                }
             }
         }
 
