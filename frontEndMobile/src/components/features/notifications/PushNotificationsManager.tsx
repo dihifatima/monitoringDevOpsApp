@@ -10,7 +10,7 @@ export function PushNotificationsManager() {
   useEffect(() => {
     if (user && expoPushToken) {
       registerPushToken(expoPushToken).catch((err) => {
-        console.log('Erreur enregistrement push token:', err);
+        console.log('Erreur enregistrement push Token:', err);
       });
     }
   }, [user, expoPushToken]);
