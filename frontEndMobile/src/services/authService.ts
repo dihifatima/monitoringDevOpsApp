@@ -34,7 +34,7 @@ export const authService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de l'inscription :", error);
+      console.error("Erreur l ors de l'inscription :", error);
       throw error;
     }
   },
