@@ -5,6 +5,7 @@ node_modules/
 
 api-*.json
 google-services.json
+projetpfaenvenio-firebase-adminsdk-fbsvc-e45c1607cf.json
 # Expo
 .expo/
 dist/
