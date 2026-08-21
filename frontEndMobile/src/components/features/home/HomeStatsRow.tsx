@@ -26,7 +26,7 @@ export default function HomeStatsRow({ totalRepos, success, failure, building }:
           {success}
         </AppText>
         <AppText variant="small" color={Colors.black}>
-          Builds OK !
+          Builds OK 
         </AppText>
       </View>
       <View style={[styles.card, { backgroundColor: Colors.buildFailed }]}>
