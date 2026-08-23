@@ -42,7 +42,7 @@ export default function NotificationsSettings() {
       withTabBar
       header={<ScreenHeader title="Notifications" />}
     >
-      {/* Un seul enfant direct pour neutraliser le justifyContent:'space-between'
+      {/* Un seul enfant direct  pour neutraliser le justifyContent:'space-between'
           de ScreenContainer (hérité du style pensé pour l'onboarding) */}
       <View>
         {/* Toggle principal */}
