@@ -8,6 +8,7 @@ import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 import NotificationsPreviewModal from '@/src/components/features/notifications/NotificationsPreviewModal';
+import { useUnreadNotificationsCount } from '@/src/hooks/notifications/useUnreadNotificationsCount';
 
 interface TabRootHeaderProps {
   mode: 'greeting' | 'title';
@@ -42,6 +43,7 @@ const TabRootHeader: React.FC<TabRootHeaderProps> = ({
       ]
     );
   };
+const unreadCount = useUnreadNotificationsCount();
 
   return (
     <View style={styles.header}>
@@ -79,9 +81,10 @@ const TabRootHeader: React.FC<TabRootHeaderProps> = ({
 
       {/* Actions à droite */}
       <View style={styles.actions}>
-        <Pressable onPress={() => setNotifModalVisible(true)} hitSlop={8}>
-          <Ionicons name="notifications-outline" size={22} color={Colors.black} />
-        </Pressable>
+       <Pressable onPress={() => setNotifModalVisible(true)} hitSlop={8} style={styles.bellWrapper}>
+  <Ionicons name="notifications-outline" size={22} color={Colors.black} />
+  {unreadCount > 0 && <View style={styles.unreadBadge} />}
+</Pressable>
         <Pressable onPress={handleLogout} hitSlop={8}>
           <Ionicons name="log-out-outline" size={22} color={Colors.black} />
         </Pressable>
@@ -129,6 +132,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.md,
   },
+  bellWrapper: {
+  position: 'relative',
+},
+unreadBadge: {
+  position: 'absolute',
+  top: -2,
+  right: -2,
+  width: 9,
+  height: 9,
+  borderRadius: 5,
+  backgroundColor: '#E24C4C',
+  borderWidth: 1.5,
+  borderColor: Colors.greyLight,
+},
 });
 
 export default TabRootHeader;

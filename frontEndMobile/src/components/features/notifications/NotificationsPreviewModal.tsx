@@ -1,6 +1,6 @@
 // src/components/features/notifications/NotificationsPreviewModal.tsx
-import React from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AppModal from '@/src/components/common/AppModal';
@@ -8,6 +8,9 @@ import AppText from '@/src/components/common/AppText';
 import AppButton from '@/src/components/common/AppButton';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
+import { getNotifications, markNotificationAsRead, Notification } from '@/src/services/notificationsService';
+import NotificationCard from '@/src/components/features/notifications/NotificationCard';
+import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
 
 interface NotificationsPreviewModalProps {
   visible: boolean;
@@ -18,9 +21,36 @@ const NotificationsPreviewModal: React.FC<NotificationsPreviewModalProps> = ({
   visible,
   onClose,
 }) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!visible) return;
+    setLoading(true);
+    getNotifications()
+      .then((data) => setNotifications(data.slice(0, 3))) // backend renvoie déjà trié par createdAt desc
+      .catch(() => setNotifications([]))
+      .finally(() => setLoading(false));
+  }, [visible]);
+
   const handleSeeAll = () => {
     onClose();
     router.push('/(tabs)/notifications');
+  };
+
+  const handlePress = (notification: Notification) => {
+    if (!notification.read) {
+      markNotificationAsRead(notification.id).catch(() => {});
+    }
+    onClose();
+
+    const route = resolveNotificationRoute({
+      type: notification.type,
+      trackedRepoId: notification.trackedRepo?.id,
+      commitsha: notification.commitsha ?? undefined,
+    });
+
+    if (route) router.push(route as any);
   };
 
   return (
@@ -34,13 +64,26 @@ const NotificationsPreviewModal: React.FC<NotificationsPreviewModalProps> = ({
         </Pressable>
       </View>
 
-      {/* Placeholder en attendant le backend notifications */}
-      <View style={styles.emptyState}>
-        <Ionicons name="notifications-outline" size={32} color={Colors.greyLight} />
-        <AppText variant="body" style={styles.emptyText}>
-          Aucune notification pour l'instant
-        </AppText>
-      </View>
+      {loading ? (
+        <ActivityIndicator color={Colors.black} style={styles.loader} />
+      ) : notifications.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="notifications-outline" size={32} color={Colors.greyLight} />
+          <AppText variant="body" style={styles.emptyText}>
+            Aucune notification pour l'instant
+          </AppText>
+        </View>
+      ) : (
+        <View style={styles.list}>
+          {notifications.map((notification) => (
+            <NotificationCard
+              key={notification.id}
+              notification={notification}
+              onPress={handlePress}
+            />
+          ))}
+        </View>
+      )}
 
       <AppButton label="Voir tout" onPress={handleSeeAll} variant="text" />
     </AppModal>
@@ -53,6 +96,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: Spacing.md,
+  },
+  list: {
+    marginBottom: Spacing.sm,
+  },
+  loader: {
+    marginVertical: Spacing.lg,
   },
   emptyState: {
     alignItems: 'center',
