@@ -68,9 +68,6 @@ public class GithubWebhookController {
         TrackedRepo trackedRepo = trackedRepoOpt.get();
 
         Client client = trackedRepo.getClient();
-        if (!client.isNotificationsEnabled()) {
-            return ResponseEntity.ok().build();
-        }
 
         for (GithubPushPayload.GithubCommitsInfo commit : payload.getCommits()) {
             String sha = commit.getId();
@@ -82,24 +79,27 @@ public class GithubWebhookController {
                         .message(STR."\{commit.getMessage()} sur \{trackedRepo.getName()}")
                         .commitsha(sha)
                         .build();
-                notificationRepo.save(notification);
-                List<NotificationPushToken> pushTokens = notificationPushTokenRepo.findAllByClientId(client.getId());
-                for (NotificationPushToken pushToken : pushTokens) {
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("type", "COMMIT");
-                    data.put("trackedRepoId", trackedRepo.getId());
-                    data.put("commitsha", sha);
+                notificationRepo.save(notification); // ✅ toujours sauvegardée, peu importe le toggle
 
-                    expoPushNotificationService.sendPushNotification(
-                            pushToken.getExpoPushToken(),
-                            "Nouveau commit",
-                            STR."\{commit.getMessage()} sur \{trackedRepo.getName()}",
-                            data
-                    );
+                // Push envoyé uniquement si l'utilisateur l'a activé
+                if (client.isNotificationsEnabled()) {
+                    List<NotificationPushToken> pushTokens = notificationPushTokenRepo.findAllByClientId(client.getId());
+                    for (NotificationPushToken pushToken : pushTokens) {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("type", "COMMIT");
+                        data.put("trackedRepoId", trackedRepo.getId());
+                        data.put("commitsha", sha);
+
+                        expoPushNotificationService.sendPushNotification(
+                                pushToken.getExpoPushToken(),
+                                "Nouveau commit",
+                                STR."\{commit.getMessage()} sur \{trackedRepo.getName()}",
+                                data
+                        );
+                    }
                 }
             }
         }
-
         return ResponseEntity.ok().build();
     }
     private String computeSignature(String payload, String secret) throws Exception {

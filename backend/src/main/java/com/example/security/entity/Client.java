@@ -24,7 +24,7 @@ public class Client extends User {
     private String company;
 
     @Builder.Default
-    private boolean notificationsEnabled = true;
+    private boolean notificationsEnabled = false;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
