@@ -21,7 +21,7 @@ export const connectorsConfig: ConnectorConfig[] = [
   {
     id: 'github',
     title: 'GitHub',
-    description: 'Historique des commits et repos',
+    description: 'Historique des commits - repos',
     icon: 'logo-github',
     iconBgColor: Colors.greyLight,
     route: '/plus/github-repos-settings',
