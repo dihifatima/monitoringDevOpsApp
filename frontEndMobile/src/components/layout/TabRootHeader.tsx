@@ -59,7 +59,7 @@ const { unreadCount } = useNotificationsGlobal();
         )}
       </Pressable>
 
-      {/* Zone centrale — greeting (Home) ou titre simple (autres tabs) */}
+      {/* Zone centrale  — greeting (Home) ou titre simple (autres tabs) */}
       <View style={styles.centerText}>
         {mode === 'greeting' ? (
           <>
