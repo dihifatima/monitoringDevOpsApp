@@ -31,7 +31,7 @@ public class Notification {
      private String message;
     private String commitsha;
    @Builder.Default
-    private boolean read= true;
+    private boolean read= false;
     private LocalDateTime createdAt;
 
    @PrePersist
