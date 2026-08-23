@@ -8,8 +8,7 @@ import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 import NotificationsPreviewModal from '@/src/components/features/notifications/NotificationsPreviewModal';
-import { useUnreadNotificationsCount } from '@/src/hooks/notifications/useUnreadNotificationsCount';
-
+import { useNotificationsGlobal } from '@/src/context/NotificationsContext';
 interface TabRootHeaderProps {
   mode: 'greeting' | 'title';
   title?: string;        
@@ -43,8 +42,7 @@ const TabRootHeader: React.FC<TabRootHeaderProps> = ({
       ]
     );
   };
-const unreadCount = useUnreadNotificationsCount();
-
+const { unreadCount } = useNotificationsGlobal();
   return (
     <View style={styles.header}>
       {/* Avatar — cliquable, renvoie vers l'édition du profil */}

@@ -11,7 +11,7 @@ import Spacing from '@/src/styles/spacing';
 import { getNotifications, markNotificationAsRead, Notification } from '@/src/services/notificationsService';
 import NotificationCard from '@/src/components/features/notifications/NotificationCard';
 import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
-
+import { useNotificationsGlobal } from '@/src/context/NotificationsContext';
 interface NotificationsPreviewModalProps {
   visible: boolean;
   onClose: () => void;
@@ -23,6 +23,7 @@ const NotificationsPreviewModal: React.FC<NotificationsPreviewModalProps> = ({
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
+  const { refreshUnreadCount } = useNotificationsGlobal();
 
   useEffect(() => {
     if (!visible) return;
@@ -38,10 +39,12 @@ const NotificationsPreviewModal: React.FC<NotificationsPreviewModalProps> = ({
     router.push('/(tabs)/notifications');
   };
 
-  const handlePress = (notification: Notification) => {
-    if (!notification.read) {
-      markNotificationAsRead(notification.id).catch(() => {});
-    }
+const handlePress = (notification: Notification) => {
+  if (!notification.read) {
+    markNotificationAsRead(notification.id)
+      .then(refreshUnreadCount)
+      .catch(() => {});
+  }
     onClose();
 
     const route = resolveNotificationRoute({

@@ -5,12 +5,20 @@ import { usePushNotifications } from '@/src/hooks/notifications/usePushNotificat
 import { registerPushToken } from '@/src/services/notificationsService';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
+import { useNotificationsGlobal } from '@/src/context/NotificationsContext';
 
 export function PushNotificationsManager() {
   const { user } = useAuthGlobal();
   const { expoPushToken } = usePushNotifications();
   const coldStartHandled = useRef(false);
+const { refreshUnreadCount } = useNotificationsGlobal();
 
+useEffect(() => {
+  const receivedListener = Notifications.addNotificationReceivedListener(() => {
+    refreshUnreadCount();
+  });
+  return () => receivedListener.remove();
+}, [refreshUnreadCount]); 
   useEffect(() => {
     if (user && expoPushToken) {
       registerPushToken(expoPushToken).catch((err) => {

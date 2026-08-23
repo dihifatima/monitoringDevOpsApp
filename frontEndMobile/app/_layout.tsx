@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useAppFonts } from '@/src/hooks/useAppFonts';
 import { AuthProvider } from '@/src/context/AuthContext'; 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { NotificationsProvider } from '@/src/context/NotificationsContext';
 
 import { PushNotificationsManager } from '@/src/components/features/notifications/PushNotificationsManager';
 
@@ -27,6 +28,8 @@ export default function RootLayout() {
   }
   return (
     <AuthProvider>
+          <NotificationsProvider>
+
           <PushNotificationsManager />
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -34,6 +37,8 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       </Stack>
+          </NotificationsProvider>
+
     </AuthProvider>
   );
 }
