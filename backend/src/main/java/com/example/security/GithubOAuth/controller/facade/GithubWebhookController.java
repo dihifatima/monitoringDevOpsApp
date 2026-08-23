@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -83,10 +85,16 @@ public class GithubWebhookController {
                 notificationRepo.save(notification);
                 List<NotificationPushToken> pushTokens = notificationPushTokenRepo.findAllByClientId(client.getId());
                 for (NotificationPushToken pushToken : pushTokens) {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("type", "COMMIT");
+                    data.put("trackedRepoId", trackedRepo.getId());
+                    data.put("commitsha", sha);
+
                     expoPushNotificationService.sendPushNotification(
                             pushToken.getExpoPushToken(),
                             "Nouveau commit",
-                            STR."\{commit.getMessage()} sur \{trackedRepo.getName()}"
+                            STR."\{commit.getMessage()} sur \{trackedRepo.getName()}",
+                            data
                     );
                 }
             }

@@ -22,7 +22,7 @@ public class ExpoPushNotificationService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void sendPushNotification(String expoPushToken, String title, String body) {
+    public void sendPushNotification(String expoPushToken, String title, String body,Map<String, Object> data) {
         if (expoPushToken == null || expoPushToken.isBlank()) {
             logger.warn("Pas de token push pour ce client, envoi ignoré");
             return;
@@ -33,6 +33,8 @@ public class ExpoPushNotificationService {
         payload.put("title", title);
         payload.put("body", body);
         payload.put("sound", "default");
+        payload.put("data", data);
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

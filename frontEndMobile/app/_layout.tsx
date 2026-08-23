@@ -28,7 +28,6 @@ export default function RootLayout() {
   return (
     <AuthProvider>
           <PushNotificationsManager />
-
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="objective" options={{ headerShown: false }} />
