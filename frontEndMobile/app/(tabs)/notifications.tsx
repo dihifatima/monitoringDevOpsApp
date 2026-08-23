@@ -11,6 +11,8 @@ import NotificationFilterTabs from '@/src/components/features/notifications/Noti
 import NotificationsHeader from '@/src/components/layout/NotificationsHeader';
 import { Notification } from '@/src/services/notificationsService';
 import { getNotificationTitle } from '@/src/utils/notificationFormat';
+import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
+import { router } from 'expo-router';
 
 export default function NotificationsScreen() {
   const { user } = useAuthGlobal();
@@ -46,11 +48,19 @@ export default function NotificationsScreen() {
     />
   );
 
-  const handlePress = (notification: Notification) => {
-    if (!notification.read) markAsRead(notification.id);
-    // Navigation ciblée à ajouter ici selon le type, ex :
-    // router.push(`/(tabs)/projects/${notification.trackedRepo.id}`);
-  };
+const handlePress = (notification: Notification) => {
+  if (!notification.read) markAsRead(notification.id);
+
+  const route = resolveNotificationRoute({
+    type: notification.type,
+    trackedRepoId: notification.trackedRepo?.id,
+    commitsha: notification.commitsha ?? undefined,
+  });
+
+  if (route) {
+    router.push(route as any);
+  }
+};
 
   return (
     <ScreenContainer backgroundColor={Colors.greyLight} withTabBar header={header}>
