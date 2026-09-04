@@ -10,7 +10,7 @@ import { PushNotificationsManager } from '@/src/components/features/notification
 
 SplashScreen.preventAutoHideAsync();
 GoogleSignin.configure({
-  webClientId: '829349118406-pobgcs0joeg3jsv75itr31bsa8kf4er0.apps.googleusercontent.com',
+  webClientId: '208058372543-6aiocvhvtaibeplc32ulp9mj8rglsskq.apps.googleusercontent.com',
   offlineAccess: false,
 });
 export default function RootLayout() {

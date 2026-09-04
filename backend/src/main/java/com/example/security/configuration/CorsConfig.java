@@ -14,7 +14,11 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                         "http://10.82.73.215:*",
                         "http://localhost:*",
-                        "http://192.168.*.*:*"   // optionnel : pour tout réseau local
+                        "http://192.168.*.*:*" ,  // optionnel : pour tout réseau local
+                        "https://*.ngrok-free.dev",   //  ajouté
+                        "https://*.ngrok-free.app"    //  au cas où (autre domaine ngrok possible)
+
+
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")

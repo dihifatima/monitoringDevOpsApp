@@ -6,7 +6,7 @@ export const ENV = {
     ? (Platform.OS === "android" 
         ? process.env.EXPO_PUBLIC_API_URL_ANDROID 
         : process.env.EXPO_PUBLIC_API_URL_IOS)
-    : (process.env.EXPO_PUBLIC_API_URL_PROD || "https://api.skinecare99.com/api/v1"),
+    : (process.env.EXPO_PUBLIC_API_URL_PROD || "https://quarterly-greeting-unsigned.ngrok-free.dev"),
     
   // Tu pourras ajouter d'autres variables globales ici plus tard
   // ex: GOOGLE_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID
