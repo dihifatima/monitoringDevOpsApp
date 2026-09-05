@@ -18,7 +18,7 @@ public class GoogleAuthController {
 
     @PostMapping("/google")
     public ResponseEntity<AuthenticationResponse> authenticateGoogle(
-            @RequestBody GoogleAuthenticateRequest request) throws Exception {
+            @RequestBody GoogleAuthenticateRequest request) {
         return ResponseEntity.ok(googleAuthService.authenticate(request));
     }
 }

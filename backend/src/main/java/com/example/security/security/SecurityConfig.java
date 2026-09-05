@@ -29,23 +29,21 @@ public class SecurityConfig {
                 csrf(AbstractHttpConfigurer::disable).
                 authorizeHttpRequests(
                         req->
-                                req.requestMatchers( // auth + swagger
-                                                "/auth/**",
-                                                "/v2/api-docs",
-                                                "/v3/api-docs",
-                                                "/v3/api-docs/**",
-                                                "/swagger-resources",
-                                                "/swagger-resources/**",
-                                                "/configuration/ui",
-                                                "/configuration/security",
-                                                "/swagger-ui/**",
-                                                "/auth/**",
-                                                "/api-docs",
-                                                "/api-docs/**",
-                                                "/swagger-ui/**",
-                                                "/swagger-ui.html",
+                                req.requestMatchers(
+                                                "/auth/register",
+                                                "/auth/login",
+                                                "/auth/refresh",
+                                                "/auth/logout",
+                                                "/auth/forgot-password",
+                                                "/auth/reset-password",
+                                                "/auth/activate-account",
+                                                "/auth/google",
+                                                "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**",
+                                                "/swagger-resources", "/swagger-resources/**",
+                                                "/configuration/ui", "/configuration/security",
+                                                "/swagger-ui/**", "/swagger-ui.html",
+                                                "/api-docs", "/api-docs/**",
                                                 "/webjars/**",
-                                                "/swagger-ui.html",
                                                 "/api/connectors/github/callback",
                                                 "/api/webhooks/github/**"
                                 ).permitAll()

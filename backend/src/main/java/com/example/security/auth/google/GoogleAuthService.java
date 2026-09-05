@@ -1,13 +1,12 @@
 package com.example.security.auth.google;
 
+import com.example.security.Enumeration.AuthProvider;
+import com.example.security.auth.local.AuthTokenService;
 import com.example.security.auth.local.AuthenticationResponse;
 import com.example.security.entity.Client;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
-import com.example.security.security.JwtService;
-import com.example.security.Enumeration.AuthProvider;
-import com.example.security.user.Token;           // 👈 AJOUT
-import com.example.security.user.TokenRepository;  // 👈 AJOUT
+import com.example.security.exception.GoogleAuthUnavailableException;
 import com.example.security.user.User;
 import com.example.security.user.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -19,31 +18,48 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Login Google : une fois l'identité vérifiée et l'utilisateur récupéré/créé,
+ * l'émission des tokens passe par AuthTokenService — EXACTEMENT le même chemin
+ * que le login classique (access + refresh token, refresh haché en base).
+ * Aucune logique de token dupliquée ici.
+ */
 @Service
 @RequiredArgsConstructor
 public class GoogleAuthService {
 
+    private static final String CLIENT_ROLE = "CLIENT";
+
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-    private final JwtService jwtService;
-    private final TokenRepository tokenRepository;
+    private final AuthTokenService authTokenService;
 
     @Value("${google.client.id}")
     private String googleClientId;
 
-    public AuthenticationResponse authenticate(GoogleAuthenticateRequest request) throws Exception {
+    public AuthenticationResponse authenticate(GoogleAuthenticateRequest request) {
 
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                new NetHttpTransport(), new GsonFactory())
-                .setAudience(Collections.singletonList(googleClientId))
-                .build();
+        GoogleIdToken idToken;
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+            idToken = verifier.verify(request.getIdToken());
+        } catch (IOException | GeneralSecurityException e) {
+            // Panne réseau, timeout, ou service Google injoignable (récupération des clés
+            // publiques de vérification) : ce n'est PAS une faute du client, à ne jamais
+            // confondre avec un token invalide -> message clair plutôt qu'une 500 brute.
+            throw new GoogleAuthUnavailableException("Google verification service unreachable", e);
+        }
 
-        GoogleIdToken idToken = verifier.verify(request.getIdToken());
         if (idToken == null) {
+            // Ici, la vérification a bien eu lieu mais le token est invalide/expiré : faute du client.
             throw new BadCredentialsException("Invalid Google token");
         }
 
@@ -55,17 +71,11 @@ public class GoogleAuthService {
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> createGoogleUser(email, firstname, lastname));
 
-        var claims = new HashMap<String, Object>();
-        claims.put("fullName", user.getFullName());
-        var jwtToken = jwtService.generateToken(claims, user);
-
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return authTokenService.issueTokens(user);
     }
 
     private User createGoogleUser(String email, String firstname, String lastname) {
-        Role clientRole = roleRepository.findByName("CLIENT")
+        Role clientRole = roleRepository.findByName(CLIENT_ROLE)
                 .orElseThrow(() -> new IllegalStateException("CLIENT role not found"));
 
         Client newClient = Client.builder()
@@ -80,27 +90,5 @@ public class GoogleAuthService {
         newClient.setRoles(List.of(clientRole));
 
         return userRepository.save(newClient);
-    }
-
-
-    private void saveUserToken(User user, String jwtToken) {
-        Token token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(t -> {
-            t.setExpired(true);
-            t.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
     }
 }

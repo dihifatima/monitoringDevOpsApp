@@ -1,13 +1,13 @@
 package com.example.security.auth.local;
 
-
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
+import java.util.List;
+
 @Builder
-public class AuthenticationResponse {
-  private String token;
-  }
+public record AuthenticationResponse(
+        String accessToken,
+        String refreshToken,
+        List<String> roles,
+        String fullName
+) {}

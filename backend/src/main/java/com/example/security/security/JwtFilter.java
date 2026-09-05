@@ -1,20 +1,16 @@
 package com.example.security.security;
 
-import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,40 +25,48 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-         @NotNull HttpServletRequest request,
-         @NotNull   HttpServletResponse response,
-         @NotNull   FilterChain filterChain
+            @NotNull HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // Endpoints publics d'auth : on laisse passer sans essayer d'authentifier,
+        // et on STOPPE ici (le "return" manquant causait un double appel de la chaîne).
+        if (request.getServletPath().contains("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            if(request.getServletPath().contains("/api/v1/auth")){
-                filterChain.doFilter(request,response);
-            }
-            final String authHeader = request.getHeader("Authorization");
-            final String jwt;
-            final String userEmail;
-            if(authHeader == null || !authHeader.startsWith("Bearer ")){
-                filterChain.doFilter(request,response);
-                return;
-            }
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            jwt = authHeader.substring(7);
-            userEmail= jwtService.extractUsername(jwt);
-            if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                if(jwtService.isTokenValid(jwt,userDetails)){
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            }
-        filterChain.doFilter(request,response);
+        final String jwt = authHeader.substring(7);
 
+        // Un refresh token ne doit JAMAIS servir à accéder à un endpoint protégé :
+        // sans cette vérification, il aurait exactement les mêmes droits qu'un access token.
+        if (!jwtService.isAccessToken(jwt)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String userEmail = jwtService.extractUsername(jwt);
+
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
 }

@@ -1,209 +1,114 @@
 package com.example.security.auth.local;
 
 import com.example.security.email.EmailService;
-import com.example.security.entity.Admin;
 import com.example.security.entity.Client;
+import com.example.security.exception.*;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
-import com.example.security.security.JwtService;
 import com.example.security.user.Token;
 import com.example.security.user.TokenRepository;
 import com.example.security.user.User;
 import com.example.security.user.UserRepository;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticateService {
+
+    private static final String CLIENT_ROLE = "CLIENT";
+
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenRepository tokenRepository;
+    private final TokenRepository tokenRepository; // codes activation / reset uniquement
+    private final AuthTokenService authTokenService; // tout ce qui est access/refresh token
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
 
-    public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
+    @Transactional
+    public MessageResponse register(RegistrationRequest request) throws MessagingException {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Email already exists"));
+            throw new EmailAlreadyExistsException(request.getEmail());
         }
 
-        if (request.isAdmin()) {
-            Admin admin = Admin.builder()
-                    .firstname(request.getFirstname())
-                    .lastname(request.getLastname())
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .accountLocked(false)
-                    .enabled(true)
-                    .build();
+        Role clientRole = roleRepository.findByName(CLIENT_ROLE)
+                .orElseThrow(() -> new RoleNotFoundException(CLIENT_ROLE));
 
-            Role adminRole = roleRepository.findByName("ADMIN")
-                    .orElseThrow(() -> new IllegalStateException("ADMIN role not found"));
-            admin.setRoles(List.of(adminRole));
-            userRepository.save(admin);
-            emailService.sendValidationEmail(admin);
-        } else {
-            Client client = Client.builder()
-                    .firstname(request.getFirstname())
-                    .lastname(request.getLastname())
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .accountLocked(false)
-                    .enabled(false)
-                    .build();
+        Client client = Client.builder()
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .accountLocked(false)
+                .enabled(false)
+                .build();
+        client.setRoles(List.of(clientRole));
 
-            Role clientRole = roleRepository.findByName("CLIENT")
-                    .orElseThrow(() -> new IllegalStateException("CLIENT role not found"));
-            client.setRoles(List.of(clientRole));
-            userRepository.save(client);
-            emailService.sendValidationEmail(client);
-        }
+        userRepository.save(client);
+        emailService.sendValidationEmail(client);
 
-        Map<String, String> responseMessage = new HashMap<>();
-        String role = request.isAdmin() ? "ADMIN" : "CLIENT";
-        responseMessage.put("message", "Registration successful with role: " + role + " !");
-        return ResponseEntity.accepted().body(responseMessage);
+        return new MessageResponse("Registration successful. Please check your email to activate your account.");
     }
 
     @Transactional
     public void deleteAllUsers() {
         tokenRepository.deleteAll();
+        authTokenService.deleteAll();
         userRepository.deleteAll();
     }
 
-    public ResponseEntity<?> authenticate(AuthenticateRequest request, HttpServletResponse response) {
+    public AuthenticationResponse authenticate(AuthenticateRequest request) {
         var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-
-        var claims = new HashMap<String, Object>();
-        var user = ((User) auth.getPrincipal());
-        claims.put("fullName", user.getFullName());
-
-        var jwtToken = jwtService.generateToken(claims, user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
-
-        List<String> roles = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .toList();
-
-        // Réponse enrichie : le mobile a besoin du token ET des infos de base
-        // pour éviter un appel /auth/me immédiat après le login
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("token", jwtToken);
-        responseBody.put("roles", roles);
-        responseBody.put("fullName", user.getFullName());
-
-        return ResponseEntity.ok(responseBody);
+        var user = (User) auth.getPrincipal();
+        return authTokenService.issueTokens(user);
     }
 
-    private void saveUserToken(User user, String jwtToken) {
-        Token token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .expired(false)
-                .revoked(false)
-                .build();
-
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
+        return authTokenService.refresh(request);
     }
 
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("invalid token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid activation token"));
+
         if (LocalDateTime.now().isAfter(savedToken.getExpiredAt())) {
             emailService.sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Activation token has expired. A new token has been sent!");
+            throw new TokenExpiredException("Activation token has expired. A new token has been sent!");
         }
+
         var user = userRepository.findById(savedToken.getUser().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+                .orElseThrow(() -> new InvalidTokenException("User not found for this token"));
+
         user.setEnabled(true);
         userRepository.save(user);
         savedToken.setValidateAt(LocalDateTime.now());
         tokenRepository.save(savedToken);
     }
 
-    /**
-     * LOGOUT côté mobile : le token vient du header Authorization
-     * (jamais d'un cookie — les cookies ne sont pas fiables sur mobile natif).
-     * Spring Security a déjà extrait et validé ce token en amont via le filtre JWT,
-     * donc ici on le relit simplement depuis la requête pour le révoquer en base.
-     */
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String jwt = extractJwtFromHeader(request);
-
-        if (jwt != null) {
-            tokenRepository.findByToken(jwt).ifPresent(token -> {
-                token.setExpired(true);
-                token.setRevoked(true);
-                tokenRepository.save(token);
-            });
-        }
-
-        return ResponseEntity.ok(Map.of("message", "Logout successful"));
-    }
-
-    private String extractJwtFromHeader(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-        return null;
+    public MessageResponse logout(String rawRefreshToken) {
+        return authTokenService.logout(rawRefreshToken);
     }
 
     public UserResponse getCurrentUser(Authentication authentication) {
-        // 1. Protection contre le NullPointerException
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new org.springframework.security.authentication.BadCredentialsException("User is not authenticated");
+            throw new UserNotAuthenticatedException("User is not authenticated");
         }
 
         User user = (User) authentication.getPrincipal();
-
-        List<String> roles = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .toList();
-
-
+        List<String> roles = user.getRoles().stream().map(Role::getName).toList();
 
         return UserResponse.builder()
                 .id(user.getId())
@@ -211,22 +116,20 @@ public class AuthenticateService {
                 .fullName(user.getFullName())
                 .roles(roles)
                 .build();
-
-}
+    }
 
     @Transactional
-    public ResponseEntity<?> forgotPassword(ForgotPasswordRequest request) throws MessagingException {
+    public MessageResponse forgotPassword(ForgotPasswordRequest request) throws MessagingException {
         var userOptional = userRepository.findByEmail(request.getEmail());
+        MessageResponse genericResponse = new MessageResponse("If this email exists, a reset code has been sent");
 
         if (userOptional.isEmpty()) {
-            return ResponseEntity.ok(Map.of(
-                    "message", "If this email exists, a reset code has been sent"
-            ));
+            return genericResponse;
         }
 
         User user = userOptional.get();
+        String resetCode = emailService.generateActiveCode(6);
 
-        String resetCode = emailService.generateActiveCode(6);  // ← réutilise la méthode existante
         Token resetToken = Token.builder()
                 .token(resetCode)
                 .createAt(LocalDateTime.now())
@@ -239,25 +142,24 @@ public class AuthenticateService {
 
         emailService.sendPasswordResetEmail(user, resetCode);
 
-        return ResponseEntity.ok(Map.of(
-                "message", "If this email exists, a reset code has been sent"
-        ));
+        return genericResponse;
     }
+
     @Transactional
-    public ResponseEntity<?> resetPassword(ResetPasswordRequest request) {
+    public MessageResponse resetPassword(ResetPasswordRequest request) {
         Token savedToken = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid reset code"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid reset code"));
 
         if (savedToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Reset code has expired. Please request a new one.");
+            throw new TokenExpiredException("Reset code has expired. Please request a new one.");
         }
 
         if (savedToken.isRevoked() || savedToken.getValidateAt() != null) {
-            throw new RuntimeException("This reset code has already been used");
+            throw new TokenAlreadyUsedException("This reset code has already been used");
         }
 
         User user = userRepository.findById(savedToken.getUser().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new InvalidTokenException("User not found for this token"));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -266,9 +168,9 @@ public class AuthenticateService {
         savedToken.setRevoked(true);
         tokenRepository.save(savedToken);
 
-        // Sécurité : invalide toutes les sessions actives après un changement de mot de passe
-        revokeAllUserTokens(user);
+        // Sécurité : un changement de mot de passe invalide TOUTES les sessions actives
+        authTokenService.revokeAllRefreshTokens(user);
 
-        return ResponseEntity.ok(Map.of("message", "Password reset successful"));
+        return new MessageResponse("Password reset successful");
     }
 }
