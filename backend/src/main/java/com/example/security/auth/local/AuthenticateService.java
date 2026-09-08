@@ -5,6 +5,7 @@ import com.example.security.entity.Client;
 import com.example.security.exception.*;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
+import com.example.security.security.BruteForceProtectionService;
 import com.example.security.user.Token;
 import com.example.security.user.TokenRepository;
 import com.example.security.user.User;
@@ -12,6 +13,7 @@ import com.example.security.user.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,8 +32,9 @@ public class AuthenticateService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenRepository tokenRepository; // codes activation / reset uniquement
-    private final AuthTokenService authTokenService; // tout ce qui est access/refresh token
+    private final TokenRepository tokenRepository;                   // codes activation / reset uniquement
+    private final AuthTokenService authTokenService;                 // access/refresh tokens
+    private final BruteForceProtectionService bruteForceProtectionService; // anti brute-force login
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
 
@@ -67,11 +70,26 @@ public class AuthenticateService {
         userRepository.deleteAll();
     }
 
+    /**
+     * Si le compte est verrouillé (accountLocked=true), authenticationManager.authenticate()
+     * lève LockedException AVANT même de vérifier le mot de passe (contrôle Spring Security
+     * standard) -> gérée telle quelle par le GlobalExceptionHandler existant, rien à changer ici.
+     * Seul le cas "mauvais mot de passe" (BadCredentialsException) doit déclencher le compteur.
+     */
     public AuthenticationResponse authenticate(AuthenticateRequest request) {
-        var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        Authentication auth;
+        try {
+            auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (BadCredentialsException ex) {
+            bruteForceProtectionService.onAuthenticationFailure(request.getEmail());
+            throw ex; // le GlobalExceptionHandler renvoie déjà le message générique existant
+        }
+
         var user = (User) auth.getPrincipal();
+        bruteForceProtectionService.onAuthenticationSuccess(user);
+
         return authTokenService.issueTokens(user);
     }
 

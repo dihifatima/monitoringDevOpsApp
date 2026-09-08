@@ -1,7 +1,5 @@
 package com.example.security.auth.local;
 
-
-
 import com.example.security.exception.InvalidTokenException;
 import com.example.security.exception.TokenAlreadyUsedException;
 import com.example.security.exception.TokenExpiredException;
@@ -79,6 +77,11 @@ public class AuthTokenService {
                 .orElseThrow(() -> new InvalidTokenException("Refresh token not recognized"));
 
         if (storedToken.isRevoked()) {
+            // Rejeu détecté : ce refresh token a déjà été consommé (rotation) ou révoqué
+            // explicitement (logout). Ça signale potentiellement un vol de token -
+            // par précaution, on révoque TOUS les refresh tokens de cet utilisateur,
+            // pas seulement celui-ci, pour couper court à toute session compromise.
+            revokeAllRefreshTokens(storedToken.getUser());
             throw new TokenAlreadyUsedException("This refresh token has already been used or revoked");
         }
 

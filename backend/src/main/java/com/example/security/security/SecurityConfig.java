@@ -21,6 +21,9 @@ public class SecurityConfig {
 
     private final JwtFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final WebhookRateLimitingFilter webhookRateLimitingFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,11 +49,14 @@ public class SecurityConfig {
                                                 "/webjars/**",
                                                 "/api/connectors/github/callback",
                                                 "/api/webhooks/github/**"
-                                ).permitAll()
+                                        ).permitAll()
                                         .anyRequest().authenticated()
 
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authenticationProvider(authenticationProvider)
+                .addFilterBefore(webhookRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

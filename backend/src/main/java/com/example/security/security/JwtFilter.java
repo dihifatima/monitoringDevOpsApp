@@ -1,5 +1,6 @@
 package com.example.security.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,8 +31,6 @@ public class JwtFilter extends OncePerRequestFilter {
             @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Endpoints publics d'auth : on laisse passer sans essayer d'authentifier,
-        // et on STOPPE ici (le "return" manquant causait un double appel de la chaîne).
         if (request.getServletPath().contains("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
@@ -45,26 +44,31 @@ public class JwtFilter extends OncePerRequestFilter {
 
         final String jwt = authHeader.substring(7);
 
-        // Un refresh token ne doit JAMAIS servir à accéder à un endpoint protégé :
-        // sans cette vérification, il aurait exactement les mêmes droits qu'un access token.
-        if (!jwtService.isAccessToken(jwt)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String userEmail = jwtService.extractUsername(jwt);
-
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            // Un refresh token ne doit JAMAIS servir à accéder à un endpoint protégé.
+            if (!jwtService.isAccessToken(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            final String userEmail = jwtService.extractUsername(jwt);
+
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        } catch (JwtException ex) {
+            // Token expiré, malformé, signature invalide... : on ne authentifie
+            // simplement pas la requête. C'est Spring Security (via le point
+            // d'entrée configuré dans SecurityConfig) qui décidera de la réponse
+            // à renvoyer - jamais une exception non gérée ici.
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

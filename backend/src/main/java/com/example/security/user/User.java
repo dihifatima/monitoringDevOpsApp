@@ -78,6 +78,14 @@
         @OneToMany
         private List<Token> tokens;
 
+        @Builder.Default
+        private int failedAttempts = 0;
+
+        @Builder.Default
+        private int lockLevel = 0;
+
+        private LocalDateTime lockedUntil;
+
         public User(String firstname, String lastname, String email, String password) {
             this.firstname = firstname;
             this.lastname = lastname;

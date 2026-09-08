@@ -1,31 +1,53 @@
 import * as SecureStore from 'expo-secure-store';
 
-const TOKEN_KEY = 'user_token';
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 export const TokenStorage = {
-  saveToken: async (token: string): Promise<void> => {
+  saveTokens: async (accessToken: string, refreshToken: string): Promise<void> => {
     try {
-      await SecureStore.setItemAsync(TOKEN_KEY, token);
+      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+
+      // Logs de vérification temporaires — à retirer une fois le flow validé.
+      console.log("[TokenStorage] Tokens sauvegardés avec succès");
+      console.log("[TokenStorage] accessToken (30 premiers car.) :", accessToken.substring(0, 30) + "...");
+      console.log("[TokenStorage] REFRESH TOKEN COMPLET (test uniquement) :", refreshToken);
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde du token:", error);
+      console.error("Erreur lors de la sauvegarde des tokens:", error);
       throw error;
     }
   },
 
-  getToken: async (): Promise<string | null> => {
+  getAccessToken: async (): Promise<string | null> => {
     try {
-      return await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+      console.log("[TokenStorage] getAccessToken ->", token ? "présent" : "absent");
+      return token;
     } catch (error) {
-      console.error("Erreur lors de la lecture du token:", error);
+      console.error("Erreur lors de la lecture de l'access token:", error);
       return null;
     }
   },
 
-  deleteToken: async (): Promise<void> => {
+  getRefreshToken: async (): Promise<string | null> => {
     try {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      const token = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+      console.log("[TokenStorage] getRefreshToken ->", token ? "présent" : "absent");
+      return token;
     } catch (error) {
-      console.error("Erreur lors de la suppression du token:", error);
+      console.error("Erreur lors de la lecture du refresh token:", error);
+      return null;
+    }
+  },
+
+  clearTokens: async (): Promise<void> => {
+    try {
+      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+      console.log("[TokenStorage] Tokens supprimés");
+    } catch (error) {
+      console.error("Erreur lors de la suppression des tokens:", error);
     }
   },
 };
