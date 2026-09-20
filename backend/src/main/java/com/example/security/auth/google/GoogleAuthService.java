@@ -4,9 +4,12 @@ import com.example.security.Enumeration.AuthProvider;
 import com.example.security.auth.local.AuthTokenService;
 import com.example.security.auth.local.AuthenticationResponse;
 import com.example.security.entity.Client;
+import com.example.security.exception.AccountLockedException;
+import com.example.security.handller.BusinessErrorCodes;
 import com.example.security.role.Role;
 import com.example.security.role.RoleRepository;
 import com.example.security.exception.GoogleAuthUnavailableException;
+import com.example.security.security.BruteForceProtectionService;
 import com.example.security.user.User;
 import com.example.security.user.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -23,12 +26,6 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Login Google : une fois l'identité vérifiée et l'utilisateur récupéré/créé,
- * l'émission des tokens passe par AuthTokenService — EXACTEMENT le même chemin
- * que le login classique (access + refresh token, refresh haché en base).
- * Aucune logique de token dupliquée ici.
- */
 @Service
 @RequiredArgsConstructor
 public class GoogleAuthService {
@@ -38,6 +35,7 @@ public class GoogleAuthService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final AuthTokenService authTokenService;
+    private final BruteForceProtectionService bruteForceProtectionService; // <-- ajouté
 
     @Value("${google.client.id}")
     private String googleClientId;
@@ -52,14 +50,10 @@ public class GoogleAuthService {
                     .build();
             idToken = verifier.verify(request.getIdToken());
         } catch (IOException | GeneralSecurityException e) {
-            // Panne réseau, timeout, ou service Google injoignable (récupération des clés
-            // publiques de vérification) : ce n'est PAS une faute du client, à ne jamais
-            // confondre avec un token invalide -> message clair plutôt qu'une 500 brute.
             throw new GoogleAuthUnavailableException("Google verification service unreachable", e);
         }
 
         if (idToken == null) {
-            // Ici, la vérification a bien eu lieu mais le token est invalide/expiré : faute du client.
             throw new BadCredentialsException("Invalid Google token");
         }
 
@@ -70,6 +64,16 @@ public class GoogleAuthService {
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> createGoogleUser(email, firstname, lastname));
+
+        // Même contrôle que le login classique : un compte verrouillé (bruteforce
+        // détecté sur le mot de passe local, par ex.) reste bloqué même via Google.
+        bruteForceProtectionService.autoUnlockIfExpired(user);
+        if (user.isAccountLocked()) {
+            throw new AccountLockedException(
+                    BusinessErrorCodes.Account_LOCKED.getDescription(),
+                    user.getLockedUntil()
+            );
+        }
 
         return authTokenService.issueTokens(user);
     }

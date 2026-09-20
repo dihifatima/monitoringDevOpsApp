@@ -77,6 +77,18 @@ public class AuthenticateService {
      * Seul le cas "mauvais mot de passe" (BadCredentialsException) doit déclencher le compteur.
      */
     public AuthenticationResponse authenticate(AuthenticateRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+
+        if (user != null) {
+            bruteForceProtectionService.autoUnlockIfExpired(user);
+            if (user.isAccountLocked()) {
+                throw new AccountLockedException(
+                        com.example.security.handller.BusinessErrorCodes.Account_LOCKED.getDescription(),
+                        user.getLockedUntil()
+                );
+            }
+        }
+
         Authentication auth;
         try {
             auth = authenticationManager.authenticate(
@@ -84,13 +96,13 @@ public class AuthenticateService {
             );
         } catch (BadCredentialsException ex) {
             bruteForceProtectionService.onAuthenticationFailure(request.getEmail());
-            throw ex; // le GlobalExceptionHandler renvoie déjà le message générique existant
+            throw ex;
         }
 
-        var user = (User) auth.getPrincipal();
-        bruteForceProtectionService.onAuthenticationSuccess(user);
+        var authenticatedUser = (User) auth.getPrincipal();
+        bruteForceProtectionService.onAuthenticationSuccess(authenticatedUser);
 
-        return authTokenService.issueTokens(user);
+        return authTokenService.issueTokens(authenticatedUser);
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) {

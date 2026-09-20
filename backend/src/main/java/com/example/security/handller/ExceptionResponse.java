@@ -3,6 +3,7 @@ package com.example.security.handller;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,4 +20,6 @@ public class ExceptionResponse {
     private String error;
     private Set<String> validationErrors;
     private Map<String,String> errors;
+    private LocalDateTime lockedUntil;
+    private Long retryAfterSeconds;
 }

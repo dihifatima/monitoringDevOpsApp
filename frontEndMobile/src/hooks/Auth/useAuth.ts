@@ -10,6 +10,30 @@ import {
 import { useFormState } from '@/src/hooks/useFormState';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 
+function formatLockedMessage(retryAfterSeconds: number): string {
+  const minutes = Math.ceil(retryAfterSeconds / 60);
+  if (minutes <= 1) {
+    return 'Compte verrouillé suite à plusieurs tentatives échouées. Réessayez dans moins d’une minute.';
+  }
+  return `Compte verrouillé suite à plusieurs tentatives échouées. Réessayez dans ${minutes} minutes.`;
+}
+
+// Centralise l'extraction du message d'erreur backend : gère businessErrorCode 302
+// (compte verrouillé, avec retryAfterSeconds), les erreurs de validation @Valid
+// (tableau validationErrors), puis error / businessErrorDescription, avec fallback.
+function getApiErrorMessage(error: any, fallback: string): string {
+  const data = error.response?.data;
+  if (!data) return fallback;
+
+  if (data.businessErrorCode === 302 && data.retryAfterSeconds != null) {
+    return formatLockedMessage(data.retryAfterSeconds);
+  }
+  if (Array.isArray(data.validationErrors) && data.validationErrors.length > 0) {
+    return data.validationErrors[0];
+  }
+  return data.error || data.businessErrorDescription || fallback;
+}
+
 export function useAuth() {
   const router = useRouter();
   const { login } = useAuthGlobal();
@@ -40,11 +64,8 @@ export function useAuth() {
     setLoading(true);
     try {
       await login(values.email, values.password);
-      // Redirect already handled in AuthContext.handleLogin
     } catch (error: any) {
-      setApiError(
-        error.response?.data?.message || 'Email ou mot de passe incorrect'
-      );
+      setApiError(getApiErrorMessage(error, 'Email ou mot de passe incorrect'));
     } finally {
       setLoading(false);
     }
@@ -65,10 +86,7 @@ export function useAuth() {
       await authService.register(values);
       router.replace('/(auth)/activateAccount');
     } catch (error: any) {
-      setApiError(
-        error.response?.data?.message ||
-          "Une erreur est survenue lors de l'inscription."
-      );
+      setApiError(getApiErrorMessage(error, "Une erreur est survenue lors de l'inscription."));
     } finally {
       setLoading(false);
     }
@@ -92,15 +110,12 @@ export function useAuth() {
         router.replace('/(auth)/login');
       }, 1500);
     } catch (error: any) {
-      setApiError(
-        error.response?.data?.message || 'Code invalide ou expiré. Réessayez.'
-      );
+      setApiError(getApiErrorMessage(error, 'Code invalide ou expiré. Réessayez.'));
     } finally {
       setLoading(false);
     }
   };
 
-  //  merged from useForgotPassword.ts (logic unchanged)
   const handleForgotPassword = async () => {
     setApiError(null);
     setSuccessMessage(null);
@@ -117,13 +132,12 @@ export function useAuth() {
       await authService.forgotPassword(values.email);
       setSuccessMessage("Un email de réinitialisation a été envoyé si ce compte existe.");
     } catch (error: any) {
-      setApiError(error.response?.data?.message || "Une erreur est survenue. Réessayez.");
+      setApiError(getApiErrorMessage(error, "Une erreur est survenue. Réessayez."));
     } finally {
       setLoading(false);
     }
   };
 
-  //  merged from useResetPassword.ts (logic unchanged)
   const handleResetPassword = async () => {
     setApiError(null);
     setErrors({});
@@ -139,7 +153,7 @@ export function useAuth() {
       await authService.resetPassword(values.code, values.password);
       router.replace('/(auth)/login');
     } catch (error: any) {
-      setApiError(error.response?.data?.message || "Le code est peut-être invalide ou expiré.");
+      setApiError(getApiErrorMessage(error, "Le code est peut-être invalide ou expiré."));
     } finally {
       setLoading(false);
     }
@@ -155,7 +169,7 @@ export function useAuth() {
     handleLogin,
     handleRegister,
     handleActivateAccount,
-    handleForgotPassword, 
-    handleResetPassword,  
+    handleForgotPassword,
+    handleResetPassword,
   };
 }

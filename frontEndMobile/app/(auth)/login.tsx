@@ -19,7 +19,9 @@ const loginFields: FormFieldConfig[] = [
 export default function LoginScreen() {
   const router = useRouter();
   const { values, setField, errors, apiError, loading, handleLogin } = useAuth();
-  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn();
+  const { signInWithGoogle, loading: googleLoading, apiError: googleError } = useGoogleSignIn();
+
+  const displayedError = apiError || googleError;
 
   return (
     <ScreenContainer backgroundColor={Colors.white}>
@@ -33,9 +35,9 @@ export default function LoginScreen() {
           onChange={setField}
         />
 
-        {apiError && (
+        {displayedError && (
           <AppText variant="small" color={Colors.error} style={styles.apiError}>
-            {apiError}
+            {displayedError}
           </AppText>
         )}
 

@@ -53,6 +53,7 @@ export const authService = {
       const response = await PublicAPI.post<LoginResponse>("/auth/login", { email, password });
       console.log("STATUS:", response.status);
       console.log("DATA:", JSON.stringify(response.data, null, 2));
+      console.log("PAYLOAD ENVOYÉ:", JSON.stringify({ email, password }), "LEN:", password.length);
       return response.data;
     } catch (error: any) {
       console.log("ERREUR STATUS:", error.response?.status);

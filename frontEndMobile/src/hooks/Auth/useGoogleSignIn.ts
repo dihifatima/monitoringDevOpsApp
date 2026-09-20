@@ -2,50 +2,71 @@ import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@
 import { useAuthGlobal } from '@/src/context/AuthContext';
 import { useState } from 'react';
 
+function formatLockedMessage(retryAfterSeconds: number): string {
+  const minutes = Math.ceil(retryAfterSeconds / 60);
+  if (minutes <= 1) {
+    return 'Compte verrouillé suite à plusieurs tentatives échouées. Réessayez dans moins d’une minute.';
+  }
+  return `Compte verrouillé suite à plusieurs tentatives échouées. Réessayez dans ${minutes} minutes.`;
+}
+
+function getApiErrorMessage(error: any, fallback: string): string {
+  const data = error.response?.data;
+  if (!data) return fallback;
+
+  if (data.businessErrorCode === 302 && data.retryAfterSeconds != null) {
+    return formatLockedMessage(data.retryAfterSeconds);
+  }
+  if (Array.isArray(data.validationErrors) && data.validationErrors.length > 0) {
+    return data.validationErrors[0];
+  }
+  return data.error || data.businessErrorDescription || fallback;
+}
+
 export function useGoogleSignIn() {
   const { googleLogin } = useAuthGlobal();
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const signInWithGoogle = async () => {
-    console.log("🟢 signInWithGoogle appelée");
+    setApiError(null);
     try {
       setLoading(true);
-      console.log("🟢 Vérification Play Services...");
       await GoogleSignin.hasPlayServices();
-      console.log("🟢 Play Services OK, ouverture du sign-in...");
       const response = await GoogleSignin.signIn();
-      console.log("🟢 Réponse Google:", JSON.stringify(response));
 
       if (isSuccessResponse(response)) {
         const idToken = response.data.idToken;
-        console.log("🟢 idToken reçu:", idToken ? "oui" : "non");
         if (idToken) {
           await googleLogin(idToken);
         }
       }
-    } catch (error) {
-      console.log("🔴 ERREUR:", JSON.stringify(error));
-      if (isErrorWithCode(error)) {
+    } catch (error: any) {
+      // IMPORTANT : tester en premier si c'est une erreur backend (Axios).
+      // isErrorWithCode() du SDK Google renvoie aussi true pour une AxiosError
+      // (qui a également un champ .code, ex: "ERR_BAD_REQUEST"), donc l'ordre compte.
+      if (error?.response || error?.isAxiosError) {
+        setApiError(getApiErrorMessage(error, 'Impossible de se connecter avec Google.'));
+      } else if (isErrorWithCode(error)) {
         switch (error.code) {
           case statusCodes.SIGN_IN_CANCELLED:
-            console.log('Connexion Google annulée par l’utilisateur');
             break;
           case statusCodes.IN_PROGRESS:
-            console.log('Connexion Google déjà en cours');
+            setApiError('Une connexion Google est déjà en cours.');
             break;
           case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            console.error('Google Play Services non disponible');
+            setApiError('Google Play Services n’est pas disponible sur cet appareil.');
             break;
           default:
-            console.error('Erreur Google Sign-In :', error);
+            setApiError('Une erreur est survenue avec la connexion Google.');
         }
       } else {
-        console.error('Erreur inconnue Google Sign-In :', error);
+        setApiError('Une erreur inconnue est survenue.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  return { signInWithGoogle, loading };
+  return { signInWithGoogle, loading, apiError };
 }

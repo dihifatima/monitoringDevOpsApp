@@ -26,6 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // Spring Security ne vérifie isAccountNonLocked() sur cet utilisateur.
         bruteForceProtectionService.autoUnlockIfExpired(user);
 
+
         return user;
     }
 }

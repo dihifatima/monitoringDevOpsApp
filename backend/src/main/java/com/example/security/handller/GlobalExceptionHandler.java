@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -179,6 +180,24 @@ public class GlobalExceptionHandler {
                 .body(ExceptionResponse.builder()
                         .businessErrorDescription("Internal error, contact the admin")
                         .error(exp.getMessage())
+                        .build());
+    }
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<ExceptionResponse> handleException(AccountLockedException exp) {
+        Long retryAfterSeconds = null;
+        if (exp.getLockedUntil() != null) {
+            retryAfterSeconds = Math.max(0,
+                    java.time.Duration.between(LocalDateTime.now(), exp.getLockedUntil()).getSeconds());
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ExceptionResponse.builder()
+                        .businessErrorCode(BusinessErrorCodes.Account_LOCKED.getCode())
+                        .businessErrorDescription(BusinessErrorCodes.Account_LOCKED.getDescription())
+                        .error(BusinessErrorCodes.Account_LOCKED.getDescription())
+                        .lockedUntil(exp.getLockedUntil())
+                        .retryAfterSeconds(retryAfterSeconds)
                         .build());
     }
 }
