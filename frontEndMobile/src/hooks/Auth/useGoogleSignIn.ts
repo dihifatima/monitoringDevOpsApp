@@ -61,7 +61,7 @@ export function useGoogleSignIn() {
             setApiError('Une erreur est survenue avec la connexion Google.');
         }
       } else {
-        setApiError('Une erreur inconnue est survenue.');
+        setApiError('Une erreur inconnue est survenue!!');
       }
     } finally {
       setLoading(false);
