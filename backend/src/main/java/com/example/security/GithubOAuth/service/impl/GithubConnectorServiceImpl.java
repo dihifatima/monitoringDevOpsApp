@@ -4,6 +4,7 @@ package com.example.security.GithubOAuth.service.impl;
 import com.example.security.Enumeration.ConnextionProvider;
 import com.example.security.GithubOAuth.controller.dto.*;
 import com.example.security.entity.TrackedRepo;
+import com.example.security.repo.NotificationRepo;
 import com.example.security.repo.TrackedRepositoryRepo;
 import com.example.security.GithubOAuth.service.facade.GithubConnectorService;
 import com.example.security.GithubOAuth.service.facade.GithubOAuthService;
@@ -27,13 +28,16 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
     private final ClientRepo clientRepo;
     private final ExternalConnectionRepo externalConnectionRepo;
     private final TrackedRepositoryRepo trackedRepositoryRepo;
+    private final NotificationRepo notificationRepo;
 
-    public GithubConnectorServiceImpl(GithubOAuthService githubOAuthService, OAuthStateCache stateCache, ClientRepo clientRepo, ExternalConnectionRepo externalConnectionRepo, TrackedRepositoryRepo trackedRepositoryRepo) {
+
+    public GithubConnectorServiceImpl(GithubOAuthService githubOAuthService, OAuthStateCache stateCache, ClientRepo clientRepo, ExternalConnectionRepo externalConnectionRepo, TrackedRepositoryRepo trackedRepositoryRepo, NotificationRepo notificationRepo) {
         this.githubOAuthService = githubOAuthService;
         this.stateCache = stateCache;
         this.clientRepo = clientRepo;
         this.externalConnectionRepo = externalConnectionRepo;
         this.trackedRepositoryRepo = trackedRepositoryRepo;
+        this.notificationRepo = notificationRepo;
     }
 
     @Override
@@ -327,6 +331,7 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
             }
         }
 
+        notificationRepo.deleteByTrackedRepoId(tracked.getId());
         trackedRepositoryRepo.delete(tracked);
         return getTrackedRepos(clientId);
     }

@@ -13,4 +13,5 @@ public interface NotificationRepo  extends JpaRepository<Notification,Long> {
     List<Notification> findByClient_IdAndReadFalseOrderByCreatedAtDesc(Long clientId);
     List<Notification> findByTrackedRepo_IdOrderByCreatedAtDesc(Long trackedRepoId);
     List<Notification> findTop5ByClient_IdOrderByCreatedAtDesc(Long clientId);
+    void deleteByTrackedRepoId(Long trackedRepoId);
 }
