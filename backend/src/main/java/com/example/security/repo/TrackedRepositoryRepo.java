@@ -12,4 +12,5 @@ public interface TrackedRepositoryRepo extends JpaRepository<TrackedRepo, Long> 
     Optional<TrackedRepo> findByClientIdAndExternalRepoId(Long clientId, Long externalRepoId);
     boolean existsByClientIdAndExternalRepoId(Long clientId, Long externalRepoId);
     Optional<TrackedRepo> findByFullName( String name);
+    boolean existsByExternalRepoIdAndClientIdNot(Long externalRepoId, Long clientId);
 }

@@ -36,6 +36,20 @@ public class GithubRepoController {
         return ResponseEntity.ok(tracked);
     }
 
+    /**
+     * Arrête de suivre un dépôt : supprime le suivi en base et retire le webhook GitHub
+     * (sauf si un autre client suit encore le même dépôt).
+     * Renvoie la liste à jour des dépôts suivis.
+     */
+    @DeleteMapping("/tracked/{id}")
+    public ResponseEntity<List<TrackedRepoResponse>> untrackRepo(
+            Authentication authentication,
+            @PathVariable Long id) {
+        Client client = (Client) authentication.getPrincipal();
+        List<TrackedRepoResponse> tracked = githubConnectorService.untrackRepo(client.getId(), id);
+        return ResponseEntity.ok(tracked);
+    }
+
     @GetMapping("/tracked")
     public ResponseEntity<List<TrackedRepoResponse>> getTrackedRepos(Authentication authentication) {
         Client client = (Client) authentication.getPrincipal();

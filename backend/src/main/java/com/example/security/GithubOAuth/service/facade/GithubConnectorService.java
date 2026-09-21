@@ -13,4 +13,5 @@ public interface GithubConnectorService {
     List<CommitSummary> getRepoCommits(Long clientId, String owner, String repo);
     GithubStatusResponse getConnectionStatus(Long clientId);
     CommitDetailResponse getCommitDetail(Long clientId, String owner, String repo, String sha);
+    List<TrackedRepoResponse> untrackRepo(Long clientId, Long trackedRepoId);
 }

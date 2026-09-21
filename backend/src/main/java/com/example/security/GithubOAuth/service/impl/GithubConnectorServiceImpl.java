@@ -302,4 +302,32 @@ public class GithubConnectorServiceImpl implements GithubConnectorService {
                 .files(files)
                 .build();
     }
+    @Override
+    @Transactional
+    public List<TrackedRepoResponse> untrackRepo(Long clientId, Long trackedRepoId) {
+        TrackedRepo tracked = trackedRepositoryRepo.findById(trackedRepoId)
+                .filter(r -> r.getClient().getId().equals(clientId))
+                .orElseThrow(() -> new RuntimeException("Tracked repo not found"));
+
+        // Ne pas supprimer le webhook si un autre client suit le même dépôt
+        boolean trackedByOthers = trackedRepositoryRepo
+                .existsByExternalRepoIdAndClientIdNot(tracked.getExternalRepoId(), clientId);
+
+        if (!trackedByOthers) {
+            try {
+                ExternalConnection connection = externalConnectionRepo
+                        .findByClientIdAndProvider(clientId, ConnextionProvider.GITHUB)
+                        .orElseThrow(() -> new RuntimeException("GitHub not connected"));
+
+                String owner = tracked.getFullName().split("/")[0];
+                githubOAuthService.deleteWebhook(connection.getAccessToken(), owner, tracked.getName());
+            } catch (Exception e) {
+                System.out.println("Échec de la suppression du webhook pour "
+                        + tracked.getFullName() + " : " + e.getMessage());
+            }
+        }
+
+        trackedRepositoryRepo.delete(tracked);
+        return getTrackedRepos(clientId);
+    }
 }

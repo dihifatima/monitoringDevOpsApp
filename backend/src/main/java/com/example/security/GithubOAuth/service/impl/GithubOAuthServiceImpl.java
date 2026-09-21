@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -208,6 +209,29 @@ public class GithubOAuthServiceImpl  implements GithubOAuthService {
         );
 
         return response.getBody();
+    }
+    @Override
+    public void deleteWebhook(String accessToken, String owner, String repo) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setAccept(java.util.List.of(MediaType.parseMediaType("application/vnd.github+json")));
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        String hooksUrl = String.format("https://api.github.com/repos/%s/%s/hooks", owner, repo);
+
+        ResponseEntity<Map[]> response =
+                restTemplate.exchange(hooksUrl, HttpMethod.GET, request, Map[].class);
+
+        Map[] hooks = response.getBody();
+        if (hooks == null) return;
+
+        for (Map hook : hooks) {
+            Object cfg = hook.get("config");
+            if (cfg instanceof Map<?, ?> config && webhookUrl.equals(config.get("url"))) {
+                restTemplate.exchange(hooksUrl + "/" + hook.get("id"),
+                        HttpMethod.DELETE, request, Void.class);
+            }
+        }
     }
 
 

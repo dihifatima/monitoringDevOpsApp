@@ -105,3 +105,8 @@ export async function getCommitDetail(
   const { data } = await API.get(`/api/connectors/github/repos/${owner}/${repo}/commits/${sha}`);
   return data;
 }
+
+export async function untrackGithubRepo(trackedRepoId: number): Promise<TrackedRepoResponse[]> {
+  const { data } = await API.delete(`/api/connectors/github/repos/tracked/${trackedRepoId}`);
+  return data;
+}
