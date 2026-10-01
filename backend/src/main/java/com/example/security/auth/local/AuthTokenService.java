@@ -91,7 +91,7 @@ public class AuthTokenService {
 
         String username = jwtService.extractUsername(rawToken);
         User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new InvalidTokenException("User not found for this token ! "));
+                .orElseThrow(() -> new InvalidTokenException("User not found for this token ! ! "));
 
         storedToken.setRevoked(true);
         refreshTokenRepository.save(storedToken);
