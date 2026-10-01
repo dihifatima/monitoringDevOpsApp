@@ -5,22 +5,23 @@ pipeline {
     stages {
         stage('Build & Tests') {
             steps {
-                echo 'Compilation et tests unitaires...'
-                sh 'mvn -B clean verify'
+                dir('backend') { sh 'mvn -B clean verify' }
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true, testResults: 'backend/target/surefire-reports/*.xml'
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarqube-pfa') {
-                    sh '''mvn -B sonar:sonar \
-                      -Dsonar.projectKey=pfa-backend \
-                      -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'''
+                dir('backend') {
+                    withSonarQubeEnv('sonarqube-pfa') {
+                        sh '''mvn -B sonar:sonar \
+                          -Dsonar.projectKey=pfa-backend \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'''
+                    }
                 }
             }
         }
@@ -35,7 +36,7 @@ pipeline {
 
         stage('Build JAR') {
             steps {
-                sh 'mvn -B package -DskipTests'
+                dir('backend') { sh 'mvn -B package -DskipTests' }
             }
         }
     }
