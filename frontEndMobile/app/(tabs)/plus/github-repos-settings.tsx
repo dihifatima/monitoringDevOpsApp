@@ -7,17 +7,27 @@ import { useGithubRepos } from '@/src/hooks/Oauth_github/useGithubRepos';
 import type { RepoSummary } from '@/src/services/githubReposService';
 
 export default function GithubRepos() {
-  const { repos, trackedIds, isLoading, trackingId, error, track, untrack } = useGithubRepos();
+  const { repos, trackedIds, isLoading, trackingId, error, track  ,untrack} = useGithubRepos();
   const confirmUntrack = (repo: RepoSummary) => {
-    Alert.alert(
-      'Ne plus suivre',
-      `Arrêter le suivi de ${repo.name} ? Le webhook GitHub sera supprimé.`,
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Confirmer', style: 'destructive', onPress: () => untrack(repo) },
-      ]
-    );
-  };
+  Alert.alert(
+    'Ne plus suivre',
+    `Arrêter le suivi de ${repo.name} ? Le webhook GitHub sera supprimé.`,
+    [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Confirmer', style: 'destructive', onPress: () => untrack(repo) },
+    ]
+  );
+};
+const confirmTrack = (repo: RepoSummary) => {
+  Alert.alert(
+    'Suivre ce dépôt',
+    `Pour recevoir les notifications en temps réel, un webhook sera installé sur ${repo.name} dans votre compte GitHub. Il pourra être supprimé à tout moment en arrêtant le suivi.`,
+    [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Autoriser et suivre', onPress: () => track(repo) },
+    ]
+  );
+};
 
   if (isLoading) {
     return (
@@ -51,14 +61,13 @@ export default function GithubRepos() {
         </View>
 
         <Pressable
-          onPress={() => (isTracked ? confirmUntrack(item) : track(item))}
-          disabled={isTrackingThis}
-          style={[styles.trackButton, isTracked && styles.untrackButton]}
-        >
-          <Text style={styles.trackButtonText}>
-            {isTrackingThis ? '...' : isTracked ? 'Ne plus suivre' : 'Suivre'}
-          </Text>
-        </Pressable>
+onPress={() => (isTracked ? confirmUntrack(item) : confirmTrack(item))}  disabled={isTrackingThis}
+  style={[styles.trackButton, isTracked && styles.untrackButton]}
+>
+  <Text style={styles.trackButtonText}>
+    {isTrackingThis ? '...' : isTracked ? 'Ne plus suivre' : 'Suivre'}
+  </Text>
+</Pressable>
       </View>
     );
   };
@@ -115,6 +124,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   untrackButton: {
-    backgroundColor: '#D9534F',
-  },
+  backgroundColor: '#D9534F',
+},
 });
