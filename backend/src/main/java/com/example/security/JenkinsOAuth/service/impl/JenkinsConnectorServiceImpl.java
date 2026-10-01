@@ -1,11 +1,11 @@
-package com.example.security.jenkinsOAuth.service.impl;
+package com.example.security.jenkinsoauth.service.impl;
 
 import com.example.security.enumeration.ConnextionProvider;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsBuildResponse;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
-import com.example.security.jenkinsOAuth.controller.dto.TestSummaryResponse;
-import com.example.security.jenkinsOAuth.service.facade.JenkinsConnectorService;
-import com.example.security.jenkinsOAuth.service.facade.JenkinsService;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsBuildResponse;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.jenkinsoauth.controller.dto.TestSummaryResponse;
+import com.example.security.jenkinsoauth.service.facade.JenkinsConnectorService;
+import com.example.security.jenkinsoauth.service.facade.JenkinsService;
 import com.example.security.entity.Client;
 import com.example.security.entity.ExternalConnection;
 import com.example.security.entity.TrackedRepo;

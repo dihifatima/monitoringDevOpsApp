@@ -1,6 +1,6 @@
-package com.example.security.githubOAuth.service.facade;
+package com.example.security.githuboauth.service.facade;
 
-import com.example.security.githubOAuth.controller.dto.*;
+import com.example.security.githuboauth.controller.dto.*;
 
 import java.util.List;
 

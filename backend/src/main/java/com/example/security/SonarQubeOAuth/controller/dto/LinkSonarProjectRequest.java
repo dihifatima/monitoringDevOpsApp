@@ -1,4 +1,4 @@
-package com.example.security.sonarQubeOAuth.controller.dto;
+package com.example.security.sonarqubeoauth.controller.dto;
 
 import lombok.Data;
 

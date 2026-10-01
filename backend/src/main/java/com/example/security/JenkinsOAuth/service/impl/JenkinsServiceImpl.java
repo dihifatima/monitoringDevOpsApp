@@ -1,10 +1,10 @@
-package com.example.security.jenkinsOAuth.service.impl;
+package com.example.security.jenkinsoauth.service.impl;
 
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsBuildResponse;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsTestReportRaw;
-import com.example.security.jenkinsOAuth.controller.dto.TestSummaryResponse;
-import com.example.security.jenkinsOAuth.service.facade.JenkinsService;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsBuildResponse;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsTestReportRaw;
+import com.example.security.jenkinsoauth.controller.dto.TestSummaryResponse;
+import com.example.security.jenkinsoauth.service.facade.JenkinsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

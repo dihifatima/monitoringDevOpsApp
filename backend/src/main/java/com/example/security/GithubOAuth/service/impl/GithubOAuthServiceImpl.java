@@ -1,9 +1,9 @@
-package com.example.security.githubOAuth.service.impl;
+package com.example.security.githuboauth.service.impl;
 
 
-import com.example.security.githubOAuth.config.GithubOAuthProperties;
-import com.example.security.githubOAuth.controller.dto.*;
-import com.example.security.githubOAuth.service.facade.GithubOAuthService;
+import com.example.security.githuboauth.config.GithubOAuthProperties;
+import com.example.security.githuboauth.controller.dto.*;
+import com.example.security.githuboauth.service.facade.GithubOAuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;

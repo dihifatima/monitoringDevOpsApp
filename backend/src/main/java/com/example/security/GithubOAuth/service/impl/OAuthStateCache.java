@@ -1,4 +1,4 @@
-package com.example.security.githubOAuth.service.impl;
+package com.example.security.githuboauth.service.impl;
 
 
 import org.springframework.stereotype.Component;

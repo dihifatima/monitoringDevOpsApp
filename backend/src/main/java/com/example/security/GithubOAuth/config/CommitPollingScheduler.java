@@ -1,11 +1,11 @@
-package com.example.security.githubOAuth.config;
+package com.example.security.githuboauth.config;
 
 import com.example.security.enumeration.ConnextionProvider;
 import com.example.security.enumeration.NotificationType;
-import com.example.security.githubOAuth.controller.dto.GithubCommitResponse;
+import com.example.security.githuboauth.controller.dto.GithubCommitResponse;
 import com.example.security.entity.TrackedRepo;
 import com.example.security.repo.TrackedRepositoryRepo;
-import com.example.security.githubOAuth.service.facade.GithubOAuthService;
+import com.example.security.githuboauth.service.facade.GithubOAuthService;
 import com.example.security.entity.Client;
 import com.example.security.entity.ExternalConnection;
 import com.example.security.entity.Notification;

@@ -1,4 +1,4 @@
-package com.example.security.jenkinsOAuth.controller.dto;
+package com.example.security.jenkinsoauth.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

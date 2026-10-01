@@ -1,4 +1,4 @@
-package com.example.security.githubOAuth.controller.dto;
+package com.example.security.githuboauth.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

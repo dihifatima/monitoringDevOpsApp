@@ -1,7 +1,7 @@
-package com.example.security.githubOAuth.controller.facade;
+package com.example.security.githuboauth.controller.facade;
 
 import com.example.security.enumeration.NotificationType;
-import com.example.security.githubOAuth.controller.dto.GithubPushPayload;
+import com.example.security.githuboauth.controller.dto.GithubPushPayload;
 import com.example.security.entity.Client;
 import com.example.security.entity.Notification;
 import com.example.security.entity.NotificationPushToken;

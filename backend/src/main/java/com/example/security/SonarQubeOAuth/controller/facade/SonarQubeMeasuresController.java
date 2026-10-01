@@ -1,8 +1,8 @@
-package com.example.security.sonarQubeOAuth.controller.facade;
+package com.example.security.sonarqubeoauth.controller.facade;
 
-import com.example.security.sonarQubeOAuth.controller.dto.CommitMeasuresResponse;
-import com.example.security.sonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
-import com.example.security.sonarQubeOAuth.service.facade.SonarQubeConnectorService;
+import com.example.security.sonarqubeoauth.controller.dto.CommitMeasuresResponse;
+import com.example.security.sonarqubeoauth.controller.dto.SonarQubeMeasuresResponse;
+import com.example.security.sonarqubeoauth.service.facade.SonarQubeConnectorService;
 import com.example.security.entity.Client;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

@@ -1,8 +1,8 @@
-package com.example.security.jenkinsOAuth.service.facade;
+package com.example.security.jenkinsoauth.service.facade;
 
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsBuildResponse;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
-import com.example.security.jenkinsOAuth.controller.dto.TestSummaryResponse;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsBuildResponse;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.jenkinsoauth.controller.dto.TestSummaryResponse;
 
 public interface JenkinsConnectorService {
     void connect(Long clientId, String jenkinsUrl, String username, String apiToken);

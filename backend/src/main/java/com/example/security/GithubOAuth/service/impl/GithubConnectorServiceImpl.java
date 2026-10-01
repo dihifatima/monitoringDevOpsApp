@@ -1,13 +1,13 @@
-package com.example.security.githubOAuth.service.impl;
+package com.example.security.githuboauth.service.impl;
 
 
 import com.example.security.enumeration.ConnextionProvider;
-import com.example.security.githubOAuth.controller.dto.*;
+import com.example.security.githuboauth.controller.dto.*;
 import com.example.security.entity.TrackedRepo;
 import com.example.security.repo.NotificationRepo;
 import com.example.security.repo.TrackedRepositoryRepo;
-import com.example.security.githubOAuth.service.facade.GithubConnectorService;
-import com.example.security.githubOAuth.service.facade.GithubOAuthService;
+import com.example.security.githuboauth.service.facade.GithubConnectorService;
+import com.example.security.githuboauth.service.facade.GithubOAuthService;
 import com.example.security.entity.Client;
 import com.example.security.entity.ExternalConnection;
 import com.example.security.repo.ClientRepo;

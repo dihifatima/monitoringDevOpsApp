@@ -1,8 +1,8 @@
-package com.example.security.jenkinsOAuth.controller.facade;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsBuildResponse;
-import com.example.security.jenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
-import com.example.security.jenkinsOAuth.controller.dto.TestSummaryResponse;
-import com.example.security.jenkinsOAuth.service.facade.JenkinsConnectorService;
+package com.example.security.jenkinsoauth.controller.facade;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsBuildResponse;
+import com.example.security.jenkinsoauth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.jenkinsoauth.controller.dto.TestSummaryResponse;
+import com.example.security.jenkinsoauth.service.facade.JenkinsConnectorService;
 import com.example.security.entity.Client;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
