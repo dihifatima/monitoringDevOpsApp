@@ -47,7 +47,7 @@ public class JenkinsConnectorServiceImpl implements JenkinsConnectorService {
                         .connectedAt(LocalDateTime.now())
                         .build());
 
-        connection.setAccessToken(STR."\{username}:\{apiToken}");
+        connection.setAccessToken(username + ":" + apiToken);
         connection.setExternalUsername(username);
         connection.setExternalUrl(jenkinsUrl);
         connection.setLastSyncAt(LocalDateTime.now());

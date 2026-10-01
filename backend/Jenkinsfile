@@ -20,6 +20,7 @@ pipeline {
                     withSonarQubeEnv('sonarqube-pfa') {
                         sh '''mvn -B sonar:sonar \
                           -Dsonar.projectKey=pfa-backend \
+                          -Dsonar.java.enablePreview=true \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'''
                     }
                 }

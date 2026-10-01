@@ -37,8 +37,7 @@ public class JenkinsServiceImpl implements JenkinsService {
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        String url = UriComponentsBuilder.fromHttpUrl(STR."\{jenkinsUrl}/job/\{jobName}/lastBuild/api/json")
-                .toUriString();
+        String url = UriComponentsBuilder.fromHttpUrl(jenkinsUrl + "/job/" + jobName + "/lastBuild/api/json")                .toUriString();
 
         var response = restTemplate.exchange(
                 url, HttpMethod.GET, request, JenkinsBuildResponse.class
@@ -56,8 +55,8 @@ public class JenkinsServiceImpl implements JenkinsService {
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        String buildsListUrl = STR."\{jenkinsUrl}/job/\{jobName}/api/json?tree=builds[number,url,result,building,timestamp,duration,actions[lastBuiltRevision[branch[name]]]]";
-
+        String buildsListUrl = jenkinsUrl + "/job/" + jobName
+                + "/api/json?tree=builds[number,url,result,building,timestamp,duration,actions[lastBuiltRevision[branch[name]]]]";
         var response = restTemplate.exchange(buildsListUrl, HttpMethod.GET, request, Map.class);
         Map<String, Object> raw = response.getBody();
 
