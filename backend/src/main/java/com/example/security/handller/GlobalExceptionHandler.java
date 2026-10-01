@@ -2,6 +2,7 @@ package com.example.security.handller;
 
 import com.example.security.exception.*;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -171,17 +173,6 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleException(Exception exp) {
-        // log the exception
-        exp.printStackTrace();
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ExceptionResponse.builder()
-                        .businessErrorDescription("Internal error, contact the admin")
-                        .error(exp.getMessage())
-                        .build());
-    }
     @ExceptionHandler(AccountLockedException.class)
     public ResponseEntity<ExceptionResponse> handleException(AccountLockedException exp) {
         Long retryAfterSeconds = null;
@@ -198,6 +189,18 @@ public class GlobalExceptionHandler {
                         .error(BusinessErrorCodes.Account_LOCKED.getDescription())
                         .lockedUntil(exp.getLockedUntil())
                         .retryAfterSeconds(retryAfterSeconds)
+                        .build());
+    }
+
+    // Handler générique : doit rester le dernier "catch-all".
+    // La trace complète va dans les logs serveur, jamais dans la réponse HTTP.
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleException(Exception exp) {
+        log.error("Unexpected error", exp);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ExceptionResponse.builder()
+                        .businessErrorDescription("Internal error, contact the admin")
                         .build());
     }
 }
