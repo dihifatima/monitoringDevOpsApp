@@ -18,9 +18,8 @@ pipeline {
             steps {
                 dir('backend') {
                     withSonarQubeEnv('sonarqube-pfa') {
-                        sh '''mvn -B sonar:sonar \
+                        sh '''mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar \
                           -Dsonar.projectKey=pfa-backend \
-                          -Dsonar.java.enablePreview=true \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'''
                     }
                 }
