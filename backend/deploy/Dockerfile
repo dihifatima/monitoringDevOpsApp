@@ -9,12 +9,15 @@ RUN mvn -q dependency:go-offline
 
 # Copy source code and build
 COPY src ./src
-RUN mvn -q clean package -DskipTests -DskipTests=true -Dmaven.test.skip=true
+RUN mvn -q clean package -DskipTests=true -Dmaven.test.skip=true
 
 # -------- 2) Run the application (lighter image) --------
 FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
+
+# Active le profil "prod" par défaut dans le conteneur
+ENV SPRING_PROFILES_ACTIVE=prod
 
 # Copy the jar from the builder stage
 COPY --from=builder /app/target/*.jar app.jar

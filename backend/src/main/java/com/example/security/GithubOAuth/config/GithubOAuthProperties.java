@@ -1,4 +1,4 @@
-package com.example.security.GithubOAuth.config;
+package com.example.security.githubOAuth.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

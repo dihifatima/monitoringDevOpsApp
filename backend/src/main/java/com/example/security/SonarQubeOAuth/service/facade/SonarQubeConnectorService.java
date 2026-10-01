@@ -1,7 +1,7 @@
-package com.example.security.SonarQubeOAuth.service.facade;
+package com.example.security.sonarQubeOAuth.service.facade;
 
-import com.example.security.SonarQubeOAuth.controller.dto.CommitMeasuresResponse;
-import com.example.security.SonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.CommitMeasuresResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
 
 import java.util.List;
 

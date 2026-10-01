@@ -1,4 +1,4 @@
-package com.example.security.GithubOAuth.controller.dto;
+package com.example.security.githubOAuth.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

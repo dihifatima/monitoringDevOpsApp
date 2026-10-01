@@ -1,7 +1,7 @@
 package com.example.security.repo;
 
 
-import com.example.security.Enumeration.ConnextionProvider;
+import com.example.security.enumeration.ConnextionProvider;
 import com.example.security.entity.ExternalConnection;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -7,3 +7,4 @@ bootstrap.py
 *.log
 .DS_Store
 deploy/.env
+.env

@@ -1,9 +1,9 @@
-package com.example.security.GithubOAuth.service.facade;
+package com.example.security.githubOAuth.service.facade;
 
-import com.example.security.GithubOAuth.controller.dto.GithubCommitResponse;
-import com.example.security.GithubOAuth.controller.dto.GithubRepoResponse;
-import com.example.security.GithubOAuth.controller.dto.GithubUserResponse;
-import com.example.security.GithubOAuth.controller.dto.GithubWebhookRequest;
+import com.example.security.githubOAuth.controller.dto.GithubCommitResponse;
+import com.example.security.githubOAuth.controller.dto.GithubRepoResponse;
+import com.example.security.githubOAuth.controller.dto.GithubUserResponse;
+import com.example.security.githubOAuth.controller.dto.GithubWebhookRequest;
 
 import java.util.Optional;
 

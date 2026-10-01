@@ -1,8 +1,8 @@
-package com.example.security.GithubOAuth.controller.facade;
+package com.example.security.githubOAuth.controller.facade;
 
 
-import com.example.security.GithubOAuth.controller.dto.*;
-import com.example.security.GithubOAuth.service.facade.GithubConnectorService;
+import com.example.security.githubOAuth.controller.dto.*;
+import com.example.security.githubOAuth.service.facade.GithubConnectorService;
 import com.example.security.entity.Client;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

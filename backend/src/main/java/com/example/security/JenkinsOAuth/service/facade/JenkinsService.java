@@ -1,8 +1,8 @@
-package com.example.security.JenkinsOAuth.service.facade;
+package com.example.security.jenkinsOAuth.service.facade;
 
-import com.example.security.JenkinsOAuth.controller.dto.JenkinsBuildResponse;
-import com.example.security.JenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
-import com.example.security.JenkinsOAuth.controller.dto.TestSummaryResponse;
+import com.example.security.jenkinsOAuth.controller.dto.JenkinsBuildResponse;
+import com.example.security.jenkinsOAuth.controller.dto.JenkinsJobBuildsResponse;
+import com.example.security.jenkinsOAuth.controller.dto.TestSummaryResponse;
 
 public interface JenkinsService {
     JenkinsBuildResponse fetchLastBuild(String jenkinsUrl, String auth, String jobName);

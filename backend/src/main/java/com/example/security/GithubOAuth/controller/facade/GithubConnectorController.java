@@ -1,7 +1,7 @@
-package com.example.security.GithubOAuth.controller.facade;
+package com.example.security.githubOAuth.controller.facade;
 
-import com.example.security.GithubOAuth.controller.dto.GithubStatusResponse;
-import com.example.security.GithubOAuth.service.impl.GithubConnectorServiceImpl;
+import com.example.security.githubOAuth.controller.dto.GithubStatusResponse;
+import com.example.security.githubOAuth.service.impl.GithubConnectorServiceImpl;
 import com.example.security.entity.Client;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

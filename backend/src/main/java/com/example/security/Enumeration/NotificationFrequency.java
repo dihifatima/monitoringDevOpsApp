@@ -1,4 +1,4 @@
-package com.example.security.Enumeration;
+package com.example.security.enumeration;
 
 public enum NotificationFrequency {
     REALTIME,

@@ -1,10 +1,10 @@
-package com.example.security.SonarQubeOAuth.service.impl;
+package com.example.security.sonarQubeOAuth.service.impl;
 
-import com.example.security.SonarQubeOAuth.controller.dto.SonarMeasuresHistoryResponse;
-import com.example.security.SonarQubeOAuth.controller.dto.SonarProjectAnalysesResponse;
-import com.example.security.SonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
-import com.example.security.SonarQubeOAuth.controller.dto.SonarProjectSearchResponse;
-import com.example.security.SonarQubeOAuth.service.facade.SonarQubeService;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarMeasuresHistoryResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarProjectAnalysesResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarProjectSearchResponse;
+import com.example.security.sonarQubeOAuth.service.facade.SonarQubeService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

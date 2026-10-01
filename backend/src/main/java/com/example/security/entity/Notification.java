@@ -1,6 +1,6 @@
 package com.example.security.entity;
 
-import com.example.security.Enumeration.NotificationType;
+import com.example.security.enumeration.NotificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

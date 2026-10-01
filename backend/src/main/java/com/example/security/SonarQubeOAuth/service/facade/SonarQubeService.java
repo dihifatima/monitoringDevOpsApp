@@ -1,8 +1,8 @@
-package com.example.security.SonarQubeOAuth.service.facade;
+package com.example.security.sonarQubeOAuth.service.facade;
 
-import com.example.security.SonarQubeOAuth.controller.dto.SonarMeasuresHistoryResponse;
-import com.example.security.SonarQubeOAuth.controller.dto.SonarProjectAnalysesResponse;
-import com.example.security.SonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarMeasuresHistoryResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarProjectAnalysesResponse;
+import com.example.security.sonarQubeOAuth.controller.dto.SonarQubeMeasuresResponse;
 
 public interface SonarQubeService {
     SonarQubeMeasuresResponse fetchMeasures(String sonarQubeUrl, String projectKey, String token);

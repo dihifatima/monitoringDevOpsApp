@@ -1,6 +1,6 @@
 package com.example.security.service.impl;
 
-import com.example.security.Enumeration.NotificationFrequency;
+import com.example.security.enumeration.NotificationFrequency;
 import com.example.security.controller.dto.*;
 import com.example.security.entity.Client;
 import com.example.security.entity.ExternalConnection;

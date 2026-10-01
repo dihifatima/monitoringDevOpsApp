@@ -1,6 +1,6 @@
 package com.example.security.entity;
 
-import com.example.security.Enumeration.ConnextionProvider;
+import com.example.security.enumeration.ConnextionProvider;
 import jakarta.persistence.*;
 import lombok.*;
 

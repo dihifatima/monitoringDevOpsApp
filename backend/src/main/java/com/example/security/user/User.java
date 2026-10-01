@@ -1,6 +1,6 @@
     package com.example.security.user;
 
-    import com.example.security.Enumeration.AuthProvider;
+    import com.example.security.enumeration.AuthProvider;
     import com.example.security.role.Role;
     import com.fasterxml.jackson.annotation.JsonIdentityInfo;
     import com.fasterxml.jackson.annotation.ObjectIdGenerators;

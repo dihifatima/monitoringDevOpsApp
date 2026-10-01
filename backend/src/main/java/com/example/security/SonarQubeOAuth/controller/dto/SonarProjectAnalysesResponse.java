@@ -1,4 +1,4 @@
-package com.example.security.SonarQubeOAuth.controller.dto;
+package com.example.security.sonarQubeOAuth.controller.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

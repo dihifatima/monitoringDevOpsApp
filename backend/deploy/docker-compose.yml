@@ -1,4 +1,3 @@
-
 services:
   mailhog:
     image: mailhog/mailhog
@@ -6,6 +5,7 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+
   app:
     build:
       context: ..
@@ -13,11 +13,14 @@ services:
     container_name: spring_app
     ports:
       - "8080:8080"
+    env_file:
+      - ../.env   # Charge automatiquement toutes les variables du fichier .env
     environment:
-      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - SPRING_PROFILES_ACTIVE=prod  # Active le fichier application-prod.properties
     depends_on:
       postgres-db:
         condition: service_healthy
+
   postgres-db:
     image: postgres:15
     container_name: postgres_db

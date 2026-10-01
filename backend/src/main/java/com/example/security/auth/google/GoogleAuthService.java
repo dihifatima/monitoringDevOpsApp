@@ -1,6 +1,6 @@
 package com.example.security.auth.google;
 
-import com.example.security.Enumeration.AuthProvider;
+import com.example.security.enumeration.AuthProvider;
 import com.example.security.auth.local.AuthTokenService;
 import com.example.security.auth.local.AuthenticationResponse;
 import com.example.security.entity.Client;

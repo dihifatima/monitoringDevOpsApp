@@ -1,7 +1,7 @@
 package com.example.security.entity;
 
 
-import com.example.security.Enumeration.NotificationFrequency;
+import com.example.security.enumeration.NotificationFrequency;
 import com.example.security.user.User;
 import jakarta.persistence.*;
 import lombok.*;
