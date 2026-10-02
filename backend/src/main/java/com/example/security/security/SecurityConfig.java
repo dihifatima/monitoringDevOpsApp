@@ -48,7 +48,9 @@ public class SecurityConfig {
                                                 "/api-docs", "/api-docs/**",
                                                 "/webjars/**",
                                                 "/api/connectors/github/callback",
-                                                "/api/webhooks/github/**"
+                                                "/api/webhooks/github/**",
+                                                "/actuator/health"
+
                                         ).permitAll()
                                         .anyRequest().authenticated()
 
