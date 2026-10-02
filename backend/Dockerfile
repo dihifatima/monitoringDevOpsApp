@@ -12,8 +12,7 @@ COPY src ./src
 RUN mvn -q clean package -DskipTests=true -Dmaven.test.skip=true
 
 # -------- 2) Run the application (lighter image) --------
-FROM eclipse-temurin:21-jdk-alpine
-
+FROM --platform=linux/arm64 eclipse-temurin:21-jre
 WORKDIR /app
 
 # Active le profil "prod" par défaut dans le conteneur
