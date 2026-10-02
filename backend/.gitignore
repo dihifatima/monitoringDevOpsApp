@@ -8,3 +8,4 @@ bootstrap.py
 .DS_Store
 deploy/.env
 .env
+backup/

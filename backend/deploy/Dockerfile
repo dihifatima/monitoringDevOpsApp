@@ -25,4 +25,4 @@ COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
 
 # Run the Spring Boot application
-ENTRYPOINT ["java", "--enable-preview", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx350m", "--enable-preview", "-jar", "app.jar"]
