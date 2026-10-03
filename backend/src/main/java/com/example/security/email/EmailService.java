@@ -37,6 +37,8 @@ public class EmailService {
     private String activationUrl;
     @Value("${application.mailing.frontend.reset-password-url}")
     private String resetPasswordUrl;
+    @Value("${MAIL_USERNAME:}")
+    private String mailUsername;
     @Transactional
     public void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSendActivationToken(user);
@@ -110,8 +112,10 @@ public class EmailService {
         Context context = new Context();
         context.setVariables(proprites);
 
-        helper.setFrom("monitoringdevops.noreply@gmail.com");
-        helper.addTo(to);
+        String fromAddress = (mailUsername == null || mailUsername.isBlank())
+                ? "noreply@monitoringdevops.local"
+                : mailUsername;
+        helper.setFrom("monitoringDevOps <" + fromAddress + ">");        helper.addTo(to);
         helper.setSubject(subject);
 
         String template = templateEngine.process(templateName , context);

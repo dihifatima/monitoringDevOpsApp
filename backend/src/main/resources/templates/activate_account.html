@@ -1,52 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Activation</title>
+    <title>Activation de votre compte</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 10px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .activation-code {
-            font-size: 36px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .activation-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .activation-link a {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background-color: #1e293b; color: #fff; padding: 24px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 24px; color: #333; line-height: 1.5; }
+        .activation-code { font-size: 36px; font-weight: bold; letter-spacing: 8px; text-align: center;
+            background-color: #f1f5f9; border-radius: 6px; padding: 16px; margin: 24px 0; color: #1e293b; }
+        .note { font-size: 14px; color: #64748b; }
+        .footer { background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Account Activation</h1>
-    <p class="greeting" th:text="'Hello ' + ${username} + ','"></p>
-    <p>Thank you for signing up! Please use the following activation code to activate your account:</p>
-    <div class="activation-code"><span th:text="${activation_code}"></span></div>
-    <div class="activation-link">
-        <a th:href="${confirmationUrl}" target="_blank">Activate your account</a>
+    <div class="header">
+        <h1>monitoringDevOps</h1>
+    </div>
+    <div class="content">
+        <p th:text="'Bonjour ' + ${username} + ','"></p>
+        <p>Merci de votre inscription à <strong>monitoringDevOps</strong> ! Saisissez le code ci-dessous dans l'application pour activer votre compte :</p>
+        <div class="activation-code" th:text="${activation_code}"></div>
+        <p class="note">Ce code est valable <strong>15 minutes</strong>. Si vous n'êtes pas à l'origine de cette inscription, ignorez simplement ce message.</p>
+    </div>
+    <div class="footer">
+        monitoringDevOps - Message automatique, merci de ne pas y répondre.
     </div>
 </div>
 </body>
