@@ -7,6 +7,7 @@ import com.example.security.user.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -47,6 +50,7 @@ public class EmailService {
                     "Account activation"
             );
         }catch (MessagingException e){
+            log.error("Mail error", e);
             tokenRepository.deleteByUserId(user.getId());
             userRepository.deleteById(user.getId());
             throw new MessagingException("Failed to send validation email to " + user.getEmail() , e);
