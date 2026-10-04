@@ -35,7 +35,7 @@ public class AuthenticateService {
     private final TokenRepository tokenRepository;                   // codes activation / reset uniquement
     private final AuthTokenService authTokenService;                 // access/refresh tokens
     private final BruteForceProtectionService bruteForceProtectionService; // anti brute-force login
-    private final EmailServ ice emailService;
+    private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
