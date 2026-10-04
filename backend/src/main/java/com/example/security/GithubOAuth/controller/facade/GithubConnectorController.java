@@ -21,7 +21,7 @@ public class GithubConnectorController {
     // Base du deep link vers lequel on redirige l'app mobile une fois le callback traité.
     // Externalisé en config plutôt qu'en dur, au cas où le scheme change ou qu'on ait
     // plusieurs environnements (dev/prod).
-    @Value("${app.mobile-deep-link.github-callback:monapp://github-connected}")
+    @Value("${app.mobile-deep-link.github-callback:monitoringdevopsapp://github-connected}")
     private String githubCallbackDeepLink;
 
     public GithubConnectorController(GithubConnectorServiceImpl githubConnectorServiceImpl) {
