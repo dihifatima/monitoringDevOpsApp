@@ -35,7 +35,7 @@ public class AuthenticateService {
     private final TokenRepository tokenRepository;                   // codes activation / reset uniquement
     private final AuthTokenService authTokenService;                 // access/refresh tokens
     private final BruteForceProtectionService bruteForceProtectionService; // anti brute-force login
-    private final EmailService emailService;
+    private final EmailServ ice emailService;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
@@ -60,7 +60,7 @@ public class AuthenticateService {
         userRepository.save(client);
         emailService.sendValidationEmail(client);
 
-        return new MessageResponse("Registration successful. Please check your email to activate your account.");
+        return new MessageResponse("Registration successful. Please check your email to activate your account .");
     }
 
     @Transactional
