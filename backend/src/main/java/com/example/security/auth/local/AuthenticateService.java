@@ -60,7 +60,7 @@ public class AuthenticateService {
         userRepository.save(client);
         emailService.sendValidationEmail(client);
 
-        return new MessageResponse("Registration successful. Please check your email to activate your account .");
+        return new MessageResponse("Registration successful . Please check your email to activate your account  .");
     }
 
     @Transactional
