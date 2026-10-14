@@ -6,13 +6,13 @@ import { tabBarItems } from './tabBarConfig';
 import TabBarButton from './TabBarButton';
 import Colors from '@/src/constants/colors';
 import { useSetTabBarHeight } from '@/src/context/TabBarHeightContext';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export const BAR_HEIGHT = 70;
 const BORDER_RADIUS = 30;
-const MARGIN_H = 18;
+const MARGIN_H = 15;
 export const MARGIN_BOTTOM = 10;
-const BUMP_RADIUS = 15;
-const BUMP_HEIGHT = 9;
+const BUMP_RADIUS = 10;
+const BUMP_HEIGHT = 2;
 
 function buildBarPath(width: number, height: number, radius: number, bumpX: number): string {
   const r = radius;
@@ -38,13 +38,14 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const [bumpX, setBumpX] = useState(0);
   const animValue = useRef(new Animated.Value(0)).current;
   const setTabBarHeight = useSetTabBarHeight();
-
+  const insets = useSafeAreaInsets();
+  const bottomOffset = insets.bottom + MARGIN_BOTTOM;
   const itemCount = state.routes.length;
   const itemWidth = barWidth / itemCount;
 
-  useEffect(() => {
-    setTabBarHeight(BAR_HEIGHT + MARGIN_BOTTOM);
-  }, [setTabBarHeight]);
+useEffect(() => {
+  setTabBarHeight(BAR_HEIGHT + BUMP_HEIGHT + bottomOffset);
+}, [setTabBarHeight, bottomOffset]);
 
   useEffect(() => {
     if (barWidth === 0) return;
@@ -74,8 +75,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   };
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.shadowWrapper}>
+<View style={[styles.wrapper, { bottom: bottomOffset }]}>      <View style={styles.shadowWrapper}>
         <View style={styles.svgContainer} onLayout={handleLayout}>
           {barWidth > 0 && (
             <Svg
@@ -127,7 +127,6 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    bottom: MARGIN_BOTTOM,
     left: MARGIN_H,
     right: MARGIN_H,
   },

@@ -6,6 +6,7 @@ import { ENV } from "./env";
 // INSTANCE PROTÉGÉE (Besoin de l'access token)
 const API = axios.create({
   baseURL: ENV.API_URL,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -14,6 +15,7 @@ const API = axios.create({
 // INSTANCE PUBLIQUE (Login, Register, Activation, Refresh)
 export const PublicAPI = axios.create({
   baseURL: ENV.API_URL,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -56,7 +58,11 @@ async function performTokenRefresh(): Promise<string | null> {
 
   // Appel brut, sans passer par authService, pour éviter une dépendance
   // circulaire (authService importe ce fichier axios.js).
-  const response = await axios.post(`${ENV.API_URL}/auth/refresh`, { refreshToken });
+  const response = await axios.post(
+    `${ENV.API_URL}/auth/refresh`,
+    { refreshToken },
+    { timeout: 60000 }
+  );
   const { accessToken, refreshToken: newRefreshToken } = response.data;
 
   console.log("[Axios/Refresh] Nouveau couple de tokens reçu avec succès");

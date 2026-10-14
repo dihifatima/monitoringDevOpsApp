@@ -24,12 +24,8 @@ export default function GithubConnectorRow() {
       return;
     }
 
-    // Pas connecté : on lance le flow OAuth. Si ça réussit, on navigue
-    // directement vers l'écran des repos, sans repasser par un 2e tap.
-    const success = await connect();
-    if (success) {
-      router.push(githubConfig.route as any);
-    }
+    // Android : la navigation vers les repos est faite par app/(oauth)/github-connected.tsx
+    await connect();
   };
 
   return (

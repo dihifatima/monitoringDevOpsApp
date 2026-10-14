@@ -8,7 +8,12 @@ import Spacing from '@/src/styles/spacing';
 import { useQuickActionsPrefs } from '@/src/hooks/home/useQuickActionsPrefs';
 import { QUICK_ACTIONS_CATALOG } from '@/src/constants/quickActions';
 
-export default function QuickActions() {
+type Props = {
+  // clés d'actions qui affichent une pastille orange (ex. connexion à terminer)
+  badgeKeys?: string[];
+};
+
+export default function QuickActions({ badgeKeys = [] }: Props) {
   const { selectedActions, selected, toggle } = useQuickActionsPrefs();
   const [editVisible, setEditVisible] = useState(false);
 
@@ -18,8 +23,12 @@ export default function QuickActions() {
         <AppText variant="body" bold>
           Accès rapides
         </AppText>
-        <Pressable onPress={() => setEditVisible(true)}>
-          <AppText variant="small" color={Colors.info ?? Colors.black}>
+        <Pressable
+          onPress={() => setEditVisible(true)}
+          style={styles.editBtn}
+          accessibilityRole="button"
+        >
+          <AppText variant="small" color={Colors.link}>
             Modifier
           </AppText>
         </Pressable>
@@ -35,11 +44,15 @@ export default function QuickActions() {
             key={action.key}
             style={styles.action}
             onPress={() => router.push(action.path)}
+            accessibilityRole="button"
           >
-            <Ionicons name={action.icon as any} size={22} color={Colors.black} />
-            <AppText variant="small" style={{ marginTop: 6 }} numberOfLines={1}>
+            <View style={styles.iconCircle}>
+              <Ionicons name={action.icon as any} size={18} color={Colors.success} />
+            </View>
+            <AppText variant="small" style={styles.actionLabel} numberOfLines={2}>
               {action.label}
             </AppText>
+            {badgeKeys.includes(action.key) && <View style={styles.badge} />}
           </Pressable>
         ))}
       </ScrollView>
@@ -55,7 +68,11 @@ export default function QuickActions() {
             <AppText variant="h3" bold>
               Personnaliser les accès rapides
             </AppText>
-            <AppText variant="small" color={Colors.grey} style={{ marginTop: 4, marginBottom: Spacing.md }}>
+            <AppText
+              variant="small"
+              color={Colors.textMuted}
+              style={{ marginTop: 4, marginBottom: Spacing.md }}
+            >
               Sélectionne les raccourcis à afficher.
             </AppText>
 
@@ -67,15 +84,13 @@ export default function QuickActions() {
                     key={action.key}
                     style={[styles.gridItem, isActive && styles.gridItemActive]}
                     onPress={() => toggle(action.key)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: isActive }}
                   >
-                    <Ionicons
-                      name={action.icon as any}
-                      size={20}
-                      color={isActive ? Colors.black : Colors.black}
-                    />
+                    <Ionicons name={action.icon as any} size={20} color={Colors.black} />
                     <AppText
                       variant="small"
-                      color={isActive ? Colors.black : Colors.black}
+                      color={Colors.black}
                       style={{ marginTop: 6, textAlign: 'center' }}
                     >
                       {action.label}
@@ -86,7 +101,7 @@ export default function QuickActions() {
             </View>
 
             <Pressable style={styles.doneBtn} onPress={() => setEditVisible(false)}>
-              <AppText variant="body" color={Colors.black} bold>
+              <AppText variant="body" color="#fff" bold>
                 Terminé
               </AppText>
             </Pressable>
@@ -103,15 +118,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
-  row: { flexDirection: 'row', gap: Spacing.sm },
+  editBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
+  row: { flexDirection: 'row', gap: 8 },
   action: {
-    width: 90,
-    backgroundColor: Colors.white,
-    borderRadius: Spacing.cardRadius,
-    padding: Spacing.s,
+    width: 104,
+    height: 88,
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.greyLight,
+    borderRadius: 16,
+    paddingHorizontal: 6,
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.okClaire,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: { fontSize: 12, lineHeight: 14, textAlign: 'center' },
+  badge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: Colors.accent,
   },
   modalOverlay: {
     flex: 1,
@@ -133,17 +172,13 @@ const styles = StyleSheet.create({
   gridItem: {
     width: '30%',
     backgroundColor: Colors.greyLight,
-
     borderRadius: Spacing.cardRadius,
     padding: Spacing.md,
     alignItems: 'center',
   },
-  gridItemActive: {
-    backgroundColor: Colors.green,
-
-  },
+  gridItemActive: { backgroundColor: Colors.green },
   doneBtn: {
-    backgroundColor: Colors.info,
+    backgroundColor: Colors.success,
     borderRadius: Spacing.cardRadius,
     padding: Spacing.md,
     alignItems: 'center',

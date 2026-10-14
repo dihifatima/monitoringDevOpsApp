@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTrackedRepos } from '@/src/hooks/Oauth_github/useTrackedRepos';
 import { usePipelinesOverview } from '@/src/hooks/Oauth_jenkins/usePipelinesOverview';
 
@@ -13,8 +13,8 @@ export type ActivityItem = {
 };
 
 export function useRecentActivity() {
-  const { repos, isLoading: reposLoading } = useTrackedRepos();
-  const { entries, isLoading: buildsLoading } = usePipelinesOverview();
+  const { repos, isLoading: reposLoading, refresh: refreshRepos } = useTrackedRepos();
+  const { entries, isLoading: buildsLoading, refetch: refetchBuilds } = usePipelinesOverview();
 
   const activity = useMemo<ActivityItem[]>(() => {
     return repos
@@ -35,5 +35,9 @@ export function useRecentActivity() {
       .slice(0, 5);
   }, [repos, entries]);
 
-  return { activity, isLoading: reposLoading || buildsLoading };
+  const refresh = useCallback(async () => {
+    await Promise.all([refreshRepos(), refetchBuilds()]);
+  }, [refreshRepos, refetchBuilds]);
+
+  return { activity, isLoading: reposLoading || buildsLoading, refresh };
 }

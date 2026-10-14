@@ -20,11 +20,12 @@ export const tabBarItems: TabBarItemConfig[] = [
     activeIcon: 'git-branch',   
     label: 'Projets' 
   },
-  { 
-    name: 'notifications', 
-    icon: 'notifications-outline',
-    activeIcon: 'notifications',
-  },
+ { 
+  name: 'notifications',
+   icon: 'notifications-outline',
+   activeIcon: 'notifications',
+    label: 'Alertes'
+   },
   { 
     name: 'Pipelines', 
     icon: 'git-merge-outline', 

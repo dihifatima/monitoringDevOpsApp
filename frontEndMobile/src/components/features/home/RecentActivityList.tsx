@@ -4,74 +4,111 @@ import { Ionicons } from '@expo/vector-icons';
 import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
-import type { ActivityItem } from '@/src/hooks/useRecentActivity';
+import { timeAgo } from '@/src/utils/timeAgo';
+import type { ActivityItem } from '@/src/hooks/home/useRecentActivity';
 
-const STATUS_ICON: Record<string, { name: string; color: string }> = {
-  SUCCESS: { name: 'checkmark-circle', color: '#3d6b1f' },
-  FAILURE: { name: 'close-circle', color: '#a13a3a' },
-};
+const STATUS_UI = {
+  SUCCESS: { icon: 'checkmark', color: Colors.success, bg: Colors.okClaire },
+  FAILURE: { icon: 'close', color: '#A63D3D', bg: Colors.rougeClaire },
+  RUNNING: { icon: 'sync', color: '#1D4FB3', bg: Colors.bleuClaire },
+  NONE: { icon: 'git-commit-outline', color: Colors.textMuted, bg: Colors.greyLight },
+} as const;
+
+function statusOf(item: ActivityItem) {
+  if (item.buildBuilding) return STATUS_UI.RUNNING;
+  if (item.buildResult === 'SUCCESS') return STATUS_UI.SUCCESS;
+  if (item.buildResult === 'FAILURE') return STATUS_UI.FAILURE;
+  return STATUS_UI.NONE;
+}
 
 export default function RecentActivityList({ activity }: { activity: ActivityItem[] }) {
-  if (activity.length === 0) {
-    return null;
-  }
-
   return (
     <View style={styles.container}>
       <AppText variant="body" bold style={styles.title}>
         Activité récente
       </AppText>
 
-      {activity.map((item) => {
-        const statusIcon = item.buildBuilding
-          ? { name: 'sync', color: '#8a6200' }
-          : item.buildResult
-          ? STATUS_ICON[item.buildResult]
-          : null;
+      {activity.length === 0 ? (
+        <View style={styles.empty}>
+          <AppText variant="small" color={Colors.textMuted} style={{ textAlign: 'center' }}>
+            Rien pour l'instant.{'\n'}Vos commits apparaîtront ici dès le premier dépôt suivi.
+          </AppText>
+        </View>
+      ) : (
+        activity.map((item) => {
+          const ui = statusOf(item);
+          const message =
+            item.commitMessage?.trim() && item.commitMessage.trim() !== '...'
+              ? item.commitMessage.trim()
+              : 'Commit sans message';
 
-        return (
-          <Pressable
-            key={`${item.repoId}-${item.commitSha}`}
-            style={styles.row}
-            onPress={() =>
-              router.push({
-                pathname: '/Projets/commit-detail',
-                params: { repoId: String(item.repoId), sha: item.commitSha ?? '' },
-              })
-            }
-          >
-            <View style={styles.rowLeft}>
-              <AppText variant="small" bold color={Colors.grey}>
-                {item.repoName}
-              </AppText>
-              <AppText variant="body" numberOfLines={1} style={{ marginTop: 2 }}>
-                {item.commitMessage ?? 'Sans message'}
-              </AppText>
-              <AppText variant="small" color={Colors.grey} style={{ marginTop: 2 }}>
-                {item.commitDate ? new Date(item.commitDate).toLocaleString() : ''}
-              </AppText>
-            </View>
-            {statusIcon && (
-              <Ionicons name={statusIcon.name as any} size={22} color={statusIcon.color} />
-            )}
-          </Pressable>
-        );
-      })}
+          return (
+            <Pressable
+              key={`${item.repoId}-${item.commitSha}`}
+              style={styles.row}
+              accessibilityRole="button"
+              onPress={() =>
+                router.push({
+                  pathname: '/Projets/commit-detail',
+                  params: { repoId: String(item.repoId), sha: item.commitSha ?? '' },
+                })
+              }
+            >
+              <View style={[styles.icon, { backgroundColor: ui.bg }]}>
+                <Ionicons name={ui.icon as any} size={18} color={ui.color} />
+              </View>
+
+              <View style={styles.rowLeft}>
+                <AppText variant="body" bold numberOfLines={1} style={styles.repo}>
+                  {item.repoName}
+                </AppText>
+                <AppText
+                  variant="small"
+                  color={Colors.textMuted}
+                  numberOfLines={1}
+                  style={styles.msg}
+                >
+                  {message}
+                </AppText>
+              </View>
+
+              {!!item.commitDate && (
+                <AppText variant="small" color={Colors.textMuted} style={styles.date}>
+                  {timeAgo(item.commitDate)}
+                </AppText>
+              )}
+              <Ionicons name="chevron-forward" size={16} color={Colors.grey} />
+            </Pressable>
+          );
+        })
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { marginBottom: Spacing.lg },
-  title: { marginBottom: Spacing.sm },
+  title: { marginBottom: Spacing.xs },
+  // pas de fond carte : séparateurs fins, comme l'écran Pipelines
   row: {
-    backgroundColor: Colors.white,
-    borderRadius: Spacing.cardRadius,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
+    minHeight: 64,
+    paddingVertical: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: Colors.greyLight,
   },
-  rowLeft: { flex: 1, marginRight: Spacing.sm },
+  icon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  rowLeft: { flex: 1 },
+  repo: { fontSize: 14 },
+  msg: { fontSize: 13, marginTop: 2 },
+  date: { fontSize: 12 },
+  empty: {
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: Colors.grey,
+    borderRadius: 16,
+    padding: 20,
+  },
 });

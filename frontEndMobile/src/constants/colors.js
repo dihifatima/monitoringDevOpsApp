@@ -20,6 +20,9 @@ const Colors = {
     buildFailed: '#CD5C5C',
     buildRunning: '#3B82F6',
     buildPending: '#F0E68C',
+    textMuted: '#5b6068',
+okClaire: '#e3ebd6',
+link: '#1d4fb3',
 
 
 }

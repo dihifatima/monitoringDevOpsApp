@@ -1,6 +1,6 @@
 // src/components/layout/TabRootHeader.tsx
 import React, { useState } from 'react';
-import { View, Image, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Image, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AppText from '@/src/components/common/AppText';
@@ -9,11 +9,15 @@ import Spacing from '@/src/styles/spacing';
 import { useAuthGlobal } from '@/src/context/AuthContext';
 import NotificationsPreviewModal from '@/src/components/features/notifications/NotificationsPreviewModal';
 import { useNotificationsGlobal } from '@/src/context/NotificationsContext';
+import { confirmLogout } from '@/src/utils/confirmLogout';
+
 interface TabRootHeaderProps {
   mode: 'greeting' | 'title';
-  title?: string;        
-  fullName?: string;    
+  title?: string;
+  fullName?: string;
   avatarUri?: string | null;
+  backgroundColor?: string; // défaut : greyLight (les autres onglets ne changent pas)
+  showLogout?: boolean; // défaut : true
 }
 
 function getGreeting(): string {
@@ -28,43 +32,37 @@ const TabRootHeader: React.FC<TabRootHeaderProps> = ({
   title,
   fullName,
   avatarUri,
+  backgroundColor = Colors.greyLight,
+  showLogout = true,
 }) => {
   const { logout } = useAuthGlobal();
+  const { unreadCount } = useNotificationsGlobal();
   const [notifModalVisible, setNotifModalVisible] = useState(false);
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Déconnexion',
-      'Voulez-vous vraiment vous déconnecter ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Déconnexion', style: 'destructive', onPress: () => logout() },
-      ]
-    );
-  };
-const { unreadCount } = useNotificationsGlobal();
   return (
-    <View style={styles.header}>
-      {/* Avatar — cliquable, renvoie vers l'édition du profil */}
+    <View style={[styles.header, { backgroundColor }]}>
+      {/* Avatar — renvoie vers l'édition du profil */}
       <Pressable
         onPress={() => router.push('/(tabs)/plus/profile-settings')}
-        hitSlop={8}
+        hitSlop={4}
+        accessibilityRole="button"
+        accessibilityLabel="Modifier mon profil"
       >
         {avatarUri ? (
           <Image source={{ uri: avatarUri }} style={styles.avatar} />
         ) : (
           <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person" size={20} color={Colors.success} />
+            <Ionicons name="person" size={22} color="#fff" />
           </View>
         )}
       </Pressable>
 
-      {/* Zone    centrale  — greeting (Home) ou titre simple (autres tabs) */}
+      {/* Zone centrale — greeting (Home) ou titre simple (autres tabs) */}
       <View style={styles.centerText}>
         {mode === 'greeting' ? (
           <>
-            <AppText variant="small" style={styles.greeting}>
-              {getGreeting()}
+            <AppText variant="small" color={Colors.textMuted} style={styles.greeting}>
+              {getGreeting()},
             </AppText>
             <AppText variant="h3" bold numberOfLines={1}>
               {fullName}
@@ -79,13 +77,28 @@ const { unreadCount } = useNotificationsGlobal();
 
       {/* Actions à droite */}
       <View style={styles.actions}>
-       <Pressable onPress={() => setNotifModalVisible(true)} hitSlop={8} style={styles.bellWrapper}>
-  <Ionicons name="notifications-outline" size={22} color={Colors.black} />
-  {unreadCount > 0 && <View style={styles.unreadBadge} />}
-</Pressable>
-        <Pressable onPress={handleLogout} hitSlop={8}>
-          <Ionicons name="log-out-outline" size={22} color={Colors.black} />
+        <Pressable
+          onPress={() => setNotifModalVisible(true)}
+          style={styles.iconBtn}
+          accessibilityRole="button"
+          accessibilityLabel={
+            unreadCount > 0 ? `Notifications, ${unreadCount} non lues` : 'Notifications'
+          }
+        >
+          <Ionicons name="notifications-outline" size={24} color={Colors.black} />
+          {unreadCount > 0 && <View style={[styles.unreadBadge, { borderColor: backgroundColor }]} />}
         </Pressable>
+
+        {showLogout && (
+          <Pressable
+            onPress={() => confirmLogout(logout)}
+            style={styles.iconBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Se déconnecter"
+          >
+            <Ionicons name="log-out-outline" size={24} color={Colors.black} />
+          </Pressable>
+        )}
       </View>
 
       <NotificationsPreviewModal
@@ -102,48 +115,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.screenPadding,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.greyLight
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
+  avatar: { width: 44, height: 44, borderRadius: 22 },
   avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.success,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  centerText: {
-    flex: 1,
-    marginLeft: Spacing.sm,
+  centerText: { flex: 1, marginLeft: Spacing.sm },
+  greeting: { marginBottom: 2 },
+  actions: { flexDirection: 'row', alignItems: 'center' },
+  // zone tactile de 44 dp
+  iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  unreadBadge: {
+    position: 'absolute',
+    top: 9,
+    right: 10,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.accent,
+    borderWidth: 2,
   },
-  greeting: {
-    opacity: 0.5,
-    marginBottom: 2,
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  bellWrapper: {
-  position: 'relative',
-},
-unreadBadge: {
-  position: 'absolute',
-  top: -2,
-  right: -2,
-  width: 9,
-  height: 9,
-  borderRadius: 5,
-  backgroundColor: '#E24C4C',
-  borderWidth: 1.5,
-  borderColor: Colors.greyLight,
-},
 });
 
 export default TabRootHeader;
