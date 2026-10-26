@@ -10,9 +10,6 @@ export const TokenStorage = {
       await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
 
       // Logs de vérification temporaires — à retirer une fois le flow validé.
-      console.log("[TokenStorage] Tokens sauvegardés avec succès");
-      console.log("[TokenStorage] accessToken (30 premiers car.) :", accessToken.substring(0, 30) + "...");
-      console.log("[TokenStorage] REFRESH TOKEN COMPLET (test uniquement) :", refreshToken);
     } catch (error) {
       console.error("Erreur lors de la sauvegarde des tokens:", error);
       throw error;

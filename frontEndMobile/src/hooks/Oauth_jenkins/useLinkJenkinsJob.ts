@@ -12,7 +12,7 @@ export function useLinkJenkinsJob() {
       await linkJenkinsJob(request);
       return true;
     } catch (err: any) {
-      console.log('LINK ERROR:', err?.response?.status, err?.response?.data, err?.message);
+      console.log('LINK ERROR:', err?.response?.status, err?.message);
       setError('Impossible de lier ce job. Vérifie le nom exact du job Jenkins.');
       return false;
     } finally {

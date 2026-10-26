@@ -213,7 +213,7 @@ API.interceptors.response.use(
       // Refresh token invalide, expiré, ou déjà révoqué (rejeu détecté) :
       // impossible de continuer la session, on nettoie tout et on force
       // le retour à l'écran de login, avec un message adapté à la cause.
-      console.log("[Axios/Refresh] Le refresh token est invalide/expiré/révoqué - déconnexion", refreshError?.response?.data);
+      console.log("[Axios/Refresh] Le refresh token est invalide/expiré/révoqué - déconnexion");
       await TokenStorage.clearTokens();
       resolvePendingRequests(null);
 

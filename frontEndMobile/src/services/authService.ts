@@ -51,14 +51,8 @@ export const authService = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
     try {
       const response = await PublicAPI.post<LoginResponse>("/auth/login", { email, password });
-      console.log("STATUS:", response.status);
-      console.log("DATA:", JSON.stringify(response.data, null, 2));
-      console.log("PAYLOAD ENVOYÉ:", JSON.stringify({ email, password }), "LEN:", password.length);
       return response.data;
     } catch (error: any) {
-      console.log("ERREUR STATUS:", error.response?.status);
-      console.log("ERREUR DATA:", JSON.stringify(error.response?.data, null, 2));
-      console.log("ERREUR MESSAGE:", error.message);
       throw error;
     }
   },
