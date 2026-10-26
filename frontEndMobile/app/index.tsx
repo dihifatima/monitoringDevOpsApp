@@ -7,20 +7,22 @@ import Colors from "@/src/constants/colors";
 import Images from "@/src/constants/images";
 import { useAuthGlobal } from "@/src/context/AuthContext";
 import Spacing from "@/src/styles/spacing";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { user } = useAuthGlobal();
+  const { user, loading } = useAuthGlobal();
+
+  // Session en cours de lecture : on n'affiche rien (le splash est encore visible)
+  if (loading) return null;
+
+  // Déjà connecté : accès direct à l'accueil, sans passer par l'onboarding
+  if (user) return <Redirect href="/(tabs)/home" />;
 
   const handleSkip = () => {
-    if (user) {
-      router.replace("/(tabs)/home");
-    } else {
-      router.replace("/(auth)/login");
-    }
+    router.replace("/(auth)/login");
   };
 
   return (

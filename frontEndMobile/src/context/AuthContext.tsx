@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { DeviceEventEmitter, Alert } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import { authService, UserResponse } from '@/src/services/authService';
 import { TokenStorage } from '@/src/storage/TokenStorage';
 import { router } from 'expo-router';
@@ -19,6 +20,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Le splash screen reste affiché tant que la session n'est pas lue.
+  // Ainsi l'onboarding ne s'affiche pas une fraction de seconde avant l'accueil.
+  useEffect(() => {
+    if (!loading) {
+      SplashScreen.hideAsync();
+    }
+  }, [loading]);
+
   // Cas d'usage : reconnexion automatique au démarrage de l'application.
   // On vérifie la présence du REFRESH token (pas l'access token) : même si
   // l'access token stocké est expiré ou absent, l'intercepteur Axios saura
@@ -31,7 +40,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(userData);
       }
     } catch (error: any) {
-      await TokenStorage.clearTokens();
+      // On ne supprime les tokens que si le serveur refuse vraiment la session.
+      // Une simple erreur réseau ou un serveur endormi (Render gratuit)
+      // ne doit pas déconnecter l'utilisateur.
+      const status = error?.response?.status;
+      if (status === 401 || status === 403) {
+        await TokenStorage.clearTokens();
+      }
       setUser(null);
     } finally {
       setLoading(false);

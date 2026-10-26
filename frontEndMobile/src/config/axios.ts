@@ -1,7 +1,62 @@
 import axios from "axios";
-import { DeviceEventEmitter } from "react-native";
+import { DeviceEventEmitter, Linking } from "react-native";
 import { TokenStorage } from "@/src/storage/TokenStorage";
 import { ENV } from "./env";
+
+/**
+ * SERVEUR EN VEILLE (SnapDeploy, offre gratuite)
+ * Un conteneur endormi répond 503 à toutes les requêtes. Seule une visite
+ * dans un navigateur le réveille (environ 1 minute), pas un appel de l'app.
+ * On prévient donc l'interface (bannière) au lieu de réessayer en boucle,
+ * et on ne déconnecte JAMAIS l'utilisateur à cause d'un 503.
+ */
+let serverSleeping = false;
+
+function notifyServerSleeping() {
+  if (!serverSleeping) {
+    serverSleeping = true;
+    DeviceEventEmitter.emit("SERVER_SLEEPING");
+  }
+}
+
+function notifyServerAwake() {
+  if (serverSleeping) {
+    serverSleeping = false;
+    DeviceEventEmitter.emit("SERVER_AWAKE");
+  }
+}
+
+/** Réponse reçue d'un statut autre que 503 : le serveur est réveillé. */
+function trackServerState(error: any) {
+  const status = error?.response?.status;
+  if (status === 503) {
+    notifyServerSleeping();
+  } else if (status) {
+    notifyServerAwake();
+  }
+}
+
+/** Vérifie si le serveur est réveillé (appelé par la bannière toutes les 5 s). */
+export async function checkServerAwake(): Promise<boolean> {
+  try {
+    const res = await axios.get(ENV.API_URL, {
+      timeout: 8000,
+      validateStatus: () => true,
+    });
+    if (res.status !== 503) {
+      notifyServerAwake();
+      return true;
+    }
+  } catch {
+    // réseau indisponible : on ne conclut rien
+  }
+  return false;
+}
+
+/** Ouvre l'URL du backend dans le navigateur pour réveiller le conteneur. */
+export function wakeServer() {
+  return Linking.openURL(ENV.API_URL);
+}
 
 // INSTANCE PROTÉGÉE (Besoin de l'access token)
 const API = axios.create({
@@ -20,6 +75,18 @@ export const PublicAPI = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Détection du serveur en veille sur les appels publics (login, inscription...)
+PublicAPI.interceptors.response.use(
+  (response) => {
+    notifyServerAwake();
+    return response;
+  },
+  (error) => {
+    trackServerState(error);
+    return Promise.reject(error);
+  }
+);
 
 // Intercepteur de requête : ajout automatique de l'access token
 API.interceptors.request.use(
@@ -82,8 +149,13 @@ function emitForceLogout(reason: "token_reuse" | "session_expired") {
 
 // Intercepteur de réponse : renouvellement automatique sur 401, puis rejeu de la requête
 API.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    notifyServerAwake();
+    return response;
+  },
   async (error) => {
+    trackServerState(error);
+
     const originalRequest = error.config;
 
     if (error.response?.status !== 401 || originalRequest._retry) {
@@ -127,6 +199,17 @@ API.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       return API(originalRequest);
     } catch (refreshError: any) {
+      const refreshStatus = refreshError?.response?.status;
+
+      // Serveur en veille (503) ou injoignable (pas de réponse) : ce n'est PAS
+      // un refresh token invalide. On garde les tokens et on ne déconnecte pas.
+      if (refreshStatus === 503 || !refreshError?.response) {
+        console.log("[Axios/Refresh] Serveur indisponible pendant le refresh - session conservée");
+        if (refreshStatus === 503) notifyServerSleeping();
+        resolvePendingRequests(null);
+        return Promise.reject(refreshError);
+      }
+
       // Refresh token invalide, expiré, ou déjà révoqué (rejeu détecté) :
       // impossible de continuer la session, on nettoie tout et on force
       // le retour à l'écran de login, avec un message adapté à la cause.
