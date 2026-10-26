@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-// Adaptez ce chemin à l'emplacement réel de votre fichier axios.ts
-import { checkServerAwake, wakeServer } from "@/src/config/axios";
+import { ActivityIndicator, DeviceEventEmitter, Modal, StyleSheet, Text, View } from "react-native";
+import { checkServerAwake } from "@/src/config/axios";
 
 export default function ServerSleepingBanner() {
-  const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
 
   // Écoute des événements envoyés par axios.ts
@@ -28,46 +25,46 @@ export default function ServerSleepingBanner() {
     return () => clearInterval(id);
   }, [visible]);
 
-  if (!visible) return null;
-
   return (
-    <View style={[styles.banner, { paddingTop: insets.top + 8 }]}>
-      <Text style={styles.text}>
-        Le serveur est en veille. Le réveil prend environ 1 minute.
-      </Text>
-      <View style={styles.actions}>
-        <TouchableOpacity onPress={() => wakeServer()}>
-          <Text style={styles.action}>Réveiller le serveur</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setVisible(false)}>
-          <Text style={styles.action}>Fermer</Text>
-        </TouchableOpacity>
+    <Modal
+      visible={visible}
+      animationType="fade"
+      onRequestClose={() => {}}
+    >
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#050708" style={styles.loader} />
+        <Text style={styles.title}>Serveur indisponible</Text>
+        <Text style={styles.message}>
+          Nous rétablissons le service, merci de patienter. Cet écran disparaîtra automatiquement.
+        </Text>
       </View>
-    </View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  banner: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-    backgroundColor: "#FFF3E0",
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
   },
-  text: {
-    color: "#5D4037",
+  loader: {
+    marginBottom: 20,
   },
-  actions: {
-    flexDirection: "row",
-    gap: 24,
-    marginTop: 6,
-  },
-  action: {
+  title: {
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#E65100",
+    color: "#050708",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  message: {
+    fontSize: 14,
+    color: "#5b6068",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
+
