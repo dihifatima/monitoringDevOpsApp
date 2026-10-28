@@ -17,8 +17,6 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationSourceType, Notificati
 };
 
 export const NOTIFICATION_FILTERS: { key: 'ALL' | NotificationSourceType; label: string }[] = [
-  { key: 'ALL', label: 'Tout' },
   { key: 'COMMIT', label: 'GitHub' },
-  { key: 'JENKINS_BUILD', label: 'Jenkins' },
-  { key: 'SONAR_ANALYSIS', label: 'Sonar' },
+  
 ];

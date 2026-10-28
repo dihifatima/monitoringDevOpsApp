@@ -23,6 +23,8 @@ const Colors = {
     textMuted: '#5b6068',
 okClaire: '#e3ebd6',
 link: '#1d4fb3',
+GrisPerle: '#C9C9C4',
+card: '#FFFFFF',
 
 
 }

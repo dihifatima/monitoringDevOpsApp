@@ -1,7 +1,8 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo,useEffect } from 'react';
 import { useTrackedRepos } from '@/src/hooks/Oauth_github/useTrackedRepos';
 import { usePipelinesOverview } from '@/src/hooks/Oauth_jenkins/usePipelinesOverview';
-
+import { useFocusEffect } from 'expo-router';
+import { onActivityRefresh } from '@/src/utils/activityEvents';
 export type ActivityItem = {
   repoId: number;
   repoName: string;
@@ -35,9 +36,23 @@ export function useRecentActivity() {
       .slice(0, 5);
   }, [repos, entries]);
 
-  const refresh = useCallback(async () => {
+const refresh = useCallback(async () => {
     await Promise.all([refreshRepos(), refetchBuilds()]);
   }, [refreshRepos, refetchBuilds]);
+
+  // 1. Recharger quand l'Accueil reprend le focus
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
+  // 2. Recharger à la réception d'une notification (nouveau commit)
+  useEffect(() => {
+    const sub = onActivityRefresh(refresh);
+    return () => sub.remove();
+  }, [refresh]);
+
 
   return { activity, isLoading: reposLoading || buildsLoading, refresh };
 }

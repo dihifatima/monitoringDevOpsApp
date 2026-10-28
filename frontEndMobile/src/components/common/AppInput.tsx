@@ -47,7 +47,7 @@ export default function AppInput({
           <Ionicons
             name={icon}
             size={18}
-            color={Colors.GrisPerle}
+            color={Colors.grey}
             style={styles.icon}
           />
         ) : null}

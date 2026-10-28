@@ -6,6 +6,7 @@ import { useAuthGlobal } from '@/src/context/AuthContext';
 import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
 import { useNotificationsGlobal } from '@/src/context/NotificationsContext';
 import { openCommitDetailFromOutside } from '@/src/utils/openCommitDetail';
+import { emitActivityRefresh } from '@/src/utils/activityEvents';
 
 export function PushNotificationsManager() {
   const { user } = useAuthGlobal();
@@ -16,6 +17,8 @@ export function PushNotificationsManager() {
   useEffect(() => {
     const receivedListener = Notifications.addNotificationReceivedListener(() => {
       refreshUnreadCount();
+        emitActivityRefresh();
+
     });
     return () => receivedListener.remove();
   }, [refreshUnreadCount]);

@@ -4,12 +4,8 @@ export function getNotificationTitle(notification: Notification): string {
   switch (notification.type) {
     case 'COMMIT':
       return `Nouveau commit sur ${notification.trackedRepo?.name ?? ''}`;
-    case 'JENKINS_BUILD':
-      return 'Build Jenkins';
-    case 'SONAR_ANALYSIS':
-      return 'Analyse SonarQube terminée';
     default:
-      return notification.type;
+      return 'Notification';
   }
 }
 

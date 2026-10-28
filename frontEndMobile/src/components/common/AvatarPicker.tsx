@@ -18,7 +18,7 @@ export default function AvatarPicker({ imageUri, onPress }: AvatarPickerProps) {
           <Image source={{ uri: imageUri }} style={styles.avatar} />
         ) : (
           <View style={styles.placeholder}>
-            <Ionicons name="person" size={40} color={Colors.GrisPerle} />
+            <Ionicons name="person" size={40} color={Colors.grey} />
           </View>
         )}
       </View>

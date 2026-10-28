@@ -96,7 +96,7 @@ export default function RepoRow({ repo, isTracked, busy, showOwner, onToggle, on
       </View>
 
       {onOpen ? (
-        <Ionicons name={DETAIL_ICON as any} size={DETAIL_ICON === 'eye-outline' ? 22 : 18} color={Colors.textMuted} />
+        <Ionicons name={DETAIL_ICON as any} size={18} color={Colors.textMuted} />
       ) : null}
     </Pressable>
   );

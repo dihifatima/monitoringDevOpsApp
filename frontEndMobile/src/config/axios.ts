@@ -1,7 +1,10 @@
+import { TokenStorage } from "@/src/storage/TokenStorage";
 import axios from "axios";
 import { DeviceEventEmitter, Linking } from "react-native";
-import { TokenStorage } from "@/src/storage/TokenStorage";
 import { ENV } from "./env";
+
+const API_URL = ENV.API_URL;
+if (!API_URL) throw new Error('API_URL manquant dans la config');
 
 /**
  * SERVEUR EN VEILLE (SnapDeploy, offre gratuite)
@@ -39,7 +42,7 @@ function trackServerState(error: any) {
 /** Vérifie si le serveur est réveillé (appelé par la bannière toutes les 5 s). */
 export async function checkServerAwake(): Promise<boolean> {
   try {
-    const res = await axios.get(ENV.API_URL, {
+    const res = await axios.get(API_URL!, {
       timeout: 8000,
       validateStatus: () => true,
     });
@@ -55,12 +58,12 @@ export async function checkServerAwake(): Promise<boolean> {
 
 /** Ouvre l'URL du backend dans le navigateur pour réveiller le conteneur. */
 export function wakeServer() {
-  return Linking.openURL(ENV.API_URL);
+  return Linking.openURL(API_URL!);
 }
 
 // INSTANCE PROTÉGÉE (Besoin de l'access token)
 const API = axios.create({
-  baseURL: ENV.API_URL,
+  baseURL: API_URL,
   timeout: 60000,
   headers: {
     "Content-Type": "application/json",
@@ -69,7 +72,7 @@ const API = axios.create({
 
 // INSTANCE PUBLIQUE (Login, Register, Activation, Refresh)
 export const PublicAPI = axios.create({
-  baseURL: ENV.API_URL,
+  baseURL: API_URL,
   timeout: 60000,
   headers: {
     "Content-Type": "application/json",
@@ -126,7 +129,7 @@ async function performTokenRefresh(): Promise<string | null> {
   // Appel brut, sans passer par authService, pour éviter une dépendance
   // circulaire (authService importe ce fichier axios.js).
   const response = await axios.post(
-    `${ENV.API_URL}/auth/refresh`,
+    `${API_URL}/auth/refresh`,
     { refreshToken },
     { timeout: 60000 }
   );
@@ -166,8 +169,6 @@ API.interceptors.response.use(
 
     if (isRefreshing) {
       console.log("[Axios/Refresh] Un refresh est déjà en cours, mise en file d'attente");
-      // Un refresh est déjà en cours : on attend son résultat plutôt que
-      // d'en déclencher un second en parallèle.
       return new Promise((resolve, reject) => {
         pendingRequests.push((newAccessToken) => {
           if (newAccessToken) {
@@ -201,8 +202,8 @@ API.interceptors.response.use(
     } catch (refreshError: any) {
       const refreshStatus = refreshError?.response?.status;
 
-      // Serveur en veille (503) ou injoignable (pas de réponse) : ce n'est PAS
-      // un refresh token invalide. On garde les tokens et on ne déconnecte pas.
+      // Serveur en veille (503) ou injoignable : ce n'est PAS un refresh token
+      // invalide. On garde les tokens et on ne déconnecte pas.
       if (refreshStatus === 503 || !refreshError?.response) {
         console.log("[Axios/Refresh] Serveur indisponible pendant le refresh - session conservée");
         if (refreshStatus === 503) notifyServerSleeping();
@@ -210,9 +211,7 @@ API.interceptors.response.use(
         return Promise.reject(refreshError);
       }
 
-      // Refresh token invalide, expiré, ou déjà révoqué (rejeu détecté) :
-      // impossible de continuer la session, on nettoie tout et on force
-      // le retour à l'écran de login, avec un message adapté à la cause.
+      // Refresh token invalide, expiré, ou révoqué : on nettoie et on force le login.
       console.log("[Axios/Refresh] Le refresh token est invalide/expiré/révoqué - déconnexion");
       await TokenStorage.clearTokens();
       resolvePendingRequests(null);
