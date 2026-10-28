@@ -80,7 +80,7 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  // paddingBottom élevé : la barre d'onglets flottante ne doit pas masquer la dernière carte
+  // paddingBottom élevé :  la barre d'onglets flottante ne doit pas masquer la dernière carte
   listContent: { paddingTop: Spacing.md, paddingBottom: 120, flexGrow: 1 },
   separator: { height: Spacing.sm },
   errorText: { color: Colors.error, textAlign: 'center', marginVertical: Spacing.sm },
