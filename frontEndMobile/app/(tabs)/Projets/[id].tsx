@@ -1,5 +1,5 @@
-import { View, FlatList, ActivityIndicator, StyleSheet, Linking, Pressable } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { View, FlatList, ActivityIndicator, StyleSheet, Linking, Pressable, BackHandler } from 'react-native';
+import { useLocalSearchParams, router, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -9,7 +9,7 @@ import CommitListItem from '@/src/components/features/projects/CommitListItem';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SonarStatusIcon from '@/src/components/features/projects/SonarStatusIcon';
 import SonarQubeConnectModal from '@/src/components/features/connectors/sonarqube/Sonarqubeconnectmodal';
 import { useConnectors } from '@/src/context/ConnectorsContext';
@@ -17,6 +17,24 @@ import { useCommitMeasures } from '@/src/hooks/Oauth_sonarqube/useCommitMeasures
 
 export default function RepoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/Projets');
+    }
+  };
+
+  useEffect(() => {
+    const onBackPress = () => {
+      handleBack();
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, []);
   const {
     isLoading: reposLoading,
     selectedRepo: trackedRepo,
@@ -54,7 +72,7 @@ export default function RepoDetailScreen() {
     return (
       <ScreenContainer
         backgroundColor={Colors.greyLight}
-        header={<ScreenHeader title="Projet" />}
+        header={<ScreenHeader title="Projet" onBack={handleBack} />}
       >
         <View style={styles.centered}>
           <ActivityIndicator color={Colors.black} />
@@ -67,7 +85,7 @@ export default function RepoDetailScreen() {
     return (
       <ScreenContainer
         backgroundColor={Colors.greyLight}
-        header={<ScreenHeader title="Projet" />}
+        header={<ScreenHeader title="Projet" onBack={handleBack} />}
       >
         <View style={styles.centered}>
           <AppText variant="body" style={styles.emptyText}>
@@ -85,6 +103,7 @@ export default function RepoDetailScreen() {
       header={
         <ScreenHeader
           title={trackedRepo.name}
+          onBack={handleBack}
           rightElement={
             <SonarStatusIcon
               isSonarConnected={isSonarConnected}

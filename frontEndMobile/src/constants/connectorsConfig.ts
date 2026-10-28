@@ -1,5 +1,6 @@
 import type { Ionicons } from '@expo/vector-icons';
 import type { ImageSourcePropType } from 'react-native';
+import type { Href } from 'expo-router';
 import Colors from '@/src/constants/colors';
 import Images from '@/src/constants/images';
 
@@ -14,7 +15,7 @@ export type ConnectorConfig = {
   icon?: keyof typeof Ionicons.glyphMap;
   iconImage?: ImageSourcePropType;
   iconBgColor: string;
-  route: string | null;
+  route: Href | null;
 };
 
 export const connectorsConfig: ConnectorConfig[] = [
@@ -32,14 +33,14 @@ export const connectorsConfig: ConnectorConfig[] = [
     description: 'Quality gate monitoring',
     iconImage: Images.sonarQubeLogo,
     iconBgColor: Colors.greyLight,
-    route: null
+    route: null,
   },
   {
     id: 'jenkins',
     title: 'Jenkins',
     description: 'CI/CD pipelines',
     iconImage: Images.JenkinsLogo,
-    iconBgColor: Colors.greyLight ,
+    iconBgColor: Colors.greyLight,
     route: '/Pipelines',
   },
 ];

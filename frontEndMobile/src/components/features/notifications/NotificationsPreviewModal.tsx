@@ -11,6 +11,7 @@ import Spacing from '@/src/styles/spacing';
 import { getNotifications, markNotificationAsRead, Notification } from '@/src/services/notificationsService';
 import NotificationCard from '@/src/components/features/notifications/NotificationCard';
 import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
+import { openCommitDetailFromOutside } from '@/src/utils/openCommitDetail';
 import { useNotificationsGlobal } from '@/src/context/NotificationsContext';
 interface NotificationsPreviewModalProps {
   visible: boolean;
@@ -36,7 +37,7 @@ const NotificationsPreviewModal: React.FC<NotificationsPreviewModalProps> = ({
 
   const handleSeeAll = () => {
     onClose();
-    router.push('/(tabs)/notifications');
+    router.navigate('/(tabs)/notifications');
   };
 
 const handlePress = (notification: Notification) => {
@@ -53,7 +54,7 @@ const handlePress = (notification: Notification) => {
       commitsha: notification.commitsha ?? undefined,
     });
 
-    if (route) router.push(route as any);
+    if (route) openCommitDetailFromOutside(route.repoId, route.sha);
   };
 
   return (

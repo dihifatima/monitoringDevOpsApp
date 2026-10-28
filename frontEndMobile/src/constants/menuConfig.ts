@@ -1,12 +1,13 @@
 // src/constants/menuConfig.ts
 import type { Ionicons } from '@expo/vector-icons';
+import type { Href } from 'expo-router';
 
 export type MenuItem = {
   id: string;
   title: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
-  route: string;
+  route: Href;
 };
 
 export const moreMenuItems: MenuItem[] = [
@@ -38,7 +39,6 @@ export const moreMenuItems: MenuItem[] = [
     icon: 'logo-github',
     route: '/plus/notifications-settings',
   },
-  
   {
     id: 'password',
     title: 'password',

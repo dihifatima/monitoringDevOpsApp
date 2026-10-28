@@ -20,7 +20,7 @@ export default function GithubConnectorRow() {
 
   const handlePress = async () => {
     if (isConnected) {
-      router.push(githubConfig.route as any);
+      if (githubConfig.route) router.push(githubConfig.route);
       return;
     }
 

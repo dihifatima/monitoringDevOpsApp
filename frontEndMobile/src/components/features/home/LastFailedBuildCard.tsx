@@ -1,8 +1,8 @@
 import { View, Pressable, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
 import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
 import { timeAgo } from '@/src/utils/timeAgo';
+import { openCommitDetailFromOutside } from '@/src/utils/openCommitDetail';
 import type { ActivityItem } from '@/src/hooks/home/useRecentActivity';
 
 // S'affiche seulement si le build le plus récent a échoué.
@@ -28,12 +28,11 @@ export default function LastFailedBuildCard({ activity }: { activity: ActivityIt
       <Pressable
         style={styles.btn}
         accessibilityRole="button"
-        onPress={() =>
-          router.push({
-            pathname: '/Projets/commit-detail',
-            params: { repoId: String(latest.repoId), sha: latest.commitSha ?? '' },
-          })
-        }
+        onPress={() => {
+          if (latest.commitSha) {
+            openCommitDetailFromOutside(latest.repoId, latest.commitSha);
+          }
+        }}
       >
         <AppText variant="small" bold color="#fff">
           Voir le détail

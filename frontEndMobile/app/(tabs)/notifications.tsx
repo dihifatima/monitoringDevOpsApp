@@ -12,7 +12,7 @@ import NotificationsHeader from '@/src/components/layout/NotificationsHeader';
 import { Notification } from '@/src/services/notificationsService';
 import { getNotificationTitle } from '@/src/utils/notificationFormat';
 import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
-import { router } from 'expo-router';
+import { openCommitDetailFromOutside } from '@/src/utils/openCommitDetail';
 
 export default function NotificationsScreen() {
   const { user } = useAuthGlobal();
@@ -58,7 +58,7 @@ const handlePress = (notification: Notification) => {
   });
 
   if (route) {
-    router.push(route as any);
+    openCommitDetailFromOutside(route.repoId, route.sha);
   }
 };
 

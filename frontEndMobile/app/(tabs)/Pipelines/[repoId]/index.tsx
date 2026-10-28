@@ -1,5 +1,6 @@
-import { View, FlatList, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
+import { View, FlatList, Pressable, StyleSheet, ActivityIndicator, BackHandler } from 'react-native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
@@ -9,6 +10,24 @@ import { useBuildList } from '@/src/hooks/Oauth_jenkins/useBuildList';
 
 export default function PipelineBuildsScreen() {
   const { repoId } = useLocalSearchParams<{ repoId: string }>();
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/Pipelines');
+    }
+  };
+
+  useEffect(() => {
+    const onBackPress = () => {
+      handleBack();
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, []);
   const numericRepoId = Number(repoId);
   const { builds, isLoading, error } = useBuildList(numericRepoId);
 
@@ -16,7 +35,7 @@ export default function PipelineBuildsScreen() {
     <ScreenContainer
       backgroundColor={Colors.greyLight}
       withTabBar
-      header={<ScreenHeader title="Historique des builds" />}
+      header={<ScreenHeader title="Historique des builds" onBack={handleBack} />}
     >
       <View style={styles.content}>
         {isLoading ? (

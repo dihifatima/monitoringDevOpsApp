@@ -1,5 +1,6 @@
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
+import { View, StyleSheet, ActivityIndicator, BackHandler } from 'react-native';
+import { useLocalSearchParams, router, useNavigation } from 'expo-router';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
@@ -16,6 +17,27 @@ const STATUS_STYLE: Record<string, { bg: string; text: string; pillBg: string }>
 
 export default function BuildDetailScreen() {
   const { repoId, buildNumber } = useLocalSearchParams<{ repoId: string; buildNumber: string }>();
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      router.back();
+    } else {
+      router.replace({
+        pathname: '/Pipelines/[repoId]',
+        params: { repoId },
+      });
+    }
+  };
+
+  useEffect(() => {
+    const onBackPress = () => {
+      handleBack();
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [repoId]);
   const { build, isLoading, error } = useBuildDetail(Number(repoId), Number(buildNumber));
   const { summary: testSummary, isLoading: testsLoading } = useTestSummary(Number(repoId), Number(buildNumber));
 
@@ -24,7 +46,7 @@ export default function BuildDetailScreen() {
       backgroundColor={Colors.greyLight}
       withTabBar
       scrollable
-      header={<ScreenHeader title={`Build #${buildNumber}`} />}
+      header={<ScreenHeader title={`Build #${buildNumber}`} onBack={handleBack} />}
     >
       {isLoading ? (
         <ActivityIndicator color={Colors.black} style={{ marginTop: 10 }} />

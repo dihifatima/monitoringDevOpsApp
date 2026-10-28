@@ -4,8 +4,6 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
-import { router } from 'expo-router';
-import { resolveNotificationRoute } from '@/src/utils/resolveNotificationRoute';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,17 +23,6 @@ export function usePushNotifications() {
     registerForPushNotificationsAsync()
       .then(setExpoPushToken)
       .catch((err) => setError(err.message));
-
-    // Tap sur la notification pendant que l'app est ouverte ou en arrière-plan
-    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data as any;
-      const route = resolveNotificationRoute(data);
-      if (route) router.push(route as any);
-    });
-
-    return () => {
-      responseListener.remove();
-    };
   }, []);
 
   return { expoPushToken, error };

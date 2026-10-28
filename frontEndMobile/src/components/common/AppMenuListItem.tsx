@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import type { ReactNode } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import Colors from '@/src/constants/colors';
 import Typography from '@/src/styles/typography';
 
@@ -16,7 +16,7 @@ type MenuListItemProps = {
   // logo de marque qui n'existe pas dans Ionicons (ex: SonarCloud, Jenkins).
   icon?: keyof typeof Ionicons.glyphMap;
   iconImage?: ImageSourcePropType;
-  route: string | null;
+  route: Href | null;
   iconBgColor?: string;
   iconColor?: string;
   // Nouveau : remplace le chevron par défaut par n'importe quel élément (ex: ConnectorStatusBadge).
@@ -45,7 +45,7 @@ export default function AppMenuListItem({
       return;
     }
     if (route) {
-      router.push(route as any);
+      router.push(route);
     }
   };
 

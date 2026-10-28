@@ -24,7 +24,7 @@ const NotificationsHeader: React.FC<NotificationsHeaderProps> = ({
   return (
     <View style={styles.header}>
       <Pressable
-        onPress={() => router.push('/(tabs)/plus/profile-settings')}
+        onPress={() => router.navigate('/(tabs)/plus/profile-settings')}
         hitSlop={8}
       >
         {avatarUri ? (
@@ -48,7 +48,7 @@ const NotificationsHeader: React.FC<NotificationsHeaderProps> = ({
       </View>
 
       <Pressable
-        onPress={() => router.push('/(tabs)/plus/notifications-settings')}
+        onPress={() => router.navigate('/(tabs)/plus/notifications-settings')}
         hitSlop={8}
       >
         <Ionicons name="settings-outline" size={22} color={Colors.black} />

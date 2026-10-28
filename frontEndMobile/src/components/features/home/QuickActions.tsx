@@ -43,7 +43,7 @@ export default function QuickActions({ badgeKeys = [] }: Props) {
           <Pressable
             key={action.key}
             style={styles.action}
-            onPress={() => router.push(action.path)}
+            onPress={() => router.navigate(action.path)}
             accessibilityRole="button"
           >
             <View style={styles.iconCircle}>

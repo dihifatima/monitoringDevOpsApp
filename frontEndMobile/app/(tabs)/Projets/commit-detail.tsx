@@ -1,5 +1,6 @@
-import { View, Linking, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
+import { View, Linking, Pressable, StyleSheet, ActivityIndicator, BackHandler } from 'react-native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -38,11 +39,33 @@ const FILE_STATUS_COLORS: Record<string, string> = {
 
 export default function CommitDetailScreen() {
   const { repoId, sha } = useLocalSearchParams<{ repoId: string; sha: string }>();
-  const {
-    isLoading: reposLoading,
-    selectedRepo: trackedRepo,
-    commits,
-  } = useRepoDetail(repoId);
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      router.back();
+    } else {
+      router.replace({
+        pathname: '/(tabs)/Projets/[id]',
+        params: { id: repoId },
+      });
+    }
+  };
+
+  useEffect(() => {
+    const onBackPress = () => {
+      handleBack();
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [repoId]);
+const {
+  isLoading: reposLoading,
+  commitsLoading,
+  selectedRepo: trackedRepo,
+  commits,
+} = useRepoDetail(repoId);
 
   // fullName ressemble à "dihifatima/monitoringDevOpsApp" → owner/repo pour l'API GitHub
   const [owner, repo] = trackedRepo?.fullName?.split('/') ?? [undefined, undefined];
@@ -66,7 +89,7 @@ export default function CommitDetailScreen() {
         backgroundColor={Colors.greyLight}
         withTabBar
         scrollable
-        header={<ScreenHeader title="Commit" />}
+        header={<ScreenHeader title="Commit" onBack={handleBack} />}
       >
         <View style={styles.centered}>
           <ActivityIndicator color={Colors.black} />
@@ -75,15 +98,34 @@ export default function CommitDetailScreen() {
     );
   }
 
+  
   const commit = commits.find((c) => c.sha === sha);
 
+// On attend les repos, les commits, ET que owner/repo soient connus
+const stillLoading =
+  reposLoading || commitsLoading || (!commit && !!trackedRepo && commits.length === 0 && detailLoading);
+
+if (stillLoading) {
+  return (
+    <ScreenContainer
+      backgroundColor={Colors.greyLight}
+      withTabBar
+      scrollable
+      header={<ScreenHeader title="Commit" onBack={handleBack} />}
+    >
+      <View style={styles.centered}>
+        <ActivityIndicator color={Colors.black} />
+      </View>
+    </ScreenContainer>
+  );
+}
   if (!commit) {
     return (
       <ScreenContainer
         backgroundColor={Colors.greyLight}
         withTabBar
         scrollable
-        header={<ScreenHeader title="Commit" />}
+        header={<ScreenHeader title="Commit" onBack={handleBack} />}
       >
         <View style={styles.centered}>
           <AppText variant="body" style={styles.emptyText}>
@@ -101,7 +143,7 @@ export default function CommitDetailScreen() {
       backgroundColor={Colors.greyLight}
       withTabBar
       scrollable
-      header={<ScreenHeader title="Détail du commit" />}
+      header={<ScreenHeader title="Détail du commit" onBack={handleBack} />}
     >
       <View style={styles.card}>
         <AppText variant="body" bold>

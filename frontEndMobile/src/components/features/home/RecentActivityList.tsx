@@ -1,10 +1,10 @@
 import { View, Pressable, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
 import { timeAgo } from '@/src/utils/timeAgo';
+import { openCommitDetailFromOutside } from '@/src/utils/openCommitDetail';
 import type { ActivityItem } from '@/src/hooks/home/useRecentActivity';
 
 const STATUS_UI = {
@@ -47,12 +47,11 @@ export default function RecentActivityList({ activity }: { activity: ActivityIte
               key={`${item.repoId}-${item.commitSha}`}
               style={styles.row}
               accessibilityRole="button"
-              onPress={() =>
-                router.push({
-                  pathname: '/Projets/commit-detail',
-                  params: { repoId: String(item.repoId), sha: item.commitSha ?? '' },
-                })
-              }
+              onPress={() => {
+                if (item.commitSha) {
+                  openCommitDetailFromOutside(item.repoId, item.commitSha);
+                }
+              }}
             >
               <View style={[styles.icon, { backgroundColor: ui.bg }]}>
                 <Ionicons name={ui.icon as any} size={18} color={ui.color} />

@@ -13,7 +13,7 @@ export default function MoreScreen() {
     <ScreenContainer
       backgroundColor={Colors.white}
       withTabBar
-      header={<ScreenHeader title="Plus" showBack={true} />}
+      header={<ScreenHeader title="Plus" showBack={false} />}
     >
       <ScrollView
         style={styles.flex}

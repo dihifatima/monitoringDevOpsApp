@@ -60,7 +60,7 @@ export default function HomeScreen() {
 
   const connectionsAction = QUICK_ACTIONS_CATALOG.find((a) => a.label === 'Connexions DevOps');
   const goConnections = () => {
-    if (connectionsAction) router.push(connectionsAction.path);
+    if (connectionsAction) router.navigate(connectionsAction.path);
   };
 
   const steps = buildSteps({
@@ -68,8 +68,10 @@ export default function HomeScreen() {
     reposCount: stats.totalRepos,
     jenkinsLinked,
     onConnectGithub: goConnections,
-    onTrackRepo: () => router.push(githubConfig.route as any),
-    onLinkJenkins: () => router.push('/Pipelines'),
+    onTrackRepo: () => {
+      if (githubConfig.route) router.navigate(githubConfig.route);
+    },
+    onLinkJenkins: () => router.navigate('/(tabs)/Pipelines'),
   });
 
   if (loading) {

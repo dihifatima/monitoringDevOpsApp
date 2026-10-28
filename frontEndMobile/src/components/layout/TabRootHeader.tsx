@@ -43,7 +43,7 @@ const TabRootHeader: React.FC<TabRootHeaderProps> = ({
     <View style={[styles.header, { backgroundColor }]}>
       {/* Avatar — renvoie vers l'édition du profil */}
       <Pressable
-        onPress={() => router.push('/(tabs)/plus/profile-settings')}
+        onPress={() => router.navigate('/(tabs)/plus/profile-settings')}
         hitSlop={4}
         accessibilityRole="button"
         accessibilityLabel="Modifier mon profil"

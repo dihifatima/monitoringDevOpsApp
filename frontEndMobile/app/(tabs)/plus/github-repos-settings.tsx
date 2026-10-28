@@ -49,7 +49,7 @@ const open = (repo: RepoSummary) => {
     Alert.alert('Dépôt non suivi', 'Activez le suivi de ce dépôt pour voir ses commits.');
     return;
   }
-  router.push({
+  router.navigate({
     pathname: '/(tabs)/Projets/[id]',
     params: { id: String(tracked.id) },
   });
