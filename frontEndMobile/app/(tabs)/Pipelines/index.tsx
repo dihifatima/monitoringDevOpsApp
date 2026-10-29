@@ -170,7 +170,7 @@ export default function PipelinesScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 20, paddingTop: 200 },
+  content: { padding: 20, paddingTop: Spacing.md },
   card: {
     backgroundColor: Colors.greyLight,
     borderRadius: Spacing.cardRadius,
