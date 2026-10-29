@@ -115,7 +115,7 @@ export default function PipelinesScreen() {
             </AppText>
             <Pressable style={styles.btn} onPress={onJenkinsButton}>
               <AppText variant="body" color={Colors.white} bold>
-                {jenkinsConnected ? 'Lier un job Jenkins' : 'Connecter Jenkins'}
+                {jenkinsConnected ? 'Lier un job  Jenkins' : 'Connecter Jenkins'}
               </AppText>
             </Pressable>
           </View>
