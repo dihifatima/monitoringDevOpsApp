@@ -114,7 +114,7 @@ export default function ProjetsScreen() {
               style={{ textAlign: 'center', marginVertical: Spacing.md }}
             >
               {githubConnected
-                ? 'Aucun dépôt suivi. Choisissez les dépôts à suivre.'
+                ? 'Aucun dépôt suivi . Choisissez les dépôts à suivre.'
                 : 'Aucun dépôt suivi pour le moment. Connectez GitHub pour commencer.'}
             </AppText>
             <Pressable style={styles.btn} onPress={goGithub}>
