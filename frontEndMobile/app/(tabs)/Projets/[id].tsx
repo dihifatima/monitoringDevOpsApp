@@ -1,40 +1,42 @@
 import { View, FlatList, ActivityIndicator, StyleSheet, Linking, Pressable, BackHandler } from 'react-native';
-import { useLocalSearchParams, router, useNavigation } from 'expo-router';
+import { useLocalSearchParams, router, useNavigation, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useState } from 'react';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
 import CommitListItem from '@/src/components/features/projects/CommitListItem';
-//import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
-import Colors from '@/src/constants/colors';
-import Spacing from '@/src/styles/spacing';
-import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
-import { useState, useEffect } from 'react';
+import SonarQubeSection from '@/src/components/features/projects/SonarQubeSection';
 import SonarStatusIcon from '@/src/components/features/projects/SonarStatusIcon';
 import SonarQubeConnectModal from '@/src/components/features/connectors/sonarqube/Sonarqubeconnectmodal';
+import Colors from '@/src/constants/colors';
+import Spacing from '@/src/styles/spacing';
+import { useTabBarHeight } from '@/src/context/TabBarHeightContext';
 import { useConnectors } from '@/src/context/ConnectorsContext';
+import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
 import { useCommitMeasures } from '@/src/hooks/Oauth_sonarqube/useCommitMeasures';
 
 export default function RepoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
+  const tabBarHeight = useTabBarHeight();
 
   const handleBack = () => {
-    if (navigation.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)/Projets');
-    }
+    if (navigation.canGoBack()) router.back();
+    else router.replace('/(tabs)/Projets');
   };
 
-  useEffect(() => {
-    const onBackPress = () => {
-      handleBack();
-      return true;
-    };
-    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => sub.remove();
-  }, []);
+  // Actif seulement quand cet écran est affiché (évite les écouteurs fantômes)
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        handleBack();
+        return true;
+      });
+      return () => sub.remove();
+    }, [])
+  );
+
   const {
     isLoading: reposLoading,
     selectedRepo: trackedRepo,
@@ -49,10 +51,8 @@ export default function RepoDetailScreen() {
   const isRepoLinked = !!trackedRepo?.sonarProjectKey;
 
   const [isConnectModalVisible, setIsConnectModalVisible] = useState(false);
-  const [forceShowLinkForm, setForceShowLinkForm] = useState(false);
+  const [showLinkForm, setShowLinkForm] = useState(false);
 
-  // ⚠️ trackedRepo peut être undefined tant que le chargement n'est pas fini,
-  // donc on utilise des valeurs de repli (0 / null) le temps du chargement.
   const { analysisByRevision } = useCommitMeasures(
     trackedRepo?.id ?? 0,
     trackedRepo?.sonarProjectKey ?? null
@@ -60,12 +60,11 @@ export default function RepoDetailScreen() {
 
   const handleIconPress = () => {
     if (!isSonarConnected) {
+      // Pas connecté : on demande d'abord la connexion, jamais le formulaire de liaison
       setIsConnectModalVisible(true);
       return;
     }
-    if (!isRepoLinked) {
-      setForceShowLinkForm(true);
-    }
+    if (!isRepoLinked) setShowLinkForm(true);
   };
 
   if (reposLoading) {
@@ -129,22 +128,19 @@ export default function RepoDetailScreen() {
         </AppText>
       </View>
 
-      {/* ↓ Section Sonar : logique conservée du fichier 1 (fonctionnelle)
-      
-      <SonarQubeSection
-        repoId={trackedRepo.id}
-        sonarProjectKey={trackedRepo.sonarProjectKey}
-        onLinked={() => {
-          refresh();
-          setForceShowLinkForm(false);
-        }}
-        forceShowLinkForm={forceShowLinkForm}
-        onDismiss={() => setForceShowLinkForm(false)}
-      />
-      */}
-
-
-
+      {/* Formulaire de liaison : seulement si Sonar est connecté */}
+      {isSonarConnected && showLinkForm && (
+        <SonarQubeSection
+          repoId={trackedRepo.id}
+          sonarProjectKey={trackedRepo.sonarProjectKey}
+          onLinked={() => {
+            refresh();
+            setShowLinkForm(false);
+          }}
+          forceShowLinkForm={showLinkForm}
+          onDismiss={() => setShowLinkForm(false)}
+        />
+      )}
 
       <SonarQubeConnectModal
         visible={isConnectModalVisible}
@@ -181,7 +177,8 @@ export default function RepoDetailScreen() {
               }
             />
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{ paddingBottom: tabBarHeight + Spacing.lg }}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </ScreenContainer>
@@ -196,6 +193,5 @@ const styles = StyleSheet.create({
   trackedAt: { opacity: 0.5, marginTop: Spacing.xs },
   sectionTitle: { marginBottom: Spacing.sm, letterSpacing: 0.5 },
   commitsLoader: { marginTop: Spacing.lg },
-  listContent: { paddingBottom: Spacing.lg + 50 },
   emptyText: { opacity: 0.5 },
 });

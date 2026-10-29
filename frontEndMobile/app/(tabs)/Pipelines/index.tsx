@@ -1,10 +1,16 @@
-import { View, FlatList, StyleSheet, ActivityIndicator, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import AppText from '@/src/components/common/AppText';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import TabRootHeader from '@/src/components/layout/TabRootHeader';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
-import { useState } from 'react';
+import { useAuthGlobal } from '@/src/context/AuthContext';
+import { useConnectors } from '@/src/context/ConnectorsContext';
+import { useTabBarHeight } from '@/src/context/TabBarHeightContext';
+import { connectorsConfig } from '@/src/constants/connectorsConfig';
+import { isConnected } from '@/src/hooks/home/useHomeState';
 import { useSelectedPipelineProject } from '@/src/hooks/Oauth_jenkins/useSelectedPipelineProject';
 import { useBuildList } from '@/src/hooks/Oauth_jenkins/useBuildList';
 import ProjectHeaderSelector from '@/src/components/features/pipelines/ProjectHeaderSelector';
@@ -12,50 +18,104 @@ import PipelineStatsRow from '@/src/components/features/pipelines/PipelineStatsR
 import BuildTrendChart from '@/src/components/features/pipelines/BuildTrendChart';
 import BuildRunRow from '@/src/components/features/pipelines/BuildRunRow';
 import LinkJenkinsJobModal from '@/src/components/features/pipelines/LinkJenkinsJobModal';
-import { Ionicons } from '@expo/vector-icons';
+
+const githubConfig = connectorsConfig.find((c) => c.id === 'github')!;
+const CONNECTIONS_ROUTE = '/(tabs)/plus/devops-connections-settings';
 
 export default function PipelinesScreen() {
+  const { user } = useAuthGlobal();
+  const { connectors } = useConnectors();
+  const tabBarHeight = useTabBarHeight();
   const { entries, selected, selectRepo, isLoading, refetch } = useSelectedPipelineProject();
   const { builds } = useBuildList(selected?.repoId);
   const [linkModalVisible, setLinkModalVisible] = useState(false);
 
+  const githubConnected = isConnected(connectors, 'github');
+  const jenkinsConnected = isConnected(connectors, 'jenkins');
+
   const sortedBuilds = [...builds].sort((a, b) => b.number - a.number);
-  const successCount = builds.filter((b) => b.number).length; // placeholder, corrigé ci-dessous si besoin
+  const recentBuilds = sortedBuilds.slice(0, 10);
 
   const header = (
-    <View style={styles.header}>
-      <View style={styles.headerTop}>
-        <ProjectHeaderSelector entries={entries} selected={selected} onSelect={selectRepo} />
-        <View style={styles.headerIcons}>
-          <Ionicons name="notifications-outline" size={22} color={Colors.black} />
-          <Ionicons name="log-out-outline" size={22} color={Colors.black} />
-        </View>
-      </View>
-      {selected && (
-        <AppText variant="small" color={Colors.grey} style={{ marginTop: 4 }}>
-          {selected.jenkinsJobName ? `Lié à Jenkins · ${builds.length} builds` : 'Pas encore lié'}
-        </AppText>
-      )}
-    </View>
+    <TabRootHeader
+      mode="title"
+      title="Pipelines"
+      avatarUri={user?.profilePicture}
+      backgroundColor={Colors.green}
+    />
   );
 
+  const goGithub = () => {
+    if (githubConnected) {
+      if (githubConfig.route) router.navigate(githubConfig.route);
+    } else {
+      router.navigate(CONNECTIONS_ROUTE);
+    }
+  };
+
+  const onJenkinsButton = () => {
+    if (jenkinsConnected) setLinkModalVisible(true);
+    else router.navigate(CONNECTIONS_ROUTE);
+  };
+
   return (
-    <ScreenContainer backgroundColor={Colors.greyLight} header={header}>
-      <View style={styles.content}>
+    <ScreenContainer backgroundColor={Colors.greyLight} withTabBar header={header}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + Spacing.lg }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {entries.length > 0 && (
+          <>
+            <ProjectHeaderSelector entries={entries} selected={selected} onSelect={selectRepo} />
+            {selected && (
+              <AppText
+                variant="small"
+                color={Colors.grey}
+                style={{ marginTop: 4, marginBottom: Spacing.md }}
+              >
+                {selected.jenkinsJobName
+                  ? `Lié à Jenkins · ${builds.length} builds`
+                  : jenkinsConnected
+                    ? 'Pas encore lié'
+                    : 'Jenkins non connecté'}
+              </AppText>
+            )}
+          </>
+        )}
+
         {isLoading ? (
           <ActivityIndicator color={Colors.black} style={{ marginTop: 20 }} />
         ) : entries.length === 0 ? (
-          <AppText variant="body" style={styles.emptyText}>
-            Aucun dépôt suivi pour le moment.
-          </AppText>
-        ) : !selected?.jenkinsJobName ? (
-          <View style={styles.unlinkedCard}>
-            <AppText variant="body" color={Colors.grey} style={{ textAlign: 'center', marginBottom: Spacing.md }}>
-              Ce projet n'est pas encore lié à un job Jenkins.
+          <View style={styles.card}>
+            <AppText
+              variant="body"
+              color={Colors.black}
+              style={{ textAlign: 'center', marginBottom: Spacing.md }}
+            >
+              {githubConnected
+                ? 'Aucun dépôt suivi. Choisissez les dépôts à suivre.'
+                : 'Aucun dépôt suivi pour le moment. Connectez GitHub pour commencer.'}
             </AppText>
-            <Pressable style={styles.linkBtn} onPress={() => setLinkModalVisible(true)}>
+            <Pressable style={styles.btn} onPress={goGithub}>
               <AppText variant="body" color={Colors.white} bold>
-                Lier un job Jenkins
+                {githubConnected ? 'Suivre un dépôt' : 'Connecter GitHub'}
+              </AppText>
+            </Pressable>
+          </View>
+        ) : !selected?.jenkinsJobName ? (
+          <View style={styles.card}>
+            <AppText
+              variant="body"
+              color={Colors.grey}
+              style={{ textAlign: 'center', marginBottom: Spacing.md }}
+            >
+              {jenkinsConnected
+                ? "Ce projet n'est pas encore lié à un job Jenkins."
+                : "Jenkins n'est pas encore connecté. Connectez-le pour suivre vos builds."}
+            </AppText>
+            <Pressable style={styles.btn} onPress={onJenkinsButton}>
+              <AppText variant="body" color={Colors.white} bold>
+                {jenkinsConnected ? 'Lier un job Jenkins' : 'Connecter Jenkins'}
               </AppText>
             </Pressable>
           </View>
@@ -70,37 +130,33 @@ export default function PipelinesScreen() {
             <AppText variant="body" bold style={{ marginBottom: Spacing.sm }}>
               Builds récents
             </AppText>
-            <ScrollView>
-              <FlatList
-                data={sortedBuilds.slice(0, 10)}
-                keyExtractor={(item) => String(item.number)}
-                scrollEnabled={false}
-                renderItem={({ item, index }) => (
-                  <BuildRunRow
-                    number={item.number}
-                    result={(item as any).result ?? null}
-                    building={(item as any).building ?? false}
-                    duration={(item as any).duration ?? 0}
-                    timestamp={(item as any).timestamp ?? Date.now()}
-                    branch={(item as any).branch ?? null}
-                    triggeredBy={(item as any).triggeredBy ?? null}
-                    isLast={index === sortedBuilds.slice(0, 10).length - 1}
-                    onPress={() =>
-                      router.push({
-                        pathname: '/Pipelines/[repoId]/[buildNumber]',
-                        params: { repoId: String(selected.repoId), buildNumber: String(item.number) },
-                      })
-                    }
-                  />
-                )}
+            {recentBuilds.map((item, index) => (
+              <BuildRunRow
+                key={item.number}
+                number={item.number}
+                result={(item as any).result ?? null}
+                building={(item as any).building ?? false}
+                duration={(item as any).duration ?? 0}
+                timestamp={(item as any).timestamp ?? Date.now()}
+                branch={(item as any).branch ?? null}
+                triggeredBy={(item as any).triggeredBy ?? null}
+                isLast={index === recentBuilds.length - 1}
+                onPress={() =>
+                  router.push({
+                    pathname: '/Pipelines/[repoId]/[buildNumber]',
+                    params: {
+                      repoId: String(selected.repoId),
+                      buildNumber: String(item.number),
+                    },
+                  })
+                }
               />
-            </ScrollView>
-
+            ))}
           </>
         )}
-      </View>
+      </ScrollView>
 
-      {selected && (
+      {selected && jenkinsConnected && (
         <LinkJenkinsJobModal
           visible={linkModalVisible}
           repoId={selected.repoId}
@@ -114,16 +170,17 @@ export default function PipelinesScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 10 },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerIcons: { flexDirection: 'row', gap: 16 },
-  content: { flex: 1, padding: 20, paddingTop: 0 },
-  emptyText: { opacity: 0.5, marginTop: 20 },
-  unlinkedCard: {
-    backgroundColor: Colors.white,
+  content: { padding: 20, paddingTop: 200 },
+  card: {
+    backgroundColor: Colors.greyLight,
     borderRadius: Spacing.cardRadius,
     padding: 30,
     alignItems: 'center',
   },
-  linkBtn: { backgroundColor: Colors.black, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  btn: {
+    backgroundColor: Colors.black,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
 });

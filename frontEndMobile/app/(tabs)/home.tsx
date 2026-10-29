@@ -19,6 +19,7 @@ import RecentActivityList from '@/src/components/features/home/RecentActivityLis
 import LastFailedBuildCard from '@/src/components/features/home/LastFailedBuildCard';
 import OnboardingChecklist from '@/src/components/features/home/OnboardingChecklist';
 import Skeleton from '@/src/components/features/home/Skeleton';
+import { useTabBarHeight } from '@/src/context/TabBarHeightContext';
 
 const githubConfig = connectorsConfig.find((c) => c.id === 'github')!;
 
@@ -27,7 +28,7 @@ export default function HomeScreen() {
   const { stats, isLoading: statsLoading, refresh: refreshStats } = useHomeStats();
   const { activity, isLoading: activityLoading, refresh: refreshActivity } = useRecentActivity();
   const { connectors, isLoading: connectorsLoading } = useConnectors();
-
+const tabBarHeight = useTabBarHeight();
   // Le skeleton ne s'affiche qu'au tout premier chargement
   const hasLoadedOnce = useRef(false);
   if (!statsLoading && !activityLoading) hasLoadedOnce.current = true;
@@ -46,7 +47,7 @@ export default function HomeScreen() {
       mode="greeting"
       fullName={firstName}
       avatarUri={user?.profilePicture}
-      backgroundColor={Colors.whiteLight}
+      backgroundColor={Colors.green}
     />
   );
 
@@ -85,10 +86,15 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScreenContainer backgroundColor={Colors.whiteLight} withTabBar header={header}>
+    <ScreenContainer backgroundColor={Colors.greyLight} withTabBar header={header}>
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {state === 'loading' && (
+<ScrollView
+  contentContainerStyle={[
+    styles.scrollContent,
+    { paddingBottom: tabBarHeight + Spacing.xs },
+  ]}
+  showsVerticalScrollIndicator={false}
+>        {state === 'loading' && (
           <>
             <View style={styles.grid}>
               {[0, 1, 2, 3].map((i) => (

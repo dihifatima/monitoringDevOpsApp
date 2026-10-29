@@ -3,13 +3,25 @@ import TrackedRepoListItem from '@/src/components/features/projects/TrackedRepoL
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import TabRootHeader from '@/src/components/layout/TabRootHeader';
 import Colors from '@/src/constants/colors';
+import { connectorsConfig } from '@/src/constants/connectorsConfig';
 import { useAuthGlobal } from '@/src/context/AuthContext';
+import { useConnectors } from '@/src/context/ConnectorsContext';
+import { useTabBarHeight } from '@/src/context/TabBarHeightContext';
+import { isConnected } from '@/src/hooks/home/useHomeState';
 import { useTrackedRepos } from '@/src/hooks/Oauth_github/useTrackedRepos';
 import Spacing from '@/src/styles/spacing';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import {ActivityIndicator,FlatList,Pressable,ScrollView, StyleSheet,TextInput,View,} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import type { TrackedRepoResponse } from '@/src/services/githubReposService';
 
 type SortMode = 'recent' | 'alpha' | 'language' | 'date';
@@ -20,6 +32,8 @@ const SORT_OPTIONS: { key: SortMode; label: string }[] = [
   { key: 'language', label: 'Langage' },
   { key: 'date', label: 'Date' },
 ];
+
+const githubConfig = connectorsConfig.find((c) => c.id === 'github')!;
 
 function sortRepos(repos: TrackedRepoResponse[], mode: SortMode): TrackedRepoResponse[] {
   const copy = [...repos];
@@ -44,10 +58,14 @@ function sortRepos(repos: TrackedRepoResponse[], mode: SortMode): TrackedRepoRes
 
 export default function ProjetsScreen() {
   const { user } = useAuthGlobal();
+  const { connectors } = useConnectors();
+  const tabBarHeight = useTabBarHeight();
   const { repos: trackedRepos, isLoading, error, refresh } = useTrackedRepos();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('recent');
+
+  const githubConnected = isConnected(connectors, 'github');
 
   const filteredRepos = useMemo(() => {
     const filtered = trackedRepos.filter((repo) =>
@@ -57,14 +75,54 @@ export default function ProjetsScreen() {
   }, [trackedRepos, searchQuery, sortMode]);
 
   const header = (
-    <TabRootHeader mode="title" title="Projets" avatarUri={user?.profilePicture} />
+    <TabRootHeader
+      mode="title"
+      title="Projets"
+      avatarUri={user?.profilePicture}
+      backgroundColor={Colors.green}
+    />
   );
+
+  const goGithub = () => {
+    if (githubConnected) {
+      if (githubConfig.route) router.navigate(githubConfig.route);
+    } else {
+      router.navigate('/(tabs)/plus/devops-connections-settings');
+    }
+  };
 
   if (isLoading) {
     return (
-      <ScreenContainer backgroundColor={Colors.greyLight} header={header}>
+      <ScreenContainer backgroundColor={Colors.greyLight} withTabBar header={header}>
         <View style={styles.centered}>
           <ActivityIndicator color={Colors.black} />
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  // Aucun dépôt suivi : on guide vers la connexion GitHub
+  if (!error && trackedRepos.length === 0) {
+    return (
+      <ScreenContainer backgroundColor={Colors.white} withTabBar header={header}>
+        <View style={styles.emptyWrapper}>
+          <View style={styles.card}>
+            <Ionicons name="logo-github" size={40} color={Colors.black} />
+            <AppText
+              variant="body"
+              color={Colors.black}
+              style={{ textAlign: 'center', marginVertical: Spacing.md }}
+            >
+              {githubConnected
+                ? 'Aucun dépôt suivi. Choisissez les dépôts à suivre.'
+                : 'Aucun dépôt suivi pour le moment. Connectez GitHub pour commencer.'}
+            </AppText>
+            <Pressable style={styles.btn} onPress={goGithub}>
+              <AppText variant="body" color={Colors.white} bold>
+                {githubConnected ? 'Suivre un dépôt' : 'Connecter GitHub'}
+              </AppText>
+            </Pressable>
+          </View>
         </View>
       </ScreenContainer>
     );
@@ -73,7 +131,8 @@ export default function ProjetsScreen() {
   return (
     <ScreenContainer backgroundColor={Colors.greyLight} withTabBar header={header}>
       <AppText variant="small" style={styles.subtitle}>
-        {trackedRepos.length} dépôt{trackedRepos.length > 1 ? 's' : ''} suivi{trackedRepos.length > 1 ? 's' : ''}
+        {trackedRepos.length} dépôt{trackedRepos.length > 1 ? 's' : ''} suivi
+        {trackedRepos.length > 1 ? 's' : ''}
       </AppText>
 
       <View style={styles.searchRow}>
@@ -92,30 +151,28 @@ export default function ProjetsScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsRow}
-        contentContainerStyle={styles.chipsContent}
-      >
-        {SORT_OPTIONS.map((option) => {
-          const active = option.key === sortMode;
-          return (
-            <Pressable
-              key={option.key}
-              onPress={() => setSortMode(option.key)}
-              style={[styles.chip, active && styles.chipActive]}
-            >
-              <AppText
-                variant="small"
-                style={active ? styles.chipTextActive : styles.chipText}
+      <View style={styles.chipsRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsContent}
+        >
+          {SORT_OPTIONS.map((option) => {
+            const active = option.key === sortMode;
+            return (
+              <Pressable
+                key={option.key}
+                onPress={() => setSortMode(option.key)}
+                style={[styles.chip, active && styles.chipActive]}
               >
-                {option.label}
-              </AppText>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+                <AppText variant="small" style={active ? styles.chipTextActive : styles.chipText}>
+                  {option.label}
+                </AppText>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
 
       <AppText variant="small" style={styles.resultsCount}>
         {filteredRepos.length} RÉSULTAT{filteredRepos.length > 1 ? 'S' : ''}
@@ -130,7 +187,7 @@ export default function ProjetsScreen() {
       ) : filteredRepos.length === 0 ? (
         <View style={styles.centered}>
           <AppText variant="body" style={styles.emptyText}>
-            Aucun projet suivi pour l'instant
+            Aucun dépôt ne correspond à votre recherche
           </AppText>
         </View>
       ) : (
@@ -148,7 +205,8 @@ export default function ProjetsScreen() {
               }
             />
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={{ paddingBottom: tabBarHeight + Spacing.lg }}
+          showsVerticalScrollIndicator={false}
           onRefresh={refresh}
           refreshing={isLoading}
         />
@@ -159,9 +217,21 @@ export default function ProjetsScreen() {
 
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  listContent: { paddingBottom: Spacing.lg + 50 },
+  emptyWrapper: { flex: 1, justifyContent: 'center' },
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.cardRadius,
+    padding: 30,
+    alignItems: 'center',
+  },
+  btn: {
+    backgroundColor: Colors.black,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
   errorText: { color: Colors.error ?? '#D32F2F' },
-  emptyText: { opacity: 0.5 },
+  emptyText: { opacity: 0.5, textAlign: 'center' },
   subtitle: { opacity: 0.5, marginBottom: Spacing.sm },
   searchRow: {
     flexDirection: 'row',
@@ -188,8 +258,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chipsRow: { marginBottom: Spacing.sm },
-  chipsContent: { gap: 8, paddingRight: Spacing.md },
+  // flexGrow: 0 + hauteur fixe : le ScrollView horizontal ne s'étire plus verticalement
+  chipsRow: { flexGrow: 0, flexShrink: 0, height: 40, marginBottom: Spacing.sm },
+  chipsContent: { gap: 8, paddingRight: Spacing.md, alignItems: 'center' },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,

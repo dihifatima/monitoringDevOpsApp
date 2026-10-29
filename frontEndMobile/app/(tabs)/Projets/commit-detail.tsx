@@ -1,16 +1,23 @@
-import { useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { View, Linking, Pressable, StyleSheet, ActivityIndicator, BackHandler } from 'react-native';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppText from '@/src/components/common/AppText';
 import Colors from '@/src/constants/colors';
 import Spacing from '@/src/styles/spacing';
+import { useTabBarHeight } from '@/src/context/TabBarHeightContext';
+import { useConnectors } from '@/src/context/ConnectorsContext';
+import { isConnected } from '@/src/hooks/home/useHomeState';
 import { useRepoDetail } from '@/src/hooks/Oauth_github/useRepoDetail';
 import { useCommitMeasures } from '@/src/hooks/Oauth_sonarqube/useCommitMeasures';
 import { useCommitDetail } from '@/src/hooks/Oauth_github/useCommitDetail';
 import { useCommitBuild } from '@/src/hooks/Oauth_jenkins/useBuildForCommit';
+import SonarQubeConnectModal from '@/src/components/features/connectors/sonarqube/Sonarqubeconnectmodal';
+
+const CONNECTIONS_ROUTE = '/(tabs)/plus/devops-connections-settings';
+
 const METRIC_LABELS: Record<string, string> = {
   bugs: 'Bugs',
   vulnerabilities: 'Vulnérabilités',
@@ -36,38 +43,44 @@ const FILE_STATUS_COLORS: Record<string, string> = {
   renamed: '#4A90D9',
 };
 
-
 export default function CommitDetailScreen() {
   const { repoId, sha } = useLocalSearchParams<{ repoId: string; sha: string }>();
   const navigation = useNavigation();
+  const tabBarHeight = useTabBarHeight();
+  const { connectors } = useConnectors();
+  const [sonarModalVisible, setSonarModalVisible] = useState(false);
 
   const handleBack = () => {
     if (navigation.canGoBack()) {
       router.back();
     } else {
-      router.replace({
-        pathname: '/(tabs)/Projets/[id]',
-        params: { id: repoId },
-      });
+      router.replace({ pathname: '/(tabs)/Projets/[id]', params: { id: repoId } });
     }
   };
 
-  useEffect(() => {
-    const onBackPress = () => {
-      handleBack();
-      return true;
-    };
-    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => sub.remove();
-  }, [repoId]);
-const {
-  isLoading: reposLoading,
-  commitsLoading,
-  selectedRepo: trackedRepo,
-  commits,
-} = useRepoDetail(repoId);
+  // Actif seulement quand cet écran est affiché
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        handleBack();
+        return true;
+      });
+      return () => sub.remove();
+    }, [repoId])
+  );
 
-  // fullName ressemble à "dihifatima/monitoringDevOpsApp" → owner/repo pour l'API GitHub
+  const {
+    isLoading: reposLoading,
+    commitsLoading,
+    selectedRepo: trackedRepo,
+    commits,
+  } = useRepoDetail(repoId);
+
+  const sonarConnected = isConnected(connectors, 'sonarqube');
+  const jenkinsConnected = isConnected(connectors, 'jenkins');
+  const sonarLinked = !!trackedRepo?.sonarProjectKey;
+
+  // fullName ressemble à "dihifatima/monitoringDevOpsApp"
   const [owner, repo] = trackedRepo?.fullName?.split('/') ?? [undefined, undefined];
 
   const {
@@ -82,8 +95,14 @@ const {
   );
   const { build, isLoading: buildLoading } = useCommitBuild(trackedRepo?.id, sha);
 
+  const commit = commits.find((c) => c.sha === sha);
 
-  if (reposLoading) {
+  const stillLoading =
+    reposLoading ||
+    commitsLoading ||
+    (!commit && !!trackedRepo && commits.length === 0 && detailLoading);
+
+  if (stillLoading) {
     return (
       <ScreenContainer
         backgroundColor={Colors.greyLight}
@@ -98,27 +117,6 @@ const {
     );
   }
 
-  
-  const commit = commits.find((c) => c.sha === sha);
-
-// On attend les repos, les commits, ET que owner/repo soient connus
-const stillLoading =
-  reposLoading || commitsLoading || (!commit && !!trackedRepo && commits.length === 0 && detailLoading);
-
-if (stillLoading) {
-  return (
-    <ScreenContainer
-      backgroundColor={Colors.greyLight}
-      withTabBar
-      scrollable
-      header={<ScreenHeader title="Commit" onBack={handleBack} />}
-    >
-      <View style={styles.centered}>
-        <ActivityIndicator color={Colors.black} />
-      </View>
-    </ScreenContainer>
-  );
-}
   if (!commit) {
     return (
       <ScreenContainer
@@ -165,7 +163,6 @@ if (stillLoading) {
         </AppText>
       </View>
 
-      {/* ↓ NOUVEAU : stats globales (additions/deletions/fichiers) */}
       {detailLoading ? (
         <ActivityIndicator color={Colors.black} style={{ marginBottom: Spacing.lg }} />
       ) : detailError ? (
@@ -201,7 +198,6 @@ if (stillLoading) {
             </View>
           </View>
 
-          {/* ↓ NOUVEAU : liste des fichiers modifiés */}
           {commitDetail.files && commitDetail.files.length > 0 && (
             <>
               <AppText variant="body" bold style={styles.sectionTitle}>
@@ -224,7 +220,10 @@ if (stillLoading) {
                         <View
                           style={[
                             styles.statusBadge,
-                            { backgroundColor: (FILE_STATUS_COLORS[file.status] ?? Colors.grey) + '22' },
+                            {
+                              backgroundColor:
+                                (FILE_STATUS_COLORS[file.status] ?? Colors.grey) + '22',
+                            },
                           ]}
                         >
                           <AppText
@@ -251,12 +250,42 @@ if (stillLoading) {
         </>
       ) : null}
 
+      {/* ───────── Qualité du code (SonarQube) ───────── */}
       <AppText variant="body" bold style={styles.sectionTitle}>
         Qualité du code
       </AppText>
-     
 
-      {measuresLoading ? (
+      {!sonarConnected ? (
+        <View style={styles.card}>
+          <AppText variant="small" style={styles.emptyText}>
+            SonarQube n'est pas encore connecté.
+          </AppText>
+          <Pressable style={styles.actionBtn} onPress={() => setSonarModalVisible(true)}>
+            <AppText variant="small" color={Colors.white} bold>
+              Connecter SonarQube
+            </AppText>
+          </Pressable>
+        </View>
+      ) : !sonarLinked ? (
+        <View style={styles.card}>
+          <AppText variant="small" style={styles.emptyText}>
+            Ce projet n'est pas encore lié à un projet SonarQube.
+          </AppText>
+          <Pressable
+            style={styles.actionBtn}
+            onPress={() =>
+              router.navigate({
+                pathname: '/(tabs)/Projets/[id]',
+                params: { id: String(trackedRepo?.id ?? repoId) },
+              })
+            }
+          >
+            <AppText variant="small" color={Colors.white} bold>
+              Lier le projet
+            </AppText>
+          </Pressable>
+        </View>
+      ) : measuresLoading ? (
         <ActivityIndicator color={Colors.black} />
       ) : !analysis ? (
         <View style={styles.card}>
@@ -288,44 +317,65 @@ if (stillLoading) {
           </View>
         </View>
       )}
-       <AppText variant="body" bold style={styles.sectionTitle}>
-  Build Jenkins
-</AppText>
 
-{buildLoading ? (
-  <ActivityIndicator color={Colors.black} />
-) : !build ? (
-  <View style={styles.card}>
-    <AppText variant="small" style={styles.emptyText}>
-      Ce commit n'a pas encore été inclus dans un build Jenkins.
-    </AppText>
-  </View>
-) : (
-  <View style={styles.card}>
-    <View style={styles.buildHeaderRow}>
-      <AppText variant="h3" bold>
-        Build #{build.number}
+      {/* ───────── Build Jenkins ───────── */}
+      <AppText variant="body" bold style={styles.sectionTitle}>
+        Build Jenkins
       </AppText>
-      <View
-        style={[
-          styles.statusBadge,
-          { backgroundColor: (build.result === 'SUCCESS' ? '#3E8E4F' : '#C0392B') + '22' },
-        ]}
-      >
-        <AppText
-          variant="small"
-          color={build.result === 'SUCCESS' ? '#3E8E4F' : '#C0392B'}
-          style={styles.statusText}
-        >
-          {build.result ?? (build.building ? 'EN COURS' : 'INCONNU')}
-        </AppText>
-      </View>
-    </View>
-    <AppText variant="small" style={styles.analysisDate}>
-      {new Date(build.timestamp).toLocaleString()} · {Math.round(build.duration / 1000)}s
-    </AppText>
-  </View>
-)}
+
+      {!jenkinsConnected ? (
+        <View style={styles.card}>
+          <AppText variant="small" style={styles.emptyText}>
+            Jenkins n'est pas encore connecté.
+          </AppText>
+          <Pressable style={styles.actionBtn} onPress={() => router.navigate(CONNECTIONS_ROUTE)}>
+            <AppText variant="small" color={Colors.white} bold>
+              Connecter Jenkins
+            </AppText>
+          </Pressable>
+        </View>
+      ) : buildLoading ? (
+        <ActivityIndicator color={Colors.black} />
+      ) : !build ? (
+        <View style={styles.card}>
+          <AppText variant="small" style={styles.emptyText}>
+            Ce commit n'a pas encore été inclus dans un build Jenkins.
+          </AppText>
+        </View>
+      ) : (
+        <View style={styles.card}>
+          <View style={styles.buildHeaderRow}>
+            <AppText variant="h3" bold>
+              Build #{build.number}
+            </AppText>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: (build.result === 'SUCCESS' ? '#3E8E4F' : '#C0392B') + '22' },
+              ]}
+            >
+              <AppText
+                variant="small"
+                color={build.result === 'SUCCESS' ? '#3E8E4F' : '#C0392B'}
+                style={styles.statusText}
+              >
+                {build.result ?? (build.building ? 'EN COURS' : 'INCONNU')}
+              </AppText>
+            </View>
+          </View>
+          <AppText variant="small" style={styles.analysisDate}>
+            {new Date(build.timestamp).toLocaleString()} · {Math.round(build.duration / 1000)}s
+          </AppText>
+        </View>
+      )}
+
+      {/* Espace pour que la barre d'onglets flottante ne cache pas la dernière carte */}
+      <View style={{ height: tabBarHeight }} />
+
+      <SonarQubeConnectModal
+        visible={sonarModalVisible}
+        onClose={() => setSonarModalVisible(false)}
+      />
     </ScreenContainer>
   );
 }
@@ -348,13 +398,15 @@ const styles = StyleSheet.create({
   cell: { width: '33%', alignItems: 'center', marginBottom: Spacing.md },
   cellLabel: { textAlign: 'center', marginTop: 2 },
   emptyText: { opacity: 0.5 },
-
-  // ↓ NOUVEAU
-  statsRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
+  actionBtn: {
+    backgroundColor: Colors.black,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: Spacing.sm,
   },
+  statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
   statPill: {
     flex: 1,
     backgroundColor: Colors.white,
@@ -362,31 +414,17 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     alignItems: 'center',
   },
-  fileRow: {
-    paddingVertical: Spacing.sm,
-  },
-  fileRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.greyLight,
-  },
+  fileRow: { paddingVertical: Spacing.sm },
+  fileRowBorder: { borderBottomWidth: 1, borderBottomColor: Colors.greyLight },
   fileInfo: { flex: 1 },
   filename: { fontFamily: 'monospace' as any },
-  fileMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 4,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
+  fileMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
   statusText: { fontWeight: '700' as any },
   fileStat: { fontWeight: '600' as any },
   buildHeaderRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-},
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 });

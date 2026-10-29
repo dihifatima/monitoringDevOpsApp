@@ -47,14 +47,14 @@ export default function AppInput({
           <Ionicons
             name={icon}
             size={18}
-            color={Colors.grey}
+            color={Colors.black}
             style={styles.icon}
           />
         ) : null}
 
         <TextInput
           style={[styles.input, !editable && styles.inputDisabled, style]}
-          placeholderTextColor={Colors.GrisPerle}
+          placeholderTextColor={Colors.grey}
           secureTextEntry={secureToggle ? hidden : secureTextEntry}
           editable={editable}
           {...rest}
@@ -65,7 +65,7 @@ export default function AppInput({
             <Ionicons
               name={hidden ? 'eye-outline' : 'eye-off-outline'}
               size={18}
-              color={Colors.GrisPerle}
+              color={Colors.black}
             />
           </Pressable>
         )}
@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
   },
   inputContainerError: { borderColor: Colors.error },
   inputContainerDisabled: {
-    backgroundColor: '#F2F2F2', // gris clair, signale "non modifiable"
+    backgroundColor: Colors.greyLight, 
+    color: Colors.black,
   },
   icon: { marginRight: Spacing.sm },
   input: {

@@ -52,10 +52,7 @@ export default function ProfileSettings() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <AvatarPicker
-          imageUri={profile?.profilePicture}
-          onPress={() => {}}
-        />
+       
 
         <AppForm
           fields={fields}

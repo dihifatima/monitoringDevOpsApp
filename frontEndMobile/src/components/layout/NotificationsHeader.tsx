@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.screenPadding,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.green,
     gap: Spacing.sm,
   },
   avatar: {
@@ -72,15 +72,15 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   avatarPlaceholder: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#DCE9FB',
+    width: 40,
+    height: 40,
+    borderRadius: 40,
+    backgroundColor: Colors.success,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarInitial: {
-    color: '#2E7CF6',
+    color: Colors.white,
   },
   searchBar: {
     flex: 1,
