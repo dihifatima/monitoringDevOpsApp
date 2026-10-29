@@ -54,7 +54,7 @@ public class GoogleAuthService {
         }
 
         if (idToken == null) {
-            throw new BadCredentialsException("Invalid Google    token");
+            throw new BadCredentialsException("Invalid Google  token");
         }
 
         GoogleIdToken.Payload payload = idToken.getPayload();
